@@ -18,7 +18,6 @@ export default {
     name: "FileList",
     data() {
         return {
-            // api: window.apiHandler,
             fileList,
         }
     },
