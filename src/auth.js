@@ -24,7 +24,8 @@ function getcurips() {
     // window.lapi.ips = ips
     return ips;
 }
-var getLocalApiHandler = function () {
+
+export function getLocalApiHandler(func) {
     var apiHandler = {};
     var ips = getcurips();
     var hosturl = "ws://" + ips + "/ws/";
@@ -47,10 +48,11 @@ var getLocalApiHandler = function () {
         console.log("sid=", reply.sid);
         console.log("uid=", reply.uid);
         console.log("lapi=", apiHandler);
+        window.lapi = apiHandler
+        func()
         return apiHandler;
         //查询应用            
         //showapps(sid)
-    });
+    })
 };
-window.lapi = getLocalApiHandler()
-export var lapi = window.lapi;
+

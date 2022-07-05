@@ -32,35 +32,33 @@ if (window.getParam != null){
 return ips
 }
 
-let getLocalApiHandler = ()=>{
-let apiHandler: any = {};
-let ips = getcurips()
-let hosturl = "ws://" + ips +"/ws/"
-let baseurl = "http://" + ips + "/"
-//生成操作句柄
-apiHandler.client = window.hprose.Client.create(hosturl, ayApi);
+export function getLocalApiHandler() {
+    let apiHandler: any = {};
+    let ips = getcurips()
+    let hosturl = "ws://" + ips +"/ws/"
+    let baseurl = "http://" + ips + "/"
+    //生成操作句柄
+    apiHandler.client = window.hprose.Client.create(hosturl, ayApi);
 
-//以上部分可以提取公用代码
-return apiHandler.client.GetVarByContext("", "ppt")
-.then((ppt:string)=>{
-    console.log("ppt=", ppt)
-    console.log("data=", JSON.parse(ppt).Data)
-    return apiHandler.client.Login(ppt)
-    })
-.then((reply:any)=>{
-    apiHandler.ips = ips
-    apiHandler.isLogined = true
-    apiHandler.baseUrl = baseurl
-    apiHandler.sid = reply.sid
-    apiHandler.leitherid = reply.uid
+    //以上部分可以提取公用代码
+    return apiHandler.client.GetVarByContext("", "ppt")
+    .then((ppt:string)=>{
+        console.log("ppt=", ppt)
+        console.log("data=", JSON.parse(ppt).Data)
+        return apiHandler.client.Login(ppt)
+        })
+    .then((reply:any)=>{
+        apiHandler.ips = ips
+        apiHandler.isLogined = true
+        apiHandler.baseUrl = baseurl
+        apiHandler.sid = reply.sid
+        apiHandler.leitherid = reply.uid
 
-    console.log("sid=", reply.sid)
-    console.log("uid=", reply.uid)
-    console.log("lapi=", apiHandler)
-    return apiHandler
-    //查询应用            
-    //showapps(sid)
-    })
+        console.log("sid=", reply.sid)
+        console.log("uid=", reply.uid)
+        console.log("apiHandler=", apiHandler)
+        return apiHandler
+        //查询应用            
+        //showapps(sid)
+        })
 }
-
-export const lapi = getLocalApiHandler()

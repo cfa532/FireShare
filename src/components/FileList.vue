@@ -9,16 +9,15 @@
 <script lang="ts">
 console.log("FileList.vue")
 interface ScorePair {score:number, member:string}
-interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
+declare interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
       
 let api: any = {}
-        const fileList: FVPair[] = []
 
 export default {
     name: "FileList",
     data() {
         return {
-            fileList,
+            fileList: [] as FVPair[],
         }
     },
     methods: {
@@ -38,12 +37,13 @@ export default {
             }, (err:Error)=>{
                 console.error("Open file error=", err)
             })
+        },
+        getFileList: function() {
+
         }
     },
     created() {
-        api = window.lapi._value
-    },
-    mounted() {
+        api = window.lapi
         let self = this
         api.client.MMCreate(api.sid,"","","file_list", 2, "", (mid:string)=>{
             api.mid=mid
@@ -71,6 +71,8 @@ export default {
         }, (err:Error)=>{
             console.error("MM Create error=", err)
         })
+    },
+    mounted() {
     }
 }
 </script>
