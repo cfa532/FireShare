@@ -1,41 +1,20 @@
-<template>
-<div class="file">
-  <form @submit.prevent="onSubmit" enctype="multipart/form-data">
-    <div class="fields">
-      <input
-        type="file"
-        ref="file"
-        @change="onSelect"
-      />
-    </div>
-    <div class="fields">
-      <button>Submit</button>
-    </div>
-    <div class="message">
-      <h5>{{message}}</h5>
-    </div>
-  </form>
-</div>
-</template>
-
 <script lang="ts">
 import { defineComponent } from "vue"
 
 console.log("Uploader.vue")
 interface ScorePair {score:number, member:string}
-interface FVPair {name:string, lastModified:number, size:number, type:string}
+class FVPair {name=""; lastModified=0; size=0; type=""; macid=""}
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget
 }
 
 export default defineComponent({
   name: "Uploader",
-  components: {
-  },
+  inject: ["lapi", "fileList"],
   data() {
     return {
       file: {} as File,
-      message: ""
+      message: "",
     }
   },
   methods: {
@@ -46,7 +25,9 @@ export default defineComponent({
       console.log(this.file)
     },
     async onSubmit() {
-      const api = window.lapi.client;
+      const api = (this as any).lapi    // window.lapi
+      const fileList = (this as any).fileList
+      console.log("onsubmit", fileList)
       const r = new FileReader();
       const sliceSize = 1024*1024*1
       r.onerror = e=> {
@@ -72,8 +53,16 @@ export default defineComponent({
                   }
                   api.client.Zadd(mmsid, "file_list", sp, (ret:number)=>{
                     console.log("Zadd ret=", ret)
+                    let fi = new FVPair()
+                    fi.name = _this.file.name,
+                    fi.lastModified = _this.file.lastModified,
+                    fi.size = _this.file.size,
+                    fi.type = _this.file.type
+                    console.log(fi)
                     api.client.Hset(mmsid, "file_list", macid, fi, (ret:number)=>{
                       console.log("Hset ret=", ret);
+                      fi.macid = macid
+                      fileList.unshift(fi)
                     }, (err:Error)=>{
                       console.error("Hset error=", err)
                     })
@@ -105,17 +94,31 @@ export default defineComponent({
           console.error("open temp file error ", err);
         });
       }
-      var fi:FVPair = {
-        name: this.file.name,
-        lastModified: this.file.lastModified,
-        size: this.file.size,
-        type: this.file.type
-      }
-      console.log(fi)
 
       // read uploaded file
-      r.readAsArrayBuffer(this.file);
+      let _this = this
+      r.readAsArrayBuffer(_this.file);
     } 
   }
 })
 </script>
+
+<template>
+<div class="file">
+  <form @submit.prevent="onSubmit" enctype="multipart/form-data">
+    <div class="fields">
+      <input
+        type="file"
+        ref="file"
+        @change="onSelect"
+      />
+    </div>
+    <div class="fields">
+      <button>Submit</button>
+    </div>
+    <div class="message">
+      <h5>{{message}}</h5>
+    </div>
+  </form>
+</div>
+</template>

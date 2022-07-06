@@ -1,5 +1,4 @@
 <script lang="ts">
-import Uploader from "./Uploader.vue"
 import FileList from "./FileList.vue"
 import { defineComponent, provide } from "vue";
 console.log("manager.js")  
@@ -7,7 +6,7 @@ console.log("manager.js")
 export default defineComponent({
     name: "Manager",
     components: {
-        Uploader, FileList
+        FileList
     },
     data() {
         return {
@@ -17,7 +16,6 @@ export default defineComponent({
     methods: {
     },
     created() {
-
     },
 })
 </script>
@@ -27,8 +25,6 @@ export default defineComponent({
             <p class="main_header_title">文件列表</p>
         </div>
         <div class="main_item">
-            <Uploader></Uploader>
-            <hr/>
             <FileList></FileList>
         </div>
         <div class="main_item">

@@ -1,5 +1,7 @@
 <template>
 <div class="file">
+    <Uploader></Uploader>
+        <hr/>
     <div v-for="(file, index) in fileList" :key="index">
         <a href="#" ref="file"  @click.prevent="loadFile(file)">{{file.name}}</a>
     </div>
@@ -7,19 +9,29 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, computed } from "vue";
+import Uploader from "./Uploader.vue"
 console.log("FileList.vue")
 interface ScorePair {score:number, member:string}
 declare interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
       
 let api: any = {}
 
-export default {
+export default defineComponent({
     name: "FileList",
+    components: { Uploader },
     data() {
         return {
             fileList: [] as FVPair[],
         }
     },
+    provide() {
+        return {
+            // fileList: "testing privide"
+            fileList: computed(() => this.fileList)
+        }
+    },
+    inject:["lapi"],    // Leither api handler
     methods: {
         loadFile: function(file: FVPair) {
             console.log("load file content", file.macid, file.size)
@@ -42,9 +54,9 @@ export default {
 
         }
     },
-    created() {
-        api = window.lapi
+    mounted() {
         let self = this
+        api = (this as any).lapi    // window.lapi
         api.client.MMCreate(api.sid,"","","file_list", 2, "", (mid:string)=>{
             api.mid=mid
             console.log("Load MM id=", mid);
@@ -72,7 +84,5 @@ export default {
             console.error("MM Create error=", err)
         })
     },
-    mounted() {
-    }
-}
+})
 </script>
