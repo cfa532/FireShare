@@ -58,11 +58,10 @@ export default defineComponent({
                     fi.lastModified = _this.file.lastModified,
                     fi.size = _this.file.size,
                     fi.type = _this.file.type
-                    console.log(fi)
                     api.client.Hset(mmsid, "file_list", macid, fi, (ret:number)=>{
-                      console.log("Hset ret=", ret);
                       fi.macid = macid
-                      fileList.unshift(fi)
+                      console.log("Hset ret=", ret, fi);
+                      fileList.find((e:FVPair)=>{return e.macid===macid}) ? null:fileList.unshift(fi);
                     }, (err:Error)=>{
                       console.error("Hset error=", err)
                     })
