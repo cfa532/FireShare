@@ -1,13 +1,3 @@
-<template>
-<div class="file">
-    <Uploader></Uploader>
-        <hr/>
-    <div v-for="(file, index) in fileList" :key="index">
-        <a href="#" ref="file"  @click.prevent="loadFile(file)">{{file.name}}</a>
-    </div>
-</div>
-</template>
-
 <script lang="ts">
 import { defineComponent, computed } from "vue";
 import Uploader from "./Uploader.vue"
@@ -86,3 +76,13 @@ export default defineComponent({
     },
 })
 </script>
+
+<template>
+<div class="file">
+    <Uploader></Uploader>
+        <hr/>
+    <div v-for="(file, index) in fileList" :key="index">
+        <a href="#" ref="file"  @click.prevent="loadFile(file)">{{file.name}}</a>
+    </div>
+</div>
+</template>

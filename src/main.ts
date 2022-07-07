@@ -1,4 +1,4 @@
-import { createApp, provide } from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
 import { getLocalApiHandler } from './auth.js'
 

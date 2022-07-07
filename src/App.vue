@@ -5,7 +5,7 @@ import Manager from './components/Manager.vue'
 </script>
 
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" style="width: 50px;"/>
+  <!-- <img alt="Vue logo" src="logo.png" style="width: 50px;"/> -->
   <manager/>
 </template>
 

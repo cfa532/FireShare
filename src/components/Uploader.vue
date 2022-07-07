@@ -27,7 +27,7 @@ export default defineComponent({
     async onSubmit() {
       const api = (this as any).lapi    // window.lapi
       const fileList = (this as any).fileList
-      console.log("onsubmit", fileList)
+      // console.log("onsubmit", fileList)
       const r = new FileReader();
       const sliceSize = 1024*1024*1
       r.onerror = e=> {
