@@ -78,7 +78,7 @@ export default defineComponent({
 </script>
 
 <template>
-<div class="file">
+<div>
     <Uploader></Uploader>
         <hr/>
     <div v-for="(file, index) in fileList" :key="index">

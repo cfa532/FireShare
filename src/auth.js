@@ -15,18 +15,19 @@ function getcurips() {
     }
     else if (window.location.host != "") {
         ips = window.location.host;
+        console.log("location=", ips)
         // hosturl = "ws://" + window.location.host + "/ws/"
         // baseurl = "http://" +  window.location.host + "/"
     }
     { //for test
-        ips = "192.168.1.104:4800";
+        // ips = "192.168.1.104:4800";
     }
     // window.lapi.ips = ips
     return ips;
 }
 
 export function getLocalApiHandler() {
-    var apiHandler = {};
+    var apiHandler = {}; 
     var ips = getcurips();
     var hosturl = "ws://" + ips + "/ws/";
     var baseurl = "http://" + ips + "/";
@@ -45,8 +46,6 @@ export function getLocalApiHandler() {
         apiHandler.baseUrl = baseurl;
         apiHandler.sid = reply.sid;
         apiHandler.leitherid = reply.uid;
-        console.log("sid=", reply.sid);
-        console.log("uid=", reply.uid);
         console.log("lapi=", apiHandler);
         return apiHandler;
         //查询应用            

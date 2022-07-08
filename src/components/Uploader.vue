@@ -103,19 +103,19 @@ export default defineComponent({
 </script>
 
 <template>
-<div class="file">
+<div>
   <form @submit.prevent="onSubmit" enctype="multipart/form-data">
-    <div class="fields">
+    <div>
       <input
         type="file"
         ref="file"
         @change="onSelect"
       />
     </div>
-    <div class="fields">
+    <div>
       <button>Submit</button>
     </div>
-    <div class="message">
+    <div>
       <h5>{{message}}</h5>
     </div>
   </form>
