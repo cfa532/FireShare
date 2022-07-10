@@ -11,25 +11,25 @@ const ayApi = ["GetVarByContext", "Act", "Login", "Getvar","Getnodeip", "SwarmLo
 "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile"]
 
 function getcurips(){
-//缺省的地址，用于本地调试程序
-let ips = "127.0.0.1:4800"
-//获取节点链接
-if (window.getParam != null){
-    let p=window.getParam()
-    console.log("p=", p)
-    ips = p["ips"][p.CurNode]
-    // hosturl = "ws://" + p["ips"][p.CurNode] + "/ws/"
-    // baseurl = "http://" + p["ips"][p.CurNode] + "/"
-} else if (window.location.host != ""){
-    ips = window.location.host
-    // hosturl = "ws://" + window.location.host + "/ws/"
-    // baseurl = "http://" +  window.location.host + "/"
-}
-{ //for test
-    ips = "192.168.1.104:4800"
-}
-// window.lapi.ips = ips
-return ips
+    //缺省的地址，用于本地调试程序
+    let ips = "127.0.0.1:4800"
+    //获取节点链接
+    if (window.getParam != null){
+        let p=window.getParam()
+        console.log("p=", p)
+        ips = p["ips"][p.CurNode]
+        // hosturl = "ws://" + p["ips"][p.CurNode] + "/ws/"
+        // baseurl = "http://" + p["ips"][p.CurNode] + "/"
+    } else if (window.location.host != ""){
+        ips = window.location.host
+        // hosturl = "ws://" + window.location.host + "/ws/"
+        // baseurl = "http://" +  window.location.host + "/"
+    }
+    { //for test
+        ips = "192.168.1.104:4800"
+    }
+    // window.lapi.ips = ips
+    return ips
 }
 
 export function getLocalApiHandler() {
