@@ -1,5 +1,7 @@
+export { getLocalApiHandler, getLApi}
+
 const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmLocal", "DhtGetAllKeys",
-    "DhtGet", "DhtGets", "SignPPT", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
+    "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
     "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile"];
 function getcurips() {
     //缺省的地址，用于本地调试程序
@@ -18,7 +20,7 @@ function getcurips() {
         // baseurl = "http://" +  window.location.host + "/"
     }
     { //for test
-        ips = "192.168.1.104:4800";
+        // ips = "192.168.1.104:4800";
     }
     // window.lapi.ips = ips
     return ips;
@@ -77,10 +79,26 @@ function getLApi() {
             resolve(api)
         } else {
             //这是提前设置好的用户名密码，资源授权的情况下，可以使用guest帐号
-            api.client.Login("lsb", "123456", "byname").then(function(result) { 
+            api.client.Login("lsb", "123456", "byname").then(result=>{ 
                 api.sid = result.sid
-                console.log("getSid", api)
-                resolve(api)
+                api.Userid = result.uid
+                console.log("getSid", result)
+                api.client.SignPPT(api.sid, {
+                    CertFor: "Self",
+                    Userid: api.Userid,
+                    RequestService: "mimei"
+                }, 1).then(ppt=>{
+                    console.log("ppt=", JSON.parse(ppt))
+                    api.ppt = ppt
+                    api.client.RequestService(ppt).then(map=>{
+                        console.log("Request service, ", map, api)
+                        resolve(api)
+                    }, err=>{
+                        console.error("Request service error=", err)
+                    })
+                }, err=>{
+                    console.error("Sign PPT error=", err)
+                })
             }, function(e) {
                 console.error("Login error=", e)
                 api.sid = ""
@@ -90,4 +108,31 @@ function getLApi() {
     })
 }
 
-export { getLocalApiHandler, getLApi}
+function loginPeer(piurl){
+    apiHandler.then((api)=>{
+        console.log("api.Client.SignPPT")
+        //生成ppt
+        return api.client.SignPPT(api.sid, {
+            CertFor:"Self",
+            Userid:api.Userid,
+            RequestService: "mimei"
+        }, 1)
+    }).then(ppt=>{
+        console.log("ppt=", ppt)
+        //知道对方的url
+        return getApiHandler(piurl, ppt)
+    }).then(doAll, e=>{
+        console.log("e=", e)
+    })
+}
+
+//读出通行证中的userid
+function showPPT(strppt){
+    console.log("ppt=", strppt)
+    var ppt = JSON.parse(strppt)
+    // for (k in ppt){
+    //     console.log("k=", k)        
+    // }
+    console.log("data=", ppt.Data)
+
+}
