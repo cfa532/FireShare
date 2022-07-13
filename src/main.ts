@@ -1,7 +1,14 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import { getLApi, getLocalApiHandler } from './auth.js';
+import { getLApi } from './auth.js';
 
+const Home = {template: ''}
+const Uploader = {}
+const routes = [
+    { path: '/', component: Home},
+    { path: '/upload', component: Uploader}
+]
+const router = VueRouter.
 getLApi().then((api:any)=>{
     // window.lapi = api
     let app = createApp(App)

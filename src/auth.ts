@@ -1,6 +1,6 @@
 declare global {
     interface Window {          //must be cap W
-        lapi: any;
+        // lapi: any;
         getParam: any;
         hprose: any
     }
