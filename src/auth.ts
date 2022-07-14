@@ -1,3 +1,5 @@
+export { getLocalApiHandler, getLApi}
+
 declare global {
     interface Window {          //must be cap W
         // lapi: any;
@@ -6,9 +8,9 @@ declare global {
     }
 };
 
-const ayApi = ["GetVarByContext", "Act", "Login", "Getvar","Getnodeip", "SwarmLocal","DhtGetAllKeys",
-"DhtGet", "DhtGets", "SignPPT", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
-"MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile"]
+const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmLocal", "DhtGetAllKeys",
+    "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
+    "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile"];
 
 function getcurips(){
     //缺省的地址，用于本地调试程序
@@ -32,7 +34,7 @@ function getcurips(){
     return ips
 }
 
-export function getLocalApiHandler() {
+function getLocalApiHandler() {
     let apiHandler: any = {};
     let ips = getcurips()
     let hosturl = "ws://" + ips +"/ws/"
@@ -61,4 +63,58 @@ export function getLocalApiHandler() {
         //查询应用            
         //showapps(sid)
         })
+}
+
+const api:any = {};
+api.sid = ""
+api.ips = getcurips();
+api.baseUrl = "http://" + api.ips + "/";
+api.hosturl = "ws://" + api.ips + "/ws/";
+//生成操作句柄
+api.client = window.hprose.Client.create(api.hosturl, ayApi);
+//以上部分可以提取公用代码
+console.log("api=", api)
+
+//异常处理函数
+var Catch = function(e: Error) {
+    console.error(e);
+    alert(e)
+    api.sid = ""
+};
+
+function getLApi() {
+    var Promise = window.Promise;
+    return new Promise(function(resolve, reject) {
+        if (api.sid != ""){
+            console.log("getSid resolve sid", api.sid)
+            resolve(api)
+        } else {
+            //这是提前设置好的用户名密码，资源授权的情况下，可以使用guest帐号
+            api.client.Login("lsb", "123456", "byname").then((result:any)=>{ 
+                api.sid = result.sid
+                api.Userid = result.uid
+                console.log("getSid", result)
+                api.client.SignPPT(api.sid, {
+                    CertFor: "Self",
+                    Userid: api.Userid,
+                    RequestService: "mimei"
+                }, 1).then((ppt:any)=>{
+                    console.log("ppt=", JSON.parse(ppt))
+                    api.ppt = ppt
+                    api.client.RequestService(ppt).then((map:any)=>{
+                        console.log("Request service, ", map, api)
+                        resolve(api)
+                    }, (err:Error)=>{
+                        console.error("Request service error=", err)
+                    })
+                }, (err:Error)=>{
+                    console.error("Sign PPT error=", err)
+                })
+            }, function(e:Error) {
+                console.error("Login error=", e)
+                api.sid = ""
+                reject(e)
+            })
+        }
+    })
 }

@@ -2,7 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 // import Manager from './components/Manager.vue'
-import Column from './components/Column.vue'
+import ColumnVue from './components/Column.vue'
 
 // export typeof Column
 const c0: ContentColumn = {title: "Root", titleZh: "总版", orderBy:0}
@@ -24,7 +24,7 @@ c0.subColumn = [
             <h2>{{c0.titleZh}}</h2>
             <ul>
                 <li v-for="c in c0.subColumn">
-                    <column :content=c></column>
+                    <column-vue :content=c></column-vue>
                 </li>
             </ul>
         </td>
