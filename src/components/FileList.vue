@@ -10,18 +10,19 @@ let api: any = {}
 export default defineComponent({
     name: "FileList",
     components: { Uploader },
+    inject:["lapi"],    // Leither api handler
     data() {
         return {
             fileList: [] as FVPair[],
+            query: this.$route.query
         }
     },
     provide() {
         return {
-            // fileList: "testing privide"
+            // inject a whole array
             fileList: computed(() => this.fileList)
         }
     },
-    inject:["lapi"],    // Leither api handler
     methods: {
         loadFile: function(file: FVPair) {
             console.log("load file content", file.macid, file.size)
@@ -40,12 +41,8 @@ export default defineComponent({
                 console.error("Open file error=", err)
             })
         },
-        getFileList: function() {
-
-        }
     },
     mounted() {
-        let self = this
         api = (this as any).lapi    // window.lapi
         api.client.MMCreate(api.sid,"","","file_list", 2, "", (mid:string)=>{
             api.mid=mid
@@ -59,7 +56,7 @@ export default defineComponent({
                         api.client.Hget(mmsid, "file_list", element.member, (fi:FVPair)=>{
                             fi.macid = element.member
                             console.log("file: ", fi)
-                            self.fileList.push(fi)
+                            this.fileList.push(fi)
                         }, (err:Error)=>{
                             console.error("Hget error=", err)
                         })
@@ -78,6 +75,18 @@ export default defineComponent({
 </script>
 
 <template>
+<table cellspacing="0" cellpadding="8" width="100%">
+    <tbody>
+        <tr>
+            <td bgcolor="#FFFFFF">
+                <b><RouterLink :to="{name: 'main'}">人人为我 我为人人</RouterLink> -&gt; 
+                <RouterLink :to="{name: 'filelist', query:query}">{{query.titleZh}}</RouterLink></b>
+            </td>
+            <td bgcolor="#FFFFFF" align="right"><b><a href="#">登录</a> -&gt; <a href="#">注册</a></b>
+            </td>
+        </tr>
+    </tbody>
+</table>
 <div>
     <Uploader></Uploader>
         <hr/>

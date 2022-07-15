@@ -4,15 +4,16 @@ import { getLApi } from './auth';
 import App from './App.vue'
 import UploaderVue from './components/Uploader.vue'
 import FileListVue from './components/FileList.vue';
+import MainPageVue from './components/MainPage.vue';
 
-const routes = [
-    { path: '/upload', component: UploaderVue},
-    { path: '/filelist', component: FileListVue}
-]
 const router = createRouter({
     // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
     history: createWebHistory(),
-    routes: [], // short for `routes: routes`
+    routes: [
+        { path: '/', name:"main", component: MainPageVue},
+        { path: '/upload', component: UploaderVue},
+        { path: '/filelist', name:"filelist", component: FileListVue}
+    ], // short for `routes: routes`
 })
 
 getLApi().then((api:any)=>{
