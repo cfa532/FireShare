@@ -14,8 +14,16 @@ export default defineComponent({
     data() {
         return {
             fileList: [] as FVPair[],
-            query: JSON.parse(this.$route.params.content as string),
+            query : computed(()=>{
+                let p = localStorage.getItem("currentColumn")
+                console.log("current column, ", p)
+                return p ? JSON.parse(p) : {title: "News", titleZh:"最新文档"}
+            })
+            // query: JSON.parse(this.$route.params.content as string),
         }
+    },
+    computed: {
+
     },
     provide() {
         return {
@@ -45,7 +53,7 @@ export default defineComponent({
     mounted() {
         api = (this as any).lapi    // window.lapi
         api.client.MMCreate(api.sid,"fireshare", this.query.title, "file_list", 2, "", (mid:string)=>{
-            api.mid=mid
+            api.mid=mid;        // shall be the same as MM created by Uploader
             console.log("Load MM id=", mid);
             api.client.MMOpen(api.sid, mid, "cur", (mmsid:string)=>{
                 console.log("Open MM mmsid=", mmsid);
@@ -80,7 +88,7 @@ export default defineComponent({
         <tr>
             <td bgcolor="#FFFFFF">
                 <b><RouterLink :to="{name: 'main'}">人人为我 我为人人</RouterLink> -&gt; 
-                <RouterLink :to="{name: 'filelist', query:query}">{{query.titleZh}}</RouterLink></b>
+                <RouterLink :to="{name: 'filelist'}">{{query.titleZh}}</RouterLink></b>
             </td>
             <td bgcolor="#FFFFFF" align="right"><b><a href="#">登录</a> -&gt; <a href="#">注册</a></b>
             </td>

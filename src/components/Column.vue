@@ -7,11 +7,13 @@ const props = defineProps({
 })
 const router = useRouter();
 function goFilelist() {
+    // remember the column to go
+    localStorage.setItem("currentColumn", JSON.stringify(props.content));
     router.push({
         name: "filelist",
         params: {content: JSON.stringify(props.content)}
     });
-}
+};
 </script>
 
 <template>
