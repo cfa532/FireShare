@@ -11,7 +11,6 @@ const router = createRouter({
     history: createWebHistory(),
     routes: [
         { path: '/', name:"main", component: MainPageVue},
-        { path: '/upload', component: UploaderVue},
         { path: '/filelist', name:"filelist", component: FileListVue}
     ], // short for `routes: routes`
 })

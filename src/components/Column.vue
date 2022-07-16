@@ -7,13 +7,6 @@ const props = defineProps({
     content: {type: Object as PropType<ContentColumn>, required: true },
     app: Object
 })
-function goFileList(content: ContentColumn) {
-    console.log("push,", content, this.app)
-    
-    // router.push({
-    //     name:'filelist', params: {title: content.title}
-    // })
-}
 </script>
 
 <template>

@@ -11,6 +11,7 @@ interface HTMLInputEvent extends Event {
 export default defineComponent({
   name: "Uploader",
   inject: ["lapi", "fileList"],
+  props: ['content'],
   data() {
     return {
       file: {} as File,
@@ -42,8 +43,8 @@ export default defineComponent({
             api.client.MFTemp2MacFile(fsid, "", (macid:string)=>{
               console.log("Temp file to MacID=", macid);
               // create mmid for this app
-              api.client.MMCreate(api.sid,"","","file_list", 2, "", (mid:string)=> {
-                console.log("Create MM id=", mid)
+              api.client.MMCreate(api.sid,"fireshare", _this.content.title, "file_list", 2, "", (mid:string)=> {
+                console.log("Create MM id=", mid, _this.content)
                 document.getElementsByTagName("input")[0].value= "" // clear input value
                 api.client.MMOpen(api.sid, mid, "cur", (mmsid:string)=>{
                   console.log("Open MM mmsid=", mmsid);

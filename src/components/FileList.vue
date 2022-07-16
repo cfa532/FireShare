@@ -14,7 +14,7 @@ export default defineComponent({
     data() {
         return {
             fileList: [] as FVPair[],
-            query: this.$route.query
+            query: this.$route.params
         }
     },
     provide() {
@@ -44,7 +44,9 @@ export default defineComponent({
     },
     mounted() {
         api = (this as any).lapi    // window.lapi
-        api.client.MMCreate(api.sid,"","","file_list", 2, "", (mid:string)=>{
+        console.log(this.query)
+        return
+        api.client.MMCreate(api.sid,"fireshare", this.query.title, "file_list", 2, "", (mid:string)=>{
             api.mid=mid
             console.log("Load MM id=", mid);
             api.client.MMOpen(api.sid, mid, "cur", (mmsid:string)=>{
@@ -88,7 +90,7 @@ export default defineComponent({
     </tbody>
 </table>
 <div>
-    <Uploader></Uploader>
+    <Uploader :content=query></Uploader>
         <hr/>
     <div v-for="(file, index) in fileList" :key="index">
         <a href="#" ref="file"  @click.prevent="loadFile(file)">{{file.name}}</a>
