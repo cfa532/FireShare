@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import { PropType } from 'vue';
-import { useRouter, useRoute } from 'vue-router'
-import AppVue from '../App.vue';
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
     content: {type: Object as PropType<ContentColumn>, required: true },
-    app: Object
 })
+const router = useRouter();
+function goFilelist() {
+    router.push({
+        name: "filelist",
+        params: {content: JSON.stringify(props.content)}
+    });
+}
 </script>
 
 <template>
     <li>
         <RouterLink v-if="!content.subColumn || content.subColumn.length==0"
-        :to="{
-            name: 'filelist', query: content as any
-        }">
+        to="#" @click="goFilelist()">
             {{props.content.titleZh}}
         </RouterLink>
         <span v-if="content.subColumn && content.subColumn.length>0">{{props.content.titleZh}}</span>

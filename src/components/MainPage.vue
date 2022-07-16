@@ -12,6 +12,7 @@ c0.subColumn = [
         {title:"Japan", titleZh:"邦画", orderBy:0},
     ]}
 ];
+
 </script>
 
 <template>

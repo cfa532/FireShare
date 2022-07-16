@@ -14,7 +14,7 @@ export default defineComponent({
     data() {
         return {
             fileList: [] as FVPair[],
-            query: this.$route.params
+            query: JSON.parse(this.$route.params.content as string),
         }
     },
     provide() {
@@ -44,8 +44,6 @@ export default defineComponent({
     },
     mounted() {
         api = (this as any).lapi    // window.lapi
-        console.log(this.query)
-        return
         api.client.MMCreate(api.sid,"fireshare", this.query.title, "file_list", 2, "", (mid:string)=>{
             api.mid=mid
             console.log("Load MM id=", mid);

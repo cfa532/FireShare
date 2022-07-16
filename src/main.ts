@@ -2,7 +2,6 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { getLApi } from './auth';
 import App from './App.vue'
-import UploaderVue from './components/Uploader.vue'
 import FileListVue from './components/FileList.vue';
 import MainPageVue from './components/MainPage.vue';
 
@@ -12,7 +11,7 @@ const router = createRouter({
     routes: [
         { path: '/', name:"main", component: MainPageVue},
         { path: '/filelist', name:"filelist", component: FileListVue}
-    ], // short for `routes: routes`
+    ],
 })
 
 getLApi().then((api:any)=>{
