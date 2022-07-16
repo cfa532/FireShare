@@ -16,7 +16,6 @@ export default defineComponent({
             fileList: [] as FVPair[],
             query : computed(()=>{
                 let p = localStorage.getItem("currentColumn")
-                console.log("current column, ", p)
                 return p ? JSON.parse(p) : {title: "News", titleZh:"最新文档"}
             })
             // query: JSON.parse(this.$route.params.content as string),
