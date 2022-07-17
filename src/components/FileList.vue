@@ -1,28 +1,30 @@
 <script lang="ts">
-import { defineComponent, computed } from "vue";
-import Uploader from "./Uploader.vue"
+import { defineComponent, computed, ref } from "vue";
+import Uploader from "./Uploader.vue";
+import NaviBar from "./NaviBar.vue";
+
 console.log("FileList.vue")
 interface ScorePair {score:number, member:string}
 declare interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
       
 let api: any = {}
+// let p = localStorage.getItem("currentColumn")
+// const query = p ? JSON.parse(p) : {title: "News", titleZh:"最新文档"}
 
 export default defineComponent({
     name: "FileList",
-    components: { Uploader },
+    components: { Uploader, NaviBar },
     inject:["lapi"],    // Leither api handler
     data() {
         return {
             fileList: [] as FVPair[],
+            // query: ref(query)
             query : computed(()=>{
                 let p = localStorage.getItem("currentColumn")
+                console.log("current column,", p)
                 return p ? JSON.parse(p) : {title: "News", titleZh:"最新文档"}
             })
-            // query: JSON.parse(this.$route.params.content as string),
         }
-    },
-    computed: {
-
     },
     provide() {
         return {
@@ -82,18 +84,7 @@ export default defineComponent({
 </script>
 
 <template>
-<table cellspacing="0" cellpadding="8" width="100%">
-    <tbody>
-        <tr>
-            <td bgcolor="#FFFFFF">
-                <b><RouterLink :to="{name: 'main'}">人人为我 我为人人</RouterLink> -&gt; 
-                <RouterLink :to="{name: 'filelist'}">{{query.titleZh}}</RouterLink></b>
-            </td>
-            <td bgcolor="#FFFFFF" align="right"><b><a href="#">登录</a> -&gt; <a href="#">注册</a></b>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<NaviBar :column=query.titleZh></NaviBar>
 <div>
     <Uploader :content=query></Uploader>
         <hr/>
