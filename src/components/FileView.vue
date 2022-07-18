@@ -16,7 +16,11 @@ const pdf = ref({} as HTMLObjectElement)
 // const video = ref({} as HTMLVideoElement)
 const video = ref({} as HTMLObjectElement)
 onMounted(()=>{
-    console.log(column, route.params)
+    //   let fontAwesome = document.createElement('script')
+    //   fontAwesome.setAttribute('src', '../../public/pdfobject.min.js')
+    //   document.head.appendChild(fontAwesome)
+
+    console.log(column, route.params, PDFObject)
     getLink()
 });
 
@@ -32,7 +36,8 @@ function getLink() {
             if (fileType.includes("image")) {
                 img.value.src = objUrl
             } else if (fileType.includes("pdf")) {
-                pdf.value.data = objUrl
+                PDFObject.embed(objUrl, "#pdfviewer", {height: "40rem"})
+                // pdf.value.data = objUrl
             } else if (fileType.includes("video")) {
                 video.value.data = objUrl
             }
@@ -67,3 +72,7 @@ function getLink() {
     </video> -->
 </div>
 </template>
+
+<!-- <style>
+.pdfobject-container { height: 30rem; border: 1rem solid rgba(0,0,0,.1); }
+</style> -->
