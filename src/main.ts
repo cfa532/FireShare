@@ -4,13 +4,15 @@ import { getLApi } from './auth';
 import App from './App.vue'
 import FileListVue from './components/FileList.vue';
 import MainPageVue from './components/MainPage.vue';
+import FileViewVue from './components/FileView.vue';
 
 const router = createRouter({
     // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
     history: createWebHistory(),
     routes: [
         { path: '/', name:"main", component: MainPageVue},
-        { path: '/filelist', name:"filelist", component: FileListVue}
+        { path: '/filelist', name:"filelist", component: FileListVue},
+        { path: '/fileview', name:"fileview", component: FileViewVue}
     ],
 })
 

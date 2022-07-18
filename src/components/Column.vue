@@ -11,7 +11,7 @@ function goFilelist() {
     localStorage.setItem("currentColumn", JSON.stringify(props.content));
     router.push({
         name: "filelist",
-        params: {content: JSON.stringify(props.content)}
+        // params: {content: JSON.stringify(props.content)}
     });
 };
 </script>

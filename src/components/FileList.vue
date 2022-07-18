@@ -18,7 +18,6 @@ export default defineComponent({
     data() {
         return {
             fileList: [] as FVPair[],
-            // query: ref(query)
             query : computed(()=>{
                 let p = localStorage.getItem("currentColumn")
                 console.log("current column,", p)
@@ -88,8 +87,11 @@ export default defineComponent({
 <div>
     <Uploader :content=query></Uploader>
         <hr/>
+    <KeepAlive>
     <div v-for="(file, index) in fileList" :key="index">
-        <a href="#" ref="file"  @click.prevent="loadFile(file)">{{file.name}}</a>
+        <RouterLink :to="{name:'fileview', params:{macid:file.macid, fileType:file.type}}">{{file.name}}</RouterLink>
+        <!-- <a href="#" ref="file"  @click.prevent="loadFile(file)">{{file.name}}</a> -->
     </div>
+    </KeepAlive>
 </div>
 </template>
