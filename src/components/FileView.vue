@@ -2,6 +2,7 @@
 import { inject, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import NaviBarVue from './NaviBar.vue';
+import * as pdfobject from 'pdfobject'
 
 const api: any = inject("lapi");    // Leither api handler
 const route = useRoute()
@@ -20,7 +21,7 @@ onMounted(()=>{
     //   fontAwesome.setAttribute('src', '../../public/pdfobject.min.js')
     //   document.head.appendChild(fontAwesome)
 
-    console.log(column, route.params, PDFObject)
+    console.log(column, route.params, pdfobject)
     getLink()
 });
 
@@ -36,7 +37,7 @@ function getLink() {
             if (fileType.includes("image")) {
                 img.value.src = objUrl
             } else if (fileType.includes("pdf")) {
-                PDFObject.embed(objUrl, "#pdfviewer", {height: "40rem"})
+                pdfobject.embed(objUrl, "#pdfviewer", {height: "60rem"})
                 // pdf.value.data = objUrl
             } else if (fileType.includes("video")) {
                 video.value.data = objUrl
