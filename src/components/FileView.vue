@@ -10,7 +10,11 @@ const route = useRoute()
 //     fileType: {type: String, required: true}
 // })
 const column = JSON.parse(localStorage.getItem("currentColumn") as string)
+const fileType = route.params.fileType as string;
 const img = ref({} as HTMLImageElement)     // Composition API to access DOM
+const pdf = ref({} as HTMLObjectElement)
+// const video = ref({} as HTMLVideoElement)
+const video = ref({} as HTMLObjectElement)
 onMounted(()=>{
     console.log(column, route.params)
     getLink()
@@ -21,9 +25,17 @@ function getLink() {
         console.log("Open file fsid=", fsid)
         api.client.MFGetData(fsid, 0, -1, (buf:ArrayBuffer)=>{
             // arraybuffer
-            const blob = new Blob([buf], { type: route.params.fileType as string });
+            const blob = new Blob([buf], { type: fileType as string });
             // const blob = new Blob([buf], { type: 'application/octet-stream' });
-            img.value.src = URL.createObjectURL(blob)
+            const objUrl = URL.createObjectURL(blob)
+            console.log(objUrl, fileType)
+            if (fileType.includes("image")) {
+                img.value.src = objUrl
+            } else if (fileType.includes("pdf")) {
+                pdf.value.data = objUrl
+            } else if (fileType.includes("video")) {
+                video.value.data = objUrl
+            }
         }, (err:Error)=>{
             console.error("Get File data error=", err)
         })
@@ -37,7 +49,21 @@ function getLink() {
 <template>
 <NaviBarVue :column=column.titleZh></NaviBarVue>
 <hr/>
-<div v-if="route.params.fileType.includes('image')">
+<div v-if="fileType.includes('image')">
     <img ref="img" />
+</div>
+<div id="pdfviewer" v-else-if="fileType.includes('pdf')">
+    <object ref="pdf" :type=fileType
+        width='100%' 
+        height='900px' />
+</div>
+<div v-else-if="fileType.includes('video')">
+    <object ref="video" :type=fileType
+        width='800px' 
+        height='600px' />
+    <!-- <video controls>
+        <source ref="video" :type=fileType>
+        Your browser does not support the video tag
+    </video> -->
 </div>
 </template>
