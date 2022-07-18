@@ -18,6 +18,8 @@ export default defineComponent({
     data() {
         return {
             fileList: [] as FVPair[],
+            macid: "",
+            fileType: "",
             query : computed(()=>{
                 let p = localStorage.getItem("currentColumn")
                 console.log("current column,", p)
@@ -32,23 +34,6 @@ export default defineComponent({
         }
     },
     methods: {
-        loadFile: function(file: FVPair) {
-            console.log("load file content", file.macid, file.size)
-            api.client.MFOpenMacFile(api.sid, api.mid, file.macid, (fsid:string)=>{
-                console.log("Open file fsid=", fsid)
-                api.client.MFGetData(fsid, 0, -1, (buf:ArrayBuffer)=>{
-                    // arraybuffer
-                    const blob = new Blob([buf], { type: file.type });
-                    // const blob = new Blob([buf], { type: 'application/octet-stream' });
-                    console.log(buf.byteLength, blob)
-                    window.open(URL.createObjectURL(blob))
-                }, (err:Error)=>{
-                    console.error("Get File data error=", err)
-                })
-            }, (err:Error)=>{
-                console.error("Open file error=", err)
-            })
-        },
     },
     mounted() {
         api = (this as any).lapi    // window.lapi
@@ -89,7 +74,9 @@ export default defineComponent({
         <hr/>
     <KeepAlive>
     <div v-for="(file, index) in fileList" :key="index">
-        <RouterLink :to="{name:'fileview', params:{macid:file.macid, fileType:file.type}}">{{file.name}}</RouterLink>
+        <RouterLink
+            :to="{ name:'fileview', params:{macid:file.macid, fileType:file.type}}">{{file.name}}
+        </RouterLink>
         <!-- <a href="#" ref="file"  @click.prevent="loadFile(file)">{{file.name}}</a> -->
     </div>
     </KeepAlive>

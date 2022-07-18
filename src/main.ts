@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import { getLApi } from './auth';
 import App from './App.vue'
 import FileListVue from './components/FileList.vue';
@@ -8,11 +8,11 @@ import FileViewVue from './components/FileView.vue';
 
 const router = createRouter({
     // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes: [
         { path: '/', name:"main", component: MainPageVue},
         { path: '/filelist', name:"filelist", component: FileListVue},
-        { path: '/fileview', name:"fileview", component: FileViewVue}
+        { path: '/fileview/:macid/:fileType', name:"fileview", component: FileViewVue}
     ],
 })
 
