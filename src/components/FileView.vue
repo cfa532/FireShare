@@ -13,14 +13,12 @@ const route = useRoute()
 // })
 const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const fileType = route.params.fileType as string;
-const img = ref(HTMLImageElement as any)     // Composition API to access DOM
 const pdf = ref(pdfobject)
-// const video = ref({} as HTMLObjectElement)
+const ImgUrl = ref("")
 let videoSrc = ref({src:"", type:""})
 // const AsyncVideo = defineAsyncComponent(() => 
 //     import('./VideoJS.vue')
 // )
-const video = ref(VideoPlayer)
 onMounted(()=>{
     console.log(column, route.params, pdfobject)
     getLink()
@@ -35,7 +33,8 @@ function getLink() {
             const objUrl = URL.createObjectURL(blob)
             console.log(objUrl, fileType)
             if (fileType.includes("image")) {
-                img.value.src = objUrl
+                // img.value.src = objUrl
+                ImgUrl.value = objUrl
             } else if (fileType.includes("pdf")) {
                 pdfobject.embed(objUrl, "#pdfviewer", {height: "60rem"})
                 // pdf.value.data = objUrl
@@ -56,7 +55,7 @@ function getLink() {
 <NaviBarVue :column=column.titleZh></NaviBarVue>
 <hr/>
 <div v-if="fileType.includes('image')">
-    <img ref="img" />
+    <img :src="ImgUrl" />
 </div>
 <div id="pdfviewer" v-else-if="fileType.includes('pdf')">
     <object ref="pdf" :type=fileType
@@ -64,7 +63,7 @@ function getLink() {
         height='900px' />
 </div>
 <div v-else-if="fileType.includes('video')">
-    <VideoPlayer ref="video" :src="videoSrc.src" :type="videoSrc.type" />
+    <VideoPlayer :src="videoSrc.src" :type="videoSrc.type" />
     <!-- <AsyncVideo ref="video"></AsyncVideo> -->
     <!-- <objectc :type=fileType
         width='800px' 
