@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { inject, ref, onMounted } from 'vue';
+import { inject, ref, onMounted, defineAsyncComponent, onBeforeMount, VueElement, createApp, watch, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import NaviBarVue from './NaviBar.vue';
 import * as pdfobject from 'pdfobject'
+import VideoPlayer from './VideoJS.vue'
 
 const api: any = inject("lapi");    // Leither api handler
 const route = useRoute()
@@ -12,19 +13,18 @@ const route = useRoute()
 // })
 const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const fileType = route.params.fileType as string;
-const img = ref({} as HTMLImageElement)     // Composition API to access DOM
-const pdf = ref({} as HTMLObjectElement)
-// const video = ref({} as HTMLVideoElement)
-const video = ref({} as HTMLObjectElement)
+const img = ref(HTMLImageElement as any)     // Composition API to access DOM
+const pdf = ref(pdfobject)
+// const video = ref({} as HTMLObjectElement)
+let videoSrc = ref({src:"", type:""})
+// const AsyncVideo = defineAsyncComponent(() => 
+//     import('./VideoJS.vue')
+// )
+const video = ref(VideoPlayer)
 onMounted(()=>{
-    //   let fontAwesome = document.createElement('script')
-    //   fontAwesome.setAttribute('src', '../../public/pdfobject.min.js')
-    //   document.head.appendChild(fontAwesome)
-
     console.log(column, route.params, pdfobject)
     getLink()
 });
-
 function getLink() {
     api.client.MFOpenMacFile(api.sid, api.mid, route.params.macid, (fsid:string)=>{
         console.log("Open file fsid=", fsid)
@@ -40,7 +40,7 @@ function getLink() {
                 pdfobject.embed(objUrl, "#pdfviewer", {height: "60rem"})
                 // pdf.value.data = objUrl
             } else if (fileType.includes("video")) {
-                video.value.data = objUrl
+                videoSrc.value = {src: objUrl, type: fileType}
             }
         }, (err:Error)=>{
             console.error("Get File data error=", err)
@@ -64,16 +64,14 @@ function getLink() {
         height='900px' />
 </div>
 <div v-else-if="fileType.includes('video')">
-    <object ref="video" :type=fileType
+    <VideoPlayer ref="video" :src="videoSrc.src" :type="videoSrc.type" />
+    <!-- <AsyncVideo ref="video"></AsyncVideo> -->
+    <!-- <objectc :type=fileType
         width='800px' 
-        height='600px' />
-    <!-- <video controls>
-        <source ref="video" :type=fileType>
-        Your browser does not support the video tag
-    </video> -->
+        height='600px' /> -->
 </div>
 </template>
 
-<!-- <style>
-.pdfobject-container { height: 30rem; border: 1rem solid rgba(0,0,0,.1); }
-</style> -->
+<style>
+.pdfobject-container { height: 60rem; border: 1rem solid rgba(0,0,0,.1); }
+</style>

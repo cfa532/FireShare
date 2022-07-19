@@ -7,4 +7,6 @@ declare module '*.vue' {
   export default component
 }
 
+// declare external JS package as module
 declare module 'pdfobject'
+declare module 'video.js'
