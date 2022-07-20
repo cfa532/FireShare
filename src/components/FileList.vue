@@ -50,7 +50,7 @@ export default defineComponent({
                             fi.macid = element.member
                             console.log("file: ", fi)
                             this.fileList.push(fi)
-                            this.fileList.sort((a,b) => a.macid < b.macid ? 1 : -1)
+                            this.fileList.sort((a,b) => a.macid < b.macid ? -1 : 1)
                         }, (err:Error)=>{
                             console.error("Hget error=", err)
                         })
