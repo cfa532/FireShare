@@ -6,3 +6,4 @@ type ContentColumn = {
     subColumn?: ContentColumn[];
 }
 
+interface ScorePair { score: number, member: string }

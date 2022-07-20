@@ -2,7 +2,7 @@
 import { inject } from "vue"
 
 console.log("Uploader.vue")
-interface ScorePair { score: number, member: string }
+// interface ScorePair { score: number, member: string }
 class FVPair { name = ""; lastModified = 0; size = 0; type = ""; macid = "" }
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget
@@ -10,9 +10,9 @@ interface HTMLInputEvent extends Event {
 // export default defineComponent({
 // name: "Uploader",
 // inject: ["lapi", "fileList"],
-const props = defineProps(['content']);
+const props = defineProps(['content']);   // ColoumnContent Type
 const api: any = inject('lapi');
-const fileList: Array<FVPair> = inject('fileList')!;  // it is a Ref!
+const fileList: FVPair[] = inject('fileList')!;  // it is a Ref!
 let file: File;
 const message = ""
 
@@ -22,7 +22,7 @@ function onSelect(e: Event) {
   file = files[0]
   console.log(file)
 };
-async function onSubmit() {
+function onSubmit() {
   const r = new FileReader();
   const sliceSize = 1024 * 1024 * 1
   r.onerror = e => {

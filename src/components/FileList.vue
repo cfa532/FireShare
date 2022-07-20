@@ -4,7 +4,7 @@ import Uploader from "./Uploader.vue";
 import NaviBar from "./NaviBar.vue";
 
 console.log("FileList.vue")
-interface ScorePair {score:number, member:string}
+// interface ScorePair {score:number, member:string}
 declare interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
       
 let api: any = {}
@@ -50,6 +50,7 @@ export default defineComponent({
                             fi.macid = element.member
                             console.log("file: ", fi)
                             this.fileList.push(fi)
+                            this.fileList.sort((a,b) => a.macid < b.macid ? 1 : -1)
                         }, (err:Error)=>{
                             console.error("Hget error=", err)
                         })
