@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineComponent, inject } from "vue"
+import { inject } from "vue"
 
 console.log("Uploader.vue")
 interface ScorePair { score: number, member: string }
