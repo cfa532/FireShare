@@ -1,39 +1,51 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import videojs from 'video.js';
-
+type Option = {
+    autoplay: boolean,
+    controls: boolean,
+    sources: [{ src: string, type: string }]
+}
 export default defineComponent({
     name: 'VideoPlayer',
     props: {
-        src: String,
-        type: String
+        options: {
+            type: Object,
+            default() {
+                return {};
+            }
+        }
+    },
+    watch: {
+        "options.sources": {
+            deep: true,
+            handler: function (newVal, oldVal) {
+                console.log(newVal, oldVal)
+                if (newVal[0].src !== '')
+                    this.loadPlayer()
+            }
+        }
     },
     data() {
         return {
             player: null as any,
         }
     },
-    watch: {
-        "src": {
-            immediate: true,
-            handler(val, oldVal) {
-                if (val !== '') {
-                    this.loadPlayer()
-                }
-            },
-        }
-    },
     methods: {
         loadPlayer() {
-            const options = {
-                controls: true,
-                autoplay: true,
-                sources: [{ src: this.$props.src, type: this.$props.type }]
-            }
-            this.player = videojs(this.$refs.videoPlayer, options, () => {
+            if (this.player) {
+                this.player.options = this.options
+            } else {
+                this.player = videojs(this.$refs.videoPlayer, this.options, () => {
                 this.player.log('onPlayerReady', this);
-            });
-        },
+                });
+            }
+        }
+    },
+    mounted() {
+        // this.player = videojs(this.$refs.videoPlayer, this.options, () => {
+        //     this.player.log('onPlayerReady', this);
+        // });
     },
     beforeDestroy() {
         if (this.player) {

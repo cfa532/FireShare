@@ -15,18 +15,24 @@ const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const fileType = route.params.fileType as string;
 const pdf = ref(pdfobject)
 const ImgUrl = ref("")
-let videoSrc = ref({src:"", type:""})
+let videoSrc = ref({ src: "", type: "" })
+const videoOptions = reactive({
+    autoplay: true,
+    controls: true,
+    sources: {} as Array<{ src: string, type: string }>
+})
+
 // const AsyncVideo = defineAsyncComponent(() => 
 //     import('./VideoJS.vue')
 // )
-onMounted(()=>{
+onMounted(() => {
     console.log(column, route.params, pdfobject)
     getLink()
 });
 function getLink() {
-    api.client.MFOpenMacFile(api.sid, api.mid, route.params.macid, (fsid:string)=>{
+    api.client.MFOpenMacFile(api.sid, api.mid, route.params.macid, (fsid: string) => {
         console.log("Open file fsid=", fsid)
-        api.client.MFGetData(fsid, 0, -1, (buf:ArrayBuffer)=>{
+        api.client.MFGetData(fsid, 0, -1, (buf: ArrayBuffer) => {
             // arraybuffer
             const blob = new Blob([buf], { type: fileType as string });
             // const blob = new Blob([buf], { type: 'application/octet-stream' });
@@ -36,41 +42,42 @@ function getLink() {
                 // img.value.src = objUrl
                 ImgUrl.value = objUrl
             } else if (fileType.includes("pdf")) {
-                pdfobject.embed(objUrl, "#pdfviewer", {height: "60rem"})
+                pdfobject.embed(objUrl, "#pdfviewer", { height: "60rem" })
                 // pdf.value.data = objUrl
             } else if (fileType.includes("video")) {
-                videoSrc.value = {src: objUrl, type: fileType}
+                // videoSrc.value = {src: objUrl, type: fileType}
+                videoOptions.sources = [{ src: objUrl, type: fileType }]
             }
-        }, (err:Error)=>{
+        }, (err: Error) => {
             console.error("Get File data error=", err)
         })
-    }, (err:Error)=>{
+    }, (err: Error) => {
         console.error("Open file error=", err)
     })
-
 }
 </script>
 
 <template>
-<NaviBarVue :column=column.titleZh></NaviBarVue>
-<hr/>
-<div v-if="fileType.includes('image')">
-    <img :src="ImgUrl" />
-</div>
-<div id="pdfviewer" v-else-if="fileType.includes('pdf')">
-    <object ref="pdf" :type=fileType
-        width='100%' 
-        height='900px' />
-</div>
-<div v-else-if="fileType.includes('video')">
-    <VideoPlayer :src="videoSrc.src" :type="videoSrc.type" />
-    <!-- <AsyncVideo ref="video"></AsyncVideo> -->
-    <!-- <objectc :type=fileType
+    <NaviBarVue :column=column.titleZh></NaviBarVue>
+    <hr />
+    <div v-if="fileType.includes('image')">
+        <img :src="ImgUrl" />
+    </div>
+    <div id="pdfviewer" v-else-if="fileType.includes('pdf')">
+        <object ref="pdf" :type=fileType width='100%' height='900px' />
+    </div>
+    <div v-else-if="fileType.includes('video')">
+        <VideoPlayer :options="videoOptions" />
+        <!-- <AsyncVideo ref="video"></AsyncVideo> -->
+        <!-- <objectc :type=fileType
         width='800px' 
         height='600px' /> -->
-</div>
+    </div>
 </template>
 
 <style>
-.pdfobject-container { height: 60rem; border: 1rem solid rgba(0,0,0,.1); }
+.pdfobject-container {
+    height: 60rem;
+    border: 1rem solid rgba(0, 0, 0, .1);
+}
 </style>
