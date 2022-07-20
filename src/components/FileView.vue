@@ -68,7 +68,6 @@ function getLink() {
     </div>
     <div v-else-if="fileType.includes('video')">
         <VideoPlayer :options="videoOptions" />
-        <!-- <AsyncVideo ref="video"></AsyncVideo> -->
         <!-- <objectc :type=fileType
         width='800px' 
         height='600px' /> -->
