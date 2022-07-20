@@ -3,8 +3,10 @@ import { inject, ref, onMounted, defineAsyncComponent, onBeforeMount, VueElement
 import { useRoute } from 'vue-router';
 import NaviBarVue from './NaviBar.vue';
 import * as pdfobject from 'pdfobject'
-import VideoPlayer from './VideoJS.vue'
-
+// import VideoPlayer from './VideoJS.vue'
+const VideoPlayer = defineAsyncComponent(()=>
+    import('./VideoJS.vue')
+)
 const api: any = inject("lapi");    // Leither api handler
 const route = useRoute()
 // const props = defineProps({
@@ -15,13 +17,11 @@ const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const fileType = route.params.fileType as string;
 const pdf = ref(pdfobject)
 const ImgUrl = ref("")
-let videoSrc = ref({ src: "", type: "" })
 const videoOptions = reactive({
     autoplay: true,
     controls: true,
     sources: {} as Array<{ src: string, type: string }>
 })
-
 // const AsyncVideo = defineAsyncComponent(() => 
 //     import('./VideoJS.vue')
 // )
