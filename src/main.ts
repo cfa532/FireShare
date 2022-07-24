@@ -4,8 +4,8 @@ import { getLApi } from './auth';
 import App from './App.vue'
 import FileListVue from './components/FileList.vue';
 import MainPageVue from './components/MainPage.vue';
-// import FileViewVue from './components/FileView.vue';
-const FileViewVue = ()=> import('./components/FileView.vue')       //lazy load
+import FileViewVue from './components/FileView.vue';
+// const FileViewVue = ()=> import('./components/FileView.vue')       //lazy load
 
 const router = createRouter({
     // 4. Provide the history implementation to use. We are using the hash history for simplicity here.

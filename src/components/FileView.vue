@@ -3,10 +3,10 @@ import { inject, ref, onMounted, defineAsyncComponent, onBeforeMount, VueElement
 import { useRoute } from 'vue-router';
 import NaviBarVue from './NaviBar.vue';
 import * as pdfobject from 'pdfobject'
-// import VideoPlayer from './VideoJS.vue'
-const VideoPlayer = defineAsyncComponent(()=>
-    import('./VideoJS.vue')
-)
+import VideoPlayer from './VideoJS.vue'
+// const VideoPlayer = defineAsyncComponent(()=>
+//     import('./VideoJS.vue')
+// )
 const api: any = inject("lapi");    // Leither api handler
 const route = useRoute()
 // const props = defineProps({
@@ -73,10 +73,3 @@ function getLink() {
         height='600px' /> -->
     </div>
 </template>
-
-<style>
-.pdfobject-container {
-    height: 60rem;
-    border: 1rem solid rgba(0, 0, 0, .1);
-}
-</style>

@@ -1,6 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import videojs from 'video.js';
+
 type Option = {
     autoplay: boolean,
     controls: boolean,
