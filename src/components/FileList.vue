@@ -74,12 +74,12 @@ export default defineComponent({
     <Uploader :content=query></Uploader>
         <hr/>
     <KeepAlive>
-    <div v-for="(file, index) in fileList" :key="index">
+    <li v-for="(file, index) in fileList" :key="index">
         <RouterLink
             :to="{ name:'fileview', params:{macid:file.macid, fileType:file.type}}">{{file.name}}
         </RouterLink>
         <!-- <a href="#" ref="file"  @click.prevent="loadFile(file)">{{file.name}}</a> -->
-    </div>
+    </li>
     </KeepAlive>
 </div>
 </template>

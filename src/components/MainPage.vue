@@ -4,7 +4,7 @@ import { routerKey, useRouter } from "vue-router";
 import ColumnVue from "./Column.vue";
 
 // export typeof Column
-const c0: ContentColumn = {title: "Root", titleZh: "总版", orderBy:0}
+const c0: ContentColumn = {title: "Root", titleZh: "众众", orderBy:0}
 c0.subColumn = [
     {title:"News", titleZh:"最新文档", orderBy:0}, 
     {title:"Pictures", titleZh:"图片专区", orderBy:1, subColumn: [
@@ -16,7 +16,7 @@ c0.subColumn = [
 </script>
 
 <template>
-<table cellspacing="1" cellpadding="7" width="100%" class="i_table" align="center">
+<table cellspacing="1" cellpadding="7" width="100%" align="center">
 <tbody>
     <tr>
         <td bgcolor="#FFFFFF">

@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewpoint" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.ico" />
     <!-- <link href="/video-js.css" rel="stylesheet" /> -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,8 +15,21 @@
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+    
     <style>
 @charset "UTF-8";
+
+a:link {
+  color:#2B333F;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+a:visited {
+  color:#2B333F;
+}
+
 .vjs-modal-dialog .vjs-modal-dialog-content, .video-js .vjs-modal-dialog, .vjs-button > .vjs-icon-placeholder:before, .video-js .vjs-big-play-button .vjs-icon-placeholder:before {
   position: absolute;
   top: 0;

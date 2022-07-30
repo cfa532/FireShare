@@ -20,3 +20,6 @@ const props = defineProps({
     </tbody>
 </table>
 </template>
+
+<style>
+</style>
