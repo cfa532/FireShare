@@ -8,9 +8,14 @@ const props = defineProps({
 <style>
 ul.naviBar {
     list-style-type: none;
-    padding: 0px 0px;
-    margin: 0px 0px;
     background-color: antiquewhite;
+    overflow: hidden;
+    margin: 0px 0px 10px 0px;
+    padding: 0px 0px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
 }
 ul.naviBar li {
     display: inline-block;
@@ -25,16 +30,6 @@ ul.naviBar li a.active {
     color:aliceblue;
     padding: 5px
 }
-div.naviBar {
-    overflow: hidden;
-    background-color: antiquewhite;
-    margin: 0px 0px 10px 0px;
-    padding: 0px 0px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-}
 /* li.naviBar {
     display: inline-block;
     list-style-type: none;
@@ -45,13 +40,11 @@ div.naviBar {
 
 <template>
 <div style="margin-top: 40px;"></div>
-<div class="naviBar">
 <ul class="naviBar">
     <li><RouterLink active-class="active" :to="{name: 'main'}">众众</RouterLink></li>
     <li>--</li>
     <li><RouterLink active-class="active" :to="{name: 'filelist'}">{{props.column}}</RouterLink></li>
 </ul>
-</div>
 <!-- <table cellspacing="0" cellpadding="8" width="100%">
     <tbody>
         <tr>
