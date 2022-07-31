@@ -1,13 +1,52 @@
 <script setup lang="ts">
-import { PropType } from 'vue';
 
 const props = defineProps({
     column: {type: String, required: true }
 })
 </script>
 
+<style>
+ul.naviBar {
+    list-style-type: none;
+    padding: 0px 0px;
+    margin: 0px 0px;
+    background-color: antiquewhite;
+}
+ul.naviBar li {
+    display: inline-block;
+    color: rgb(132, 181, 32);
+    text-align: center;
+    padding: 0px 5px;
+    margin: 0px;
+}
+ul.naviBar li a.active {
+    display: block;
+    background-color: #04aa6d;
+    color:aliceblue;
+    padding: 5px
+}
+div.naviBar {
+    background-color: antiquewhite;
+    margin: 0px 0px 10px 0px;
+    padding: 0px 0px
+}
+/* li.naviBar {
+    display: inline-block;
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+} */
+</style>
+
 <template>
-<table cellspacing="0" cellpadding="8" width="100%">
+<div class="naviBar">
+<ul class="naviBar">
+    <li><RouterLink active-class="active" :to="{name: 'main'}">众众</RouterLink></li>
+    <li>--</li>
+    <li><RouterLink active-class="active" :to="{name: 'filelist'}">{{props.column}}</RouterLink></li>
+</ul>
+</div>
+<!-- <table cellspacing="0" cellpadding="8" width="100%">
     <tbody>
         <tr>
             <td bgcolor="#FFFFFF">
@@ -18,8 +57,5 @@ const props = defineProps({
             </td>
         </tr>
     </tbody>
-</table>
+</table> -->
 </template>
-
-<style>
-</style>
