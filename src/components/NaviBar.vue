@@ -26,9 +26,14 @@ ul.naviBar li a.active {
     padding: 5px
 }
 div.naviBar {
+    overflow: hidden;
     background-color: antiquewhite;
     margin: 0px 0px 10px 0px;
-    padding: 0px 0px
+    padding: 0px 0px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
 }
 /* li.naviBar {
     display: inline-block;
@@ -39,6 +44,7 @@ div.naviBar {
 </style>
 
 <template>
+<div style="margin-top: 40px;"></div>
 <div class="naviBar">
 <ul class="naviBar">
     <li><RouterLink active-class="active" :to="{name: 'main'}">众众</RouterLink></li>
