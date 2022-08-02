@@ -2,6 +2,7 @@
 import { defineComponent, computed, ref } from "vue";
 import Uploader from "./Uploader.vue";
 import NaviBar from "./NaviBar.vue";
+import PostBox from "./PostBox.vue";
 
 console.log("FileList.vue")
 // interface ScorePair {score:number, member:string}
@@ -13,7 +14,7 @@ let api: any = {}
 
 export default defineComponent({
     name: "FileList",
-    components: { Uploader, NaviBar },
+    components: { Uploader, NaviBar, PostBox },
     inject:["lapi"],    // Leither api handler
     data() {
         return {
@@ -70,6 +71,7 @@ export default defineComponent({
 
 <template>
 <NaviBar :column=query.titleZh></NaviBar>
+<!-- <PostBox></PostBox> -->
 <div>
     <Uploader :content=query></Uploader>
         <hr/>

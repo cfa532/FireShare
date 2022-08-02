@@ -11,7 +11,7 @@ ul.naviBar {
     background-color: antiquewhite;
     overflow: hidden;
     margin: 0px 0px 10px 0px;
-    padding: 0px 0px;
+    padding: 0px 0px 0px 20px;
     position: fixed;
     top: 0;
     left: 0;
@@ -30,12 +30,6 @@ ul.naviBar li a.active {
     color:aliceblue;
     padding: 5px
 }
-/* li.naviBar {
-    display: inline-block;
-    list-style-type: none;
-    margin: 0px;
-    padding: 0px;
-} */
 </style>
 
 <template>

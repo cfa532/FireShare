@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject } from "vue"
+import { inject, reactive } from "vue"
 
 console.log("Uploader.vue")
 // interface ScorePair { score: number, member: string }
@@ -13,8 +13,17 @@ interface HTMLInputEvent extends Event {
 const props = defineProps(['content']);   // ColoumnContent Type
 const api: any = inject('lapi');
 const fileList: FVPair[] = inject('fileList')!;  // it is a Ref!
+const message = "";
 let file: File;
-const message = ""
+const classModal = reactive({
+      display: "none",
+      position: "fixed",
+      'z-index': 1,
+      overflow: "auto",
+      left:0, top:0, width:"100%", height:"100%",
+      'background-color': "rgb(0,0,0,0.4)",
+      // 'background-color': "rgb(0,0,0,0.4)",
+});
 
 function onSelect(e: Event) {
   let files = (e as HTMLInputEvent).target.files // || (e as DragEvent).dataTransfer.files;
@@ -93,21 +102,83 @@ function onSubmit() {
   // read uploaded file
   r.readAsArrayBuffer(file);
 }
+function showModal(e: MouseEvent) {
+  // show modal box
+  classModal.display = "block"
+}
+// When the user clicks on <span> (x), close the modal
+function closeModal(e: MouseEvent) {
+  classModal.display = "none"
+}
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(e: MouseEvent) {
+  var modal = document.getElementById("myModal");
+  if (e.target == modal) {
+    classModal.display = "none";
+  }
+}
 // })
 </script>
 
 <template>
-  <div>
+<div class="postbox">
+  <p @click="showModal" class="postbox">Tell us what is happening....</p>
+</div>
+<div id="myModal" :style="classModal">
+  <div class="modal-content">
+    <!-- <span class="close" @click="closeModal">&times;</span> -->
     <form @submit.prevent="onSubmit" enctype="multipart/form-data">
-      <div>
+    <div style="width:99%; height:110px; margin: 0 0 15px 0;">
+      <textarea style="width:100%; height:100%"></textarea>
+    </div>
+    <div style="">
         <input type="file" ref="file" @change="onSelect" />
-      </div>
-      <div>
-        <button>Submit</button>
-      </div>
-      <div>
-        <h5>{{ message }}</h5>
-      </div>
+        <button style="float: right;">Submit</button>
+    </div>
     </form>
   </div>
+</div>
 </template>
+
+<style>
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 26px;
+  font-weight: bold;
+}
+.close:hover, .close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+.modal-content {
+  border-radius: 5px;
+  background-color: #fefefe;
+  margin: 5% 15% 5% 2%;
+  padding: 10px;
+  border: 1px solid #888;
+  width: 70%;
+  height: 150px;
+  max-width: 800px;
+}
+p.postbox {
+  font-style: italic;
+  opacity: 0.3;
+  margin: 10px 0px 0px 20px;
+}
+p.postbox:hover {
+  opacity: 0.6;
+}
+div.postbox {
+  display: flex;
+  background-color:#f9f9f9;
+  width: 100%;
+  max-width: 600px;
+  height: 40px;
+  margin: 0px 0px 10px 0px;
+  box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2);
+  cursor: text;
+}
+</style>

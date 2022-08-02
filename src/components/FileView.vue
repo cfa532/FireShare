@@ -20,7 +20,7 @@ const ImgUrl = ref("")
 const videoOptions = reactive({
     autoplay: true,
     controls: true,
-    sources: {} as Array<{ src: string, type: string }>
+    sources: [] as Array<{ src: string, type: string }>
 })
 // const AsyncVideo = defineAsyncComponent(() => 
 //     import('./VideoJS.vue')
@@ -39,7 +39,6 @@ function getLink() {
             const objUrl = URL.createObjectURL(blob)
             console.log(objUrl, fileType)
             if (fileType.includes("image")) {
-                // img.value.src = objUrl
                 ImgUrl.value = objUrl
             } else if (fileType.includes("pdf")) {
                 pdfobject.embed(objUrl, "#pdfviewer", { height: "60rem" })
@@ -61,12 +60,12 @@ function getLink() {
     <NaviBarVue :column=column.titleZh></NaviBarVue>
     <hr />
     <div v-if="fileType.includes('image')">
-        <img :src="ImgUrl" />
+        <img style="width: 100%; height: auto;" :src="ImgUrl" />
     </div>
-    <div id="pdfviewer" v-else-if="fileType.includes('pdf')">
-        <object ref="pdf" :type=fileType width='100%' height='900px' />
+    <div style="width: 100%;" id="pdfviewer" v-else-if="fileType.includes('pdf')">
+        <object ref="pdf" :type=fileType style="width: 100%" />
     </div>
-    <div v-else-if="fileType.includes('video')">
+    <div style="width: 100%;" v-else-if="fileType.includes('video')">
         <VideoPlayer :options="videoOptions" />
         <!-- <objectc :type=fileType
         width='800px' 
