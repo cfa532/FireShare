@@ -2,7 +2,6 @@
 import { defineComponent, computed, ref } from "vue";
 import Uploader from "./Uploader.vue";
 import NaviBar from "./NaviBar.vue";
-import PostBox from "./PostBox.vue";
 
 console.log("FileList.vue")
 // interface ScorePair {score:number, member:string}
@@ -14,7 +13,7 @@ let api: any = {}
 
 export default defineComponent({
     name: "FileList",
-    components: { Uploader, NaviBar, PostBox },
+    components: { Uploader, NaviBar},
     inject:["lapi"],    // Leither api handler
     data() {
         return {
@@ -33,8 +32,6 @@ export default defineComponent({
             // inject a whole array
             fileList: computed(() => this.fileList)
         }
-    },
-    methods: {
     },
     mounted() {
         api = (this as any).lapi    // window.lapi
@@ -74,14 +71,14 @@ export default defineComponent({
 <!-- <PostBox></PostBox> -->
 <div>
     <Uploader :content=query></Uploader>
-        <hr/>
-    <KeepAlive>
-    <li v-for="(file, index) in fileList" :key="index">
+    <ul style="padding: 0px; margin: 0 0 0 5px;">
+    <li class="fileList" v-for="(file, index) in fileList" :key="index">
         <RouterLink
             :to="{ name:'fileview', params:{macid:file.macid, fileType:file.type}}">{{file.name}}
         </RouterLink>
         <!-- <a href="#" ref="file"  @click.prevent="loadFile(file)">{{file.name}}</a> -->
     </li>
-    </KeepAlive>
+    </ul>
 </div>
 </template>
+

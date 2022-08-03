@@ -13,7 +13,6 @@ interface HTMLInputEvent extends Event {
 const props = defineProps(['content']);   // ColoumnContent Type
 const api: any = inject('lapi');
 const fileList: FVPair[] = inject('fileList')!;  // it is a Ref!
-const message = "";
 let file: File;
 const classModal = reactive({
       display: "none",
@@ -67,6 +66,7 @@ function onSubmit() {
                   console.log("Hset ret=", ret, fi);
                   // fileList.find((e: FVPair) => { return e.macid === macid }) ? null : fileList.value.unshift(fi);
                   fileList.value.unshift(fi);
+                  classModal.display = "none"
                 }, (err: Error) => {
                   console.error("Hset error=", err)
                 })
@@ -141,44 +141,4 @@ window.onclick = function(e: MouseEvent) {
 </template>
 
 <style>
-/* The Close Button */
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 26px;
-  font-weight: bold;
-}
-.close:hover, .close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
-.modal-content {
-  border-radius: 5px;
-  background-color: #fefefe;
-  margin: 5% 15% 5% 2%;
-  padding: 10px;
-  border: 1px solid #888;
-  width: 70%;
-  height: 150px;
-  max-width: 800px;
-}
-p.postbox {
-  font-style: italic;
-  opacity: 0.3;
-  margin: 10px 0px 0px 20px;
-}
-p.postbox:hover {
-  opacity: 0.6;
-}
-div.postbox {
-  display: flex;
-  background-color:#f9f9f9;
-  width: 100%;
-  max-width: 600px;
-  height: 40px;
-  margin: 0px 0px 10px 0px;
-  box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2);
-  cursor: text;
-}
 </style>

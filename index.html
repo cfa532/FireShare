@@ -31,13 +31,88 @@ a:visited {
 a:active {
   color:#fc6;
 }
-
+ul.naviBar {
+    list-style-type: none;
+    background-color: antiquewhite;
+    overflow: hidden;
+    margin: 0px 0px 10px 0px;
+    padding: 0px 0px 0px 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+ul.naviBar li {
+    display: inline-block;
+    color: rgb(132, 181, 32);
+    text-align: center;
+    padding: 0px 5px;
+    margin: 0px;
+}
+ul.naviBar li a.active {
+    display: block;
+    background-color: #04aa6d;
+    color:aliceblue;
+    padding: 5px
+}
+li.fileList {
+    list-style-type: none;
+    display: block;
+    padding: 3px 0px;
+}
+li.fileList:hover {
+    background-color: cornsilk;
+}
+li.columnList:hover {
+  background-color: cornsilk;
+  display: inline-block;
+}
 .vjs-modal-dialog .vjs-modal-dialog-content, .video-js .vjs-modal-dialog, .vjs-button > .vjs-icon-placeholder:before, .video-js .vjs-big-play-button .vjs-icon-placeholder:before {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+}
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 26px;
+  font-weight: bold;
+}
+.close:hover, .close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+.modal-content {
+  border-radius: 5px;
+  background-color: #fefefe;
+  margin: 5% 15% 5% 2%;
+  padding: 10px;
+  border: 1px solid #888;
+  width: 70%;
+  height: 150px;
+  max-width: 800px;
+}
+p.postbox {
+  font-style: italic;
+  opacity: 0.3;
+  margin: 10px 0px 0px 20px;
+}
+p.postbox:hover {
+  opacity: 0.6;
+}
+div.postbox {
+  display: flex;
+  background-color:#f9f9f9;
+  width: 100%;
+  max-width: 600px;
+  height: 40px;
+  margin: 0px 0px 10px 0px;
+  box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2);
+  cursor: text;
 }
 
 .vjs-button > .vjs-icon-placeholder:before, .video-js .vjs-big-play-button .vjs-icon-placeholder:before {

@@ -17,7 +17,7 @@ function goFilelist() {
 </script>
 
 <template>
-    <li>
+    <li class="columnList">
         <RouterLink v-if="!content.subColumn || content.subColumn.length==0"
         to="#" @click="goFilelist()">
             {{props.content.titleZh}}
@@ -25,7 +25,7 @@ function goFilelist() {
         <span v-if="content.subColumn && content.subColumn.length>0">{{props.content.titleZh}}</span>
     </li>
     <ul v-if="content.subColumn && content.subColumn.length>0">
-        <li v-for="c in content.subColumn">
+        <li class="columnList" v-for="c in content.subColumn">
             <Column :content=c></Column>
         </li>
     </ul>

@@ -5,39 +5,12 @@ const props = defineProps({
 })
 </script>
 
-<style>
-ul.naviBar {
-    list-style-type: none;
-    background-color: antiquewhite;
-    overflow: hidden;
-    margin: 0px 0px 10px 0px;
-    padding: 0px 0px 0px 20px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-}
-ul.naviBar li {
-    display: inline-block;
-    color: rgb(132, 181, 32);
-    text-align: center;
-    padding: 0px 5px;
-    margin: 0px;
-}
-ul.naviBar li a.active {
-    display: block;
-    background-color: #04aa6d;
-    color:aliceblue;
-    padding: 5px
-}
-</style>
-
 <template>
 <div style="margin-top: 40px;"></div>
 <ul class="naviBar">
     <li><RouterLink active-class="active" :to="{name: 'main'}">众众</RouterLink></li>
     <li>--</li>
-    <li><RouterLink active-class="active" :to="{name: 'filelist'}">{{props.column}}</RouterLink></li>
+    <li><RouterLink class="active" :to="{name: 'filelist'}">{{props.column}}</RouterLink></li>
 </ul>
 <!-- <table cellspacing="0" cellpadding="8" width="100%">
     <tbody>
