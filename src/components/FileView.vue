@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref, onMounted, defineAsyncComponent, onBeforeMount, VueElement, createApp, watch, reactive } from 'vue';
+import { inject, ref, onMounted, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import NaviBarVue from './NaviBar.vue';
 import * as pdfobject from 'pdfobject'

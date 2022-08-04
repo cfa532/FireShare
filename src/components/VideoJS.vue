@@ -58,6 +58,6 @@ export default defineComponent({
 
 <template>
     <div>
-        <video ref="videoPlayer" class="video-js"></video>
+        <video ref="videoPlayer" class="video-js vjs-default-skin" data-setup='{"fluid": true}'></video>
     </div>
 </template>
