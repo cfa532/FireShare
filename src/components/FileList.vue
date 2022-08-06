@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, computed, ref } from "vue";
+import { defineComponent, computed, reactive } from "vue";
 import Uploader from "./Uploader.vue";
 import NaviBar from "./NaviBar.vue";
 
@@ -17,7 +17,7 @@ export default defineComponent({
     inject:["lapi"],    // Leither api handler
     data() {
         return {
-            fileList: [] as FVPair[],
+            fileList: reactive([] as FVPair[]),
             macid: "",
             fileType: "",
             query : computed(()=>{

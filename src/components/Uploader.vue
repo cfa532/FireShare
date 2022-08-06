@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, reactive } from "vue"
+import { inject, reactive, ref } from "vue"
 
 console.log("Uploader.vue")
 // interface ScorePair { score: number, member: string }
@@ -14,6 +14,8 @@ const props = defineProps(['content']);   // ColoumnContent Type
 const api: any = inject('lapi');
 const fileList: FVPair[] = inject('fileList')!;  // it is a Ref!
 let file: File;
+let textValue = ref("")
+const form = ref<HTMLFormElement>();
 const classModal = reactive({
       display: "none",
       position: "fixed",
@@ -24,11 +26,15 @@ const classModal = reactive({
       // 'background-color': "rgb(0,0,0,0.4)",
 });
 
+function selectFile() {
+  document.getElementById("uploadFiles")?.click();
+}
 function onSelect(e: Event) {
   let files = (e as HTMLInputEvent).target.files // || (e as DragEvent).dataTransfer.files;
   if (!files?.length) return;
   file = files[0]
   console.log(file)
+  textValue.value = file.name
 };
 function onSubmit() {
   const r = new FileReader();
@@ -64,7 +70,7 @@ function onSubmit() {
                 api.client.Hset(mmsid, "file_list", macid, fi, (ret: number) => {
                   fi.macid = macid
                   console.log("Hset ret=", ret, fi);
-                  // fileList.find((e: FVPair) => { return e.macid === macid }) ? null : fileList.value.unshift(fi);
+                  // emit an event with infor of newly uploaded file
                   fileList.value.unshift(fi);
                   classModal.display = "none"
                 }, (err: Error) => {
@@ -129,10 +135,11 @@ window.onclick = function(e: MouseEvent) {
     <!-- <span class="close" @click="closeModal">&times;</span> -->
     <form @submit.prevent="onSubmit" enctype="multipart/form-data">
     <div style="width:99%; height:110px; margin: 0 0 15px 0;">
-      <textarea style="width:100%; height:100%"></textarea>
+      <textarea :value="textValue" style="width:100%; height:100%"></textarea>
     </div>
     <div style="">
-        <input type="file" ref="file" @change="onSelect" />
+        <input id="uploadFiles" @change="onSelect" type="file" ref="file" hidden>
+        <button @click.prevent="selectFile">Choose</button>
         <button style="float: right;">Submit</button>
     </div>
     </form>
