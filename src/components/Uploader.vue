@@ -9,9 +9,9 @@ interface HTMLInputEvent extends Event {
 }
 // export default defineComponent({
 // name: "Uploader",
-// inject: ["lapi", "fileList"],
 const props = defineProps(['content']);   // ColoumnContent Type
-const api: any = inject('lapi');
+const emit = defineEmits(["uploaded"])
+const api: any = inject('lapi');    // global Leither handler
 const fileList: FVPair[] = inject('fileList')!;  // it is a Ref!
 let file: File;
 let textValue = ref("")
@@ -71,7 +71,8 @@ function onSubmit() {
                   fi.macid = macid
                   console.log("Hset ret=", ret, fi);
                   // emit an event with infor of newly uploaded file
-                  fileList.value.unshift(fi);
+                  emit('uploaded', fi)
+                  // fileList.value.unshift(fi);
                   classModal.display = "none"
                 }, (err: Error) => {
                   console.error("Hset error=", err)

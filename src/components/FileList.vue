@@ -5,7 +5,7 @@ import NaviBar from "./NaviBar.vue";
 
 console.log("FileList.vue")
 // interface ScorePair {score:number, member:string}
-declare interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
+interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
       
 let api: any = {}
 // let p = localStorage.getItem("currentColumn")
@@ -17,7 +17,7 @@ export default defineComponent({
     inject:["lapi"],    // Leither api handler
     data() {
         return {
-            fileList: reactive([] as FVPair[]),
+            fileList: [] as FVPair[],
             macid: "",
             fileType: "",
             query : computed(()=>{
@@ -30,7 +30,12 @@ export default defineComponent({
     provide() {
         return {
             // inject a whole array
-            fileList: computed(() => this.fileList)
+            // fileList: computed(() => this.fileList)
+        }
+    },
+    methods: {
+        uploaded(fi: FVPair) {
+            this.fileList.unshift(fi)
         }
     },
     mounted() {
@@ -70,7 +75,7 @@ export default defineComponent({
 <NaviBar :column=query.titleZh></NaviBar>
 <!-- <PostBox></PostBox> -->
 <div>
-    <Uploader :content=query></Uploader>
+    <Uploader @uploaded="uploaded" :content=query></Uploader>
     <ul style="padding: 0px; margin: 0 0 0 5px;">
     <li class="fileList" v-for="(file, index) in fileList" :key="index">
         <RouterLink
