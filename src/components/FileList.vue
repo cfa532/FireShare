@@ -30,7 +30,7 @@ export default defineComponent({
     provide() {
         return {
             // inject a whole array
-            // fileList: computed(() => this.fileList)
+            fileList: computed(() => this.fileList)
         }
     },
     methods: {

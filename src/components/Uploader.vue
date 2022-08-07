@@ -13,7 +13,7 @@ const props = defineProps(['content']);   // ColoumnContent Type
 const emit = defineEmits(["uploaded"])
 const api: any = inject('lapi');    // global Leither handler
 const fileList: FVPair[] = inject('fileList')!;  // it is a Ref!
-let file: File;
+let file : File | undefined;
 let textValue = ref("")
 const form = ref<HTMLFormElement>();
 const classModal = reactive({
@@ -26,6 +26,16 @@ const classModal = reactive({
       // 'background-color': "rgb(0,0,0,0.4)",
 });
 
+function onDrop(evt: DragEvent) {
+  // const fs: [] = [...evt.dataTransfer?.files]
+  file = evt.dataTransfer?.files[0]
+  console.log(file)
+  textValue.value = file!.name
+}
+function dragOver(evt: DragEvent) {
+  console.log("DRAG over over")
+  evt.preventDefault()
+}
 function selectFile() {
   document.getElementById("uploadFiles")?.click();
 }
@@ -135,8 +145,8 @@ window.onclick = function(e: MouseEvent) {
   <div class="modal-content">
     <!-- <span class="close" @click="closeModal">&times;</span> -->
     <form @submit.prevent="onSubmit" enctype="multipart/form-data">
-    <div style="width:99%; height:110px; margin: 0 0 15px 0;">
-      <textarea :value="textValue" style="width:100%; height:100%"></textarea>
+    <div style="width:99%; height:110px; margin-bottom: 15px;">
+      <textarea @drop.prevent="onDrop" @drageover.prevent="dragOver" :value="textValue" style="width:100%; height:100%"></textarea>
     </div>
     <div style="">
         <input id="uploadFiles" @change="onSelect" type="file" ref="file" hidden>
