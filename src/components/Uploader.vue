@@ -12,25 +12,31 @@ interface HTMLInputEvent extends Event {
 const props = defineProps(['content']);   // ColoumnContent Type
 const emit = defineEmits(["uploaded"])
 const api: any = inject('lapi');    // global Leither handler
-const fileList: FVPair[] = inject('fileList')!;  // it is a Ref!
 let file : File | undefined;
 let textValue = ref("")
+let fileName = ref("")
 const form = ref<HTMLFormElement>();
 const classModal = reactive({
-      display: "none",
-      position: "fixed",
-      'z-index': 1,
-      overflow: "auto",
-      left:0, top:0, width:"100%", height:"100%",
-      'background-color': "rgb(0,0,0,0.4)",
-      // 'background-color': "rgb(0,0,0,0.4)",
+  display: "none",
+  position: "fixed",
+  'z-index': 1,
+  overflow: "auto",
+  left:0, top:0, width:"100%", height:"100%",
+  'background-color': "rgb(0,0,0,0.4)",
 });
-
+const classFiles = reactive({
+  display: 'inline-block',
+  'margin-left': "10px",
+  'max-width': "400px",
+  "font-family": "Arial",
+  "font-size": "12px",
+  // 'white-space':'nowrap',
+})
 function onDrop(evt: DragEvent) {
   // const fs: [] = [...evt.dataTransfer?.files]
   file = evt.dataTransfer?.files[0]
   console.log(file)
-  textValue.value = file!.name
+  fileName.value = file!.name
 }
 function dragOver(evt: DragEvent) {
   console.log("DRAG over over")
@@ -44,16 +50,16 @@ function onSelect(e: Event) {
   if (!files?.length) return;
   file = files[0]
   console.log(file)
-  textValue.value = file.name
+  fileName.value = file.name
 };
 function onSubmit() {
   const r = new FileReader();
   const sliceSize = 1024 * 1024 * 1
   r.onerror = e => {
-    console.error("Reading failed for ", file.name, e);
+    console.error("Reading failed for ", file?.name, e);
   }
   function readFileSlice(fsid: string, start: number) {
-    // first slice
+    // reading file slice by slice, start at given position
     var end = Math.min(start + sliceSize, (r.result as ArrayBuffer)!.byteLength);
     api.client.MFSetData(fsid, r.result!.slice(start, end), start, (count: number) => {
       if (end === (r.result as ArrayBuffer)!.byteLength) {
@@ -73,16 +79,15 @@ function onSubmit() {
               api.client.Zadd(mmsid, "file_list", sp, (ret: number) => {
                 console.log("Zadd ret=", ret)
                 let fi = new FVPair()
-                fi.name = file.name,
-                  fi.lastModified = file.lastModified,
-                  fi.size = file.size,
-                  fi.type = file.type
+                fi.name = file!.name,
+                  fi.lastModified = file!.lastModified,
+                  fi.size = file!.size,
+                  fi.type = file!.type
                 api.client.Hset(mmsid, "file_list", macid, fi, (ret: number) => {
                   fi.macid = macid
                   console.log("Hset ret=", ret, fi);
                   // emit an event with infor of newly uploaded file
                   emit('uploaded', fi)
-                  // fileList.value.unshift(fi);
                   classModal.display = "none"
                 }, (err: Error) => {
                   console.error("Hset error=", err)
@@ -117,7 +122,10 @@ function onSubmit() {
   }
 
   // read uploaded file
-  r.readAsArrayBuffer(file);
+  if (file!.size > 50*1024*1024) {
+    alert("Max file size 50MB")
+    return
+  }  r.readAsArrayBuffer(file!);
 }
 function showModal(e: MouseEvent) {
   // show modal box
@@ -148,9 +156,10 @@ window.onclick = function(e: MouseEvent) {
     <div style="width:99%; height:110px; margin-bottom: 15px;">
       <textarea @drop.prevent="onDrop" @drageover.prevent="dragOver" :value="textValue" style="width:100%; height:100%"></textarea>
     </div>
-    <div style="">
+    <div>
         <input id="uploadFiles" @change="onSelect" type="file" ref="file" hidden>
         <button @click.prevent="selectFile">Choose</button>
+        <span :style="classFiles">{{fileName}}</span>
         <button style="float: right;">Submit</button>
     </div>
     </form>
