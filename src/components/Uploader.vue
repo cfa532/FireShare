@@ -18,6 +18,8 @@ let textValue = ref("")
 let fileName = ref("")
 const form = ref<HTMLFormElement>();
 const divAttach = ref<HTMLDivElement>()
+const dropHere = ref<HTMLElement>()
+const textArea = ref<HTMLElement>()
 const classModal = reactive({
   display: "none",
   position: "fixed",
@@ -37,13 +39,15 @@ const classFiles = reactive({
   "text-overflow": "ellipsis",
 })
 function dragOver(evt: DragEvent) {
-  console.log("DRAG over over")
-  evt.preventDefault()
+  textArea!.value!.hidden = true
+  dropHere!.value!.hidden = false
 }
 function selectFile() {
   document.getElementById("uploadFiles")?.click();
 }
 function previewSelected(files: FileList) {
+  textArea!.value!.hidden = false
+  dropHere!.value!.hidden = true
   if (files && files[0]) {
     file = files[0]
     fileName.value = file.name
@@ -163,14 +167,17 @@ onMounted(()=>{
   <p @click="showModal" class="postbox">Tell us what is happening....</p>
 </div>
 <div id="myModal" :style="classModal">
-  <div class="modal-content">
+  <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onDrop">
     <!-- <span class="close" @click="closeModal">&times;</span> -->
     <form @submit.prevent="onSubmit" enctype="multipart/form-data">
     <div style="width:99%; height:110px; margin-bottom: 15px;">
-      <textarea @drop.prevent="onDrop" @drageover.prevent="dragOver" :value="textValue" style="width:100%; height:100%"></textarea>
+      <textarea ref="textArea" :value="textValue" style="width:100%; height:100%"></textarea>
+      <div ref="dropHere" style="border: 1px solid lightgrey; text-align: center; width:100%; height:100%; margin: 0px;" hidden>
+        <p style="font-size: 24px">DROP HERE</p>
+      </div>
     </div>
-    <div ref="divAttach" style="border: 1px solid lightgray; border-radius: 3px; margin-bottom: 4px; padding: 5px 0px;">
-      <img style="margin-left: 5px; 100px; height:100px; opacity:0.6" :src="imageUrl" />
+    <div ref="divAttach" style="border: 1px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-left:5px;">
+      <img style="width:100px; height:100px; opacity:0.6" :src="imageUrl" />
     </div>
     <div>
         <input id="uploadFiles" @change="onSelect" type="file" ref="file" hidden>
