@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, reactive, ref } from "vue"
+import { inject, onMounted, reactive, ref } from "vue"
 
 console.log("Uploader.vue")
 // interface ScorePair { score: number, member: string }
@@ -13,9 +13,11 @@ const props = defineProps(['content']);   // ColoumnContent Type
 const emit = defineEmits(["uploaded"])
 const api: any = inject('lapi');    // global Leither handler
 let file : File | undefined;
+let imageUrl = ref("")
 let textValue = ref("")
 let fileName = ref("")
 const form = ref<HTMLFormElement>();
+const divAttach = ref<HTMLDivElement>()
 const classModal = reactive({
   display: "none",
   position: "fixed",
@@ -27,17 +29,13 @@ const classModal = reactive({
 const classFiles = reactive({
   display: 'inline-block',
   'margin-left': "10px",
-  'max-width': "400px",
+  'max-width': "600px",
   "font-family": "Arial",
   "font-size": "12px",
-  // 'white-space':'nowrap',
+  'white-space':'nowrap',
+  "overflow": "hidden",
+  "text-overflow": "ellipsis",
 })
-function onDrop(evt: DragEvent) {
-  // const fs: [] = [...evt.dataTransfer?.files]
-  file = evt.dataTransfer?.files[0]
-  console.log(file)
-  fileName.value = file!.name
-}
 function dragOver(evt: DragEvent) {
   console.log("DRAG over over")
   evt.preventDefault()
@@ -45,13 +43,25 @@ function dragOver(evt: DragEvent) {
 function selectFile() {
   document.getElementById("uploadFiles")?.click();
 }
+function previewSelected(files: FileList) {
+  if (files && files[0]) {
+    file = files[0]
+    fileName.value = file.name
+    if (file.type.includes("image")) {
+      imageUrl.value = URL.createObjectURL(file)
+      divAttach!.value!.hidden = false
+    } else {
+      divAttach!.value!.hidden = true
+    }
+  }
+}
 function onSelect(e: Event) {
   let files = (e as HTMLInputEvent).target.files // || (e as DragEvent).dataTransfer.files;
-  if (!files?.length) return;
-  file = files[0]
-  console.log(file)
-  fileName.value = file.name
+  previewSelected(files!)
 };
+function onDrop(evt: DragEvent) {
+  previewSelected(evt.dataTransfer?.files!)
+}
 function onSubmit() {
   const r = new FileReader();
   const sliceSize = 1024 * 1024 * 1
@@ -142,6 +152,9 @@ window.onclick = function(e: MouseEvent) {
     classModal.display = "none";
   }
 }
+onMounted(()=>{
+  divAttach!.value!.hidden = true
+})
 // })
 </script>
 
@@ -155,6 +168,9 @@ window.onclick = function(e: MouseEvent) {
     <form @submit.prevent="onSubmit" enctype="multipart/form-data">
     <div style="width:99%; height:110px; margin-bottom: 15px;">
       <textarea @drop.prevent="onDrop" @drageover.prevent="dragOver" :value="textValue" style="width:100%; height:100%"></textarea>
+    </div>
+    <div ref="divAttach" style="border: 1px solid lightgray; border-radius: 3px; margin-bottom: 4px; padding: 5px 0px;">
+      <img style="margin-left: 5px; 100px; height:100px; opacity:0.6" :src="imageUrl" />
     </div>
     <div>
         <input id="uploadFiles" @change="onSelect" type="file" ref="file" hidden>
