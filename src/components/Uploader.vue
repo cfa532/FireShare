@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, onMounted, reactive, ref } from "vue"
+import { inject, onBeforeMount, onMounted, reactive, ref } from "vue"
 
 console.log("Uploader.vue")
 // interface ScorePair { score: number, member: string }
@@ -12,10 +12,9 @@ interface HTMLInputEvent extends Event {
 const props = defineProps(['content']);   // ColoumnContent Type
 const emit = defineEmits(["uploaded"])
 const api: any = inject('lapi');    // global Leither handler
-let file : File | undefined;
+let file = ref<File | undefined>();
 let imageUrl = ref("")
 let textValue = ref("")
-let fileName = ref("")
 const form = ref<HTMLFormElement>();
 const divAttach = ref<HTMLDivElement>()
 const dropHere = ref<HTMLElement>()
@@ -49,10 +48,9 @@ function previewSelected(files: FileList) {
   textArea!.value!.hidden = false
   dropHere!.value!.hidden = true
   if (files && files[0]) {
-    file = files[0]
-    fileName.value = file.name
-    if (file.type.includes("image")) {
-      imageUrl.value = URL.createObjectURL(file)
+    file.value = files[0]
+    if (file.value.type.includes("image")) {
+      imageUrl.value = URL.createObjectURL(file.value)
       divAttach!.value!.hidden = false
     } else {
       divAttach!.value!.hidden = true
@@ -60,12 +58,10 @@ function previewSelected(files: FileList) {
   }
 }
 function onSelect(e: Event) {
-  let files = (e as HTMLInputEvent).target.files // || (e as DragEvent).dataTransfer.files;
+  let files = (e as HTMLInputEvent).target.files  || (e as DragEvent).dataTransfer?.files;
+  console.log(files)
   previewSelected(files!)
 };
-function onDrop(evt: DragEvent) {
-  previewSelected(evt.dataTransfer?.files!)
-}
 function onSubmit() {
   const r = new FileReader();
   const sliceSize = 1024 * 1024 * 1
@@ -156,9 +152,6 @@ window.onclick = function(e: MouseEvent) {
     classModal.display = "none";
   }
 }
-onMounted(()=>{
-  divAttach!.value!.hidden = true
-})
 // })
 </script>
 
@@ -167,7 +160,7 @@ onMounted(()=>{
   <p @click="showModal" class="postbox">Tell us what is happening....</p>
 </div>
 <div id="myModal" :style="classModal">
-  <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onDrop">
+  <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect">
     <!-- <span class="close" @click="closeModal">&times;</span> -->
     <form @submit.prevent="onSubmit" enctype="multipart/form-data">
     <div style="width:99%; height:110px; margin-bottom: 15px;">
@@ -176,13 +169,13 @@ onMounted(()=>{
         <p style="font-size: 24px">DROP HERE</p>
       </div>
     </div>
-    <div ref="divAttach" style="border: 1px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-left:5px;">
-      <img style="width:100px; height:100px; opacity:0.6" :src="imageUrl" />
+    <div ref="divAttach" style="border: 1px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-left:5px;" hidden>
+      <img :src="imageUrl" style="width:100px; height:100px; opacity:0.6" />
     </div>
     <div>
-        <input id="uploadFiles" @change="onSelect" type="file" ref="file" hidden>
+        <input id="uploadFiles" @change="onSelect" type="file" hidden>
         <button @click.prevent="selectFile">Choose</button>
-        <span :style="classFiles">{{fileName}}</span>
+        <span :style="classFiles">{{file?.name}}</span>
         <button style="float: right;">Submit</button>
     </div>
     </form>
