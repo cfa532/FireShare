@@ -12,7 +12,7 @@ interface HTMLInputEvent extends Event {
 const props = defineProps(['content']);   // ColoumnContent Type
 const emit = defineEmits(["uploaded"])
 const api: any = inject('lapi');    // global Leither handler
-let file = ref<File | undefined>();
+let file = ref<File>();
 let imageUrl = ref("")
 let textValue = ref("")
 const form = ref<HTMLFormElement>();
@@ -66,9 +66,9 @@ function onSubmit() {
   const r = new FileReader();
   const sliceSize = 1024 * 1024 * 1
   r.onerror = e => {
-    console.error("Reading failed for ", file?.name, e);
+    console.error("Reading failed for ", file.value?.name, e);
   }
-  function readFileSlice(fsid: string, start: number) {
+  function readFileSlice(fsid: string, file: File, start: number) {
     // reading file slice by slice, start at given position
     var end = Math.min(start + sliceSize, (r.result as ArrayBuffer)!.byteLength);
     api.client.MFSetData(fsid, r.result!.slice(start, end), start, (count: number) => {
@@ -89,10 +89,10 @@ function onSubmit() {
               api.client.Zadd(mmsid, "file_list", sp, (ret: number) => {
                 console.log("Zadd ret=", ret)
                 let fi = new FVPair()
-                fi.name = file!.name,
-                  fi.lastModified = file!.lastModified,
-                  fi.size = file!.size,
-                  fi.type = file!.type
+                fi.name = file.name,
+                fi.lastModified = file.lastModified,
+                fi.size = file.size,
+                fi.type = file.type
                 api.client.Hset(mmsid, "file_list", macid, fi, (ret: number) => {
                   fi.macid = macid
                   console.log("Hset ret=", ret, fi);
@@ -115,7 +115,7 @@ function onSubmit() {
           console.error("Temp to Mac error ", err);
         });
       } else {
-        readFileSlice(fsid, start + count)
+        readFileSlice(fsid, file, start + count)
       }
     }, (err: Error) => {
       console.error("set temp file data error ", err);
@@ -124,18 +124,19 @@ function onSubmit() {
 
   r.onload = e => {
     api.client.MFOpenTempFile(api.sid, (fsid: string) => {
-      console.log("temp opened", api.sid, fsid);
-      readFileSlice(fsid, 0);
+      console.log("temp opened", api.sid, fsid, e);
+      readFileSlice(fsid, file.value!, 0);
     }, (err: Error) => {
       console.error("open temp file error ", err);
     });
   }
 
   // read uploaded file
-  if (file!.size > 50*1024*1024) {
+  if (file.value!.size > 50*1024*1024) {
     alert("Max file size 50MB")
     return
-  }  r.readAsArrayBuffer(file!);
+  }
+  r.readAsArrayBuffer(file.value!);
 }
 function showModal(e: MouseEvent) {
   // show modal box
