@@ -60,12 +60,13 @@ function getLink() {
     <NaviBarVue :column=column.titleZh></NaviBarVue>
     <hr />
     <div v-if="fileType.includes('image')">
-        <img style="width: 100%; height: auto;" :src="ImgUrl" />
+        <img style="max-width: 100%; height: 95vh; object-fit: contain;" :src="ImgUrl" />
     </div>
     <div style="width: 100%;" id="pdfviewer" v-else-if="fileType.includes('pdf')">
         <object ref="pdf" :type=fileType style="width: 100%" />
     </div>
-    <div style="width: 100%;" v-else-if="fileType.includes('video')">
+    <div v-else-if="fileType.includes('video')"
+        style=" overflow: hidden;">
         <VideoPlayer :options="videoOptions" />
         <!-- <objectc :type=fileType
         width='800px' 

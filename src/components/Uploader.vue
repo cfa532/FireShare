@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, onBeforeMount, onMounted, reactive, ref } from "vue"
+import { CSSProperties, inject, reactive, ref } from "vue"
 
 console.log("Uploader.vue")
 // interface ScorePair { score: number, member: string }
@@ -19,7 +19,7 @@ const form = ref<HTMLFormElement>();
 const divAttach = ref<HTMLDivElement>()
 const dropHere = ref<HTMLElement>()
 const textArea = ref<HTMLElement>()
-const classModal = reactive({
+const classModal = reactive<CSSProperties>({
   display: "none",
   position: "fixed",
   'z-index': 1,
@@ -27,7 +27,7 @@ const classModal = reactive({
   left:0, top:0, width:"100%", height:"100%",
   'background-color': "rgb(0,0,0,0.4)",
 });
-const classFiles = reactive({
+const classFiles = reactive<CSSProperties>({
   display: 'inline-block',
   'margin-left': "10px",
   'max-width': "600px",

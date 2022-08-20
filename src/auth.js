@@ -116,6 +116,9 @@ function loginPeer(piurl){
             CertFor:"Self",
             Userid:api.Userid,
             RequestService: "mimei"
+
+
+            
         }, 1)
     }).then(ppt=>{
         console.log("ppt=", ppt)
@@ -134,5 +137,4 @@ function showPPT(strppt){
     //     console.log("k=", k)        
     // }
     console.log("data=", ppt.Data)
-
 }
