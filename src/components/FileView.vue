@@ -29,13 +29,21 @@ onMounted(() => {
     console.log(column, route.params, pdfobject)
     getLink()
 });
+const sliceSize = 1024 * 1024 * 10
 function getLink() {
     api.client.MFOpenMacFile(api.sid, api.mid, route.params.macid, (fsid: string) => {
         console.log("Open file fsid=", fsid)
-        api.client.MFGetData(fsid, 0, -1, (buf: ArrayBuffer) => {
-            // arraybuffer
-            const blob = new Blob([buf], { type: fileType as string });
-            // const blob = new Blob([buf], { type: 'application/octet-stream' });
+        readData2Buf(fsid, 0, Array.from(new Uint8Array(0)))
+    }, (err: Error) => {
+        console.error("Open file error=", err)
+    })
+}
+function readData2Buf(fsid: string, start: number, d: any[]) {
+    api.client.MFGetData(fsid, start, sliceSize, (buf:  ArrayBuffer) => {
+        d = d.concat(Array.from(new Uint8Array(buf)))
+        if (buf.byteLength < sliceSize || d.length>sliceSize*2) {
+            // end of data stream
+            const blob = new Blob([new Uint8Array(d)], { type: fileType as string });
             const objUrl = URL.createObjectURL(blob)
             console.log(objUrl, fileType)
             if (fileType.includes("image")) {
@@ -47,13 +55,15 @@ function getLink() {
                 // videoSrc.value = {src: objUrl, type: fileType}
                 videoOptions.sources = [{ src: objUrl, type: fileType }]
             }
-        }, (err: Error) => {
-            console.error("Get File data error=", err)
-        })
+            return
+        } else {
+            readData2Buf(fsid, start+sliceSize, d)
+        }
     }, (err: Error) => {
-        console.error("Open file error=", err)
+        console.error("Get File data error=", err)
     })
 }
+
 </script>
 
 <template>
