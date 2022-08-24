@@ -64,7 +64,7 @@ function onSelect(e: Event) {
 };
 function onSubmit() {
   const r = new FileReader();
-  const sliceSize = 1024 * 1024 * 1
+  const sliceSize = 1024 * 1024 * 10
   r.onerror = e => {
     console.error("Reading failed for ", file.value?.name, e);
   }
@@ -132,7 +132,7 @@ function onSubmit() {
   }
 
   // read uploaded file
-  if (file.value!.size > 50*1024*1024) {
+  if (file.value!.size > 500*1024*1024) {
     alert("Max file size 50MB")
     return
   }
