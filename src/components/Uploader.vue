@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CSSProperties, inject, reactive, ref } from "vue"
+import { CSSProperties, inject, reactive, ref } from "vue";
 
 console.log("Uploader.vue")
 // interface ScorePair { score: number, member: string }
