@@ -32,5 +32,7 @@ const currentProperty = route.params    // props
 <template>
     <NaviBarVue :column=column.titleZh></NaviBarVue>
     <hr/>
-    <component :is="userComponent" v-bind="currentProperty"></component>
+    <KeepAlive>
+        <component :is="userComponent" v-bind="currentProperty"></component>
+    </KeepAlive>
 </template>
