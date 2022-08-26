@@ -6,10 +6,7 @@ import NaviBar from "./NaviBar.vue";
 console.log("FileList.vue")
 // interface ScorePair {score:number, member:string}
 interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
-      
 let api: any = {}
-// let p = localStorage.getItem("currentColumn")
-// const query = p ? JSON.parse(p) : {title: "News", titleZh:"最新文档"}
 
 export default defineComponent({
     name: "FileList",
@@ -35,6 +32,7 @@ export default defineComponent({
     },
     methods: {
         uploaded(fi: FVPair) {
+            // add newly uploaded file to display list
             this.fileList.unshift(fi)
         }
     },
