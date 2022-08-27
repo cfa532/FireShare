@@ -29,7 +29,6 @@ function readData2Buf(fsid: string, start: number, d: any[]) {
         console.error("Get File data error=", err)
     })
 }
-
 </script>
 
 <template>
