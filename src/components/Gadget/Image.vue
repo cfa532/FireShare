@@ -2,35 +2,31 @@
 import { onMounted, ref, inject } from 'vue';
 const api: any = inject("lapi");    // Leither api handler
 const props = defineProps({
-    macid : {type: String, required: true},
-    fileType: {type: String, required: true}
+    macid : {type: String, required: false},
+    fileType: {type: String, required: false}
 })
 const sliceSize = 1024 * 1024 * 10
 const imageUrl = ref("")
 const img = ref<HTMLImageElement>()
-onMounted(() => {
-    api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
-        return readData2Buf(fsid, 0, Array.from(new Uint8Array(0)))
-    }, (err: Error) => {
-        console.error("Open file error=", err)
-    })
+onMounted(async () => {
+    console.log(props)
+    imageUrl.value = await getLink()
 });
-function readData2Buf(fsid: string, start: number, d: any[]) {
-    const fileType = props.fileType
-    api.client.MFGetData(fsid, start, sliceSize, (buf:  ArrayBuffer) => {
-        d = d.concat(Array.from(new Uint8Array(buf)))
-        if (buf.byteLength < sliceSize || d.length>sliceSize*2) {
-            // end of data stream
-            const blob = new Blob([new Uint8Array(d)], {type: fileType});
-            imageUrl.value = URL.createObjectURL(blob)
-        } else {
-            readData2Buf(fsid, start+sliceSize, d)
-        }
-    }, (err: Error) => {
-        console.error("Get File data error=", err)
+async function getLink():Promise<string> {
+    return new Promise((resolve)=>{
+        api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
+            const fileType = props.fileType
+            api.client.MFGetData(fsid, 0, sliceSize, (buf:  ArrayBuffer) => {
+                const blob = new Blob([buf], {type: fileType as string});
+                resolve(URL.createObjectURL(blob))
+            }, (err: Error) => {
+                console.error("Get File data error=", err)
+            })
+        }, (err: Error) => {
+            console.error("Open file error=", err)
+        })
     })
 }
-
 </script>
 
 <template>
