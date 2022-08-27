@@ -9,7 +9,7 @@ const props = defineProps({
 const sliceSize = 1024 * 1024 * 10
 onMounted(() => {
     api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
-        return readData2Buf(fsid, 0, Array.from(new Uint8Array(0)))
+        readData2Buf(fsid, 0, Array.from(new Uint8Array(0)))
     }, (err: Error) => {
         console.error("Open file error=", err)
     })
@@ -18,7 +18,7 @@ function readData2Buf(fsid: string, start: number, d: any[]) {
     const fileType = props.fileType
     api.client.MFGetData(fsid, start, sliceSize, (buf:  ArrayBuffer) => {
         d = d.concat(Array.from(new Uint8Array(buf)))
-        if (buf.byteLength < sliceSize || d.length>sliceSize*2) {
+        if (buf.byteLength < sliceSize) {
             // end of data stream
             const blob = new Blob([new Uint8Array(d)], {type: fileType});
             pdfobject.embed(URL.createObjectURL(blob), "#pdfviewer", { height: "60rem" })
