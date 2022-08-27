@@ -2,11 +2,11 @@
 import { defineComponent } from 'vue';
 import videojs from 'video.js';
 let api: any = {}
-type Option = {
-    autoplay: boolean,
-    controls: boolean,
-    sources: [{ src: string, type: string }]
-}
+// type Option = {
+//     autoplay: boolean,
+//     controls: boolean,
+//     sources: [{ src: string, type: string }]
+// }
 export default defineComponent({
     name: 'VideoPlayer',
     inject:["lapi"],    // Leither api handler
@@ -55,7 +55,7 @@ export default defineComponent({
             const fileType = this.$props.fileType
             api.client.MFGetData(fsid, start, sliceSize, (buf:  ArrayBuffer) => {
                 d = d.concat(Array.from(new Uint8Array(buf)))
-                if (buf.byteLength < sliceSize || d.length>sliceSize*2) {
+                if (buf.byteLength < sliceSize || d.length>sliceSize*2) {   // cannot handle big file
                     // end of data stream
                     const blob = new Blob([new Uint8Array(d)], {type: fileType});
                     this.options.sources = [{src: URL.createObjectURL(blob), type: fileType}]
