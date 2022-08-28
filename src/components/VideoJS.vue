@@ -73,7 +73,11 @@ export default defineComponent({
     mounted() {
         api = (this as any).lapi    // window.lapi
         api.client.MFOpenMacFile(api.sid, api.mid, this.$props.macid, (fsid: string) => {
-            return this.readData2Buf(fsid, 0, Array.from(new Uint8Array(0)))
+            // return this.readData2Buf(fsid, 0, Array.from(new Uint8Array(0)))
+            this.options.sources = [{src: api.baseUrl + "mf" + "?mmsid="+ fsid, type: this.$props.fileType}]
+            this.player = videojs(this.$refs.videoPlayer, this.options, () => {
+                this.player.log('onPlayerReady', this);
+            });
         }, (err: Error) => {
             console.error("Open file error=", err)
         })

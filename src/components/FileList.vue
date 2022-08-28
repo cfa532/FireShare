@@ -43,7 +43,8 @@ export default defineComponent({
             api.mid=mid;        // shall be the same as MM created by Uploader
             console.log("Load MM id=", mid);
             api.client.MMOpen(api.sid, mid, "cur", (mmsid:string)=>{
-                console.log("Open MM mmsid=", mmsid);
+                api.mmsid = mmsid
+                console.log("Open MM mmsid=", api.mmsid);
                 // var sc = Data.now()
                 api.client.Zrange(mmsid, "file_list", 0, 100, (sps:[])=>{
                     console.log("Score pair lists", sps)

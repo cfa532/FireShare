@@ -8,12 +8,7 @@ const props = defineProps({
 })
 onMounted(() => {
     api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
-        api.client.MFGetData(fsid, 0, -1, (buf:  ArrayBuffer) => {
-            const blob = new Blob([buf], {type: props.fileType});
-            pdfobject.embed(URL.createObjectURL(blob), "#pdfviewer", { height: "60rem" })
-        }, (err: Error) => {
-            console.error("Get File data error=", err)
-        })
+        pdfobject.embed(api.baseUrl + "mf" + "?mmsid="+ fsid, "#pdfviewer", { height: "60rem" })
     }, (err: Error) => {
         console.error("Open file error=", err)
     })
@@ -21,5 +16,5 @@ onMounted(() => {
 </script>
 
 <template>
-    <div style="width: 100%;" id="pdfviewer"></div>
+    <div id="pdfviewer" style="width: 100%;"></div>
 </template>
