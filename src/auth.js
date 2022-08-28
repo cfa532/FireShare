@@ -116,9 +116,6 @@ function loginPeer(piurl){
             CertFor:"Self",
             Userid:api.Userid,
             RequestService: "mimei"
-
-
-            
         }, 1)
     }).then(ppt=>{
         console.log("ppt=", ppt)
@@ -137,4 +134,50 @@ function showPPT(strppt){
     //     console.log("k=", k)        
     // }
     console.log("data=", ppt.Data)
+}
+
+function showFile(stub, mmfsid, filePath){
+    //读出文件类型，暂时串行执行
+    stub.MFGetMimeType(mmfsid).then(function(mimeType){   
+        //这里加入文件方式
+        console.log("mimeType=  ", mimeType)
+        objUrl = baseurl + "mf" + encodeURI(filePath) + "?mmsid="+ mmfsid
+
+        if (mimeType == "video/mp4"){
+            console.log("mimeType=", mimeType)
+            console.log("mimeType is video", objUrl);  
+            strVideo = '<video controls autoplay style="width:100%" id= "media" name="media"><source src="' + objUrl+ '" type="video/mp4"> </video>'
+            strVideo = strVideo + strinfo
+            document.getElementById('LeitherBody').innerHTML = strVideo    
+            //console.log("video ok html=", strVideo);  
+            return
+        }   
+        if (mimeType == "image/jpeg"){
+            //objUrl = baseurl + "mf" + filePath + "?mmsid="+ mmfsid
+            strImage = '< img style="width:100%" src="' + objUrl+ '">'
+            strImage = strImage + strinfo
+            document.getElementById('LeitherBody').innerHTML = strImage    
+            return
+        }
+        
+        if (mimeType == "application/pdf"){
+            var strBody = '<iframe src='+ objUrl + 
+            ' id="myiframe" scrolling="no" frameborder="0"  height="800" width="100%"></iframe>'
+    
+            console.log("showFileByFileData  pdf strBody=", strBody);
+            document.getElementById('LeitherBody').innerHTML = strBody
+            return
+            //return
+        }
+
+        //读出文件内容
+        // stub.MFGetData(mmfsid, 0, -1).then(function(fileData) {
+        //     showFileByFileData(fileData, mimeType)
+        // }, Catch)
+        var strBody = '<iframe src='+ objUrl + 
+        ' id="myiframe" scrolling="no" frameborder="0"  height="800" width="100%"></iframe>'
+
+        console.log("showFileByFileData  pdf strBody=", strBody);
+        document.getElementById('LeitherBody').innerHTML = strBody
+    },Catch);
 }

@@ -76,7 +76,7 @@ function onSubmit() {
         // last slice done. Convert to Mac file
         api.client.MFTemp2MacFile(fsid, "", (macid: string) => {
           console.log("Temp file to MacID=", macid);
-          // create mmid for this app
+          // create mmid for the column. Each colome (title) is a Mimei database, new item is added to this MM.
           api.client.MMCreate(api.sid, "fireshare", props.content.title, "file_list", 2, "", (mid: string) => {
             console.log("Create MM id=", mid, props.content)
             document.getElementsByTagName("input")[0].value = "" // clear input value

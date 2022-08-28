@@ -39,6 +39,7 @@ export default defineComponent({
     mounted() {
         api = (this as any).lapi    // window.lapi
         api.client.MMCreate(api.sid,"fireshare", this.query.title, "file_list", 2, "", (mid:string)=>{
+            // each colume is one MM
             api.mid=mid;        // shall be the same as MM created by Uploader
             console.log("Load MM id=", mid);
             api.client.MMOpen(api.sid, mid, "cur", (mmsid:string)=>{
