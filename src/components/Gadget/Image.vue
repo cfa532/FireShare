@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from '@vue/reactivity';
 import { onMounted, ref, inject, onUnmounted, watch } from 'vue';
 const api: any = inject("lapi");    // Leither api handler
 const props = defineProps({
@@ -28,19 +27,7 @@ async function getLink():Promise<string> {
         })
     })
 }
-// const imgUrl = computed(async ()=>{
-//     return new Promise<string>((resolve)=>{
-//         if (typeof props.filePath !== "undefined") {
-//             // filePath not null, showing a local file
-//             resolve(api.baseUrl + "mf" + props.filePath + "?mmsid="+ props.mmfsid)
-//         }
-//         api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
-//             resolve(api.baseUrl + "mf" + "?mmsid="+ fsid)
-//         }, (err: Error) => {
-//             console.error("Open file error=", err)
-//         })
-//     })
-// })
+
 watch(()=>props.filePath, async (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {
         // getCurrentInstance()?.proxy?.$forceUpdate()

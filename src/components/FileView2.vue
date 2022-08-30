@@ -4,11 +4,11 @@ import NaviBarVue from './NaviBar.vue';
 import MyImg from './Gadget/Image.vue';
 import MyPdf from './Gadget/pdf.vue';
 import MyDir from './Gadget/Dir.vue';
+import MyObject from './Gadget/Object.vue';
 import { shallowRef, ref, reactive } from '@vue/reactivity';
 import VideoPlayer from './VideoJS.vue'
 import { onMounted, inject, watch, getCurrentInstance, nextTick } from 'vue';
 const route = useRoute()
-const router = useRouter()
 const api: any = inject("lapi");    // Leither api handler
 const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const userComponent = shallowRef()
@@ -33,12 +33,19 @@ function getComponent(filePath: string) {
                 api.client.MFGetMimeType(mmfsid, (mimeType: string)=>{
                     var ext = filePath.substring(filePath.lastIndexOf('.')+1)
                     if (mimeType=="video/mp4" || ['mp4','mkv','mov','avi','divx','wmv','flv'].includes(ext.toLowerCase())) {
-                        currentProperty.value.fileType = mimeType
+                    // if (mimeType.includes("video")) {
+                        currentProperty.value.fileType = "video/mp4"
                         userComponent.value = VideoPlayer
-                    } else if (mimeType=="image/jpeg"){
+                    } else if (mimeType.includes("image")) {
                         userComponent.value = MyImg
-                    } else if (mimeType=="application/pdf") {
+                    } else if (mimeType.includes("pdf")) {
                         userComponent.value = MyPdf
+                    } else {
+                        // unhandled file types, do nothing
+                        console.log("Unknown file type", mimeType)
+                        // window.location.href = api.baseUrl+"mf"+filePath+"?mmsid="+mmfsid
+                        // window.open(api.baseUrl+"mf"+filePath+"?mmsid="+mmfsid)
+                        userComponent.value = MyObject
                     }
                 }, (err: Error) => {
                     console.error("MFGetMimeType error=", err)
@@ -59,6 +66,7 @@ watch(()=>route.params.filePath, async (toParams, prevParams)=>{
         getComponent(route.params.filePath as string)
     }
 })
+
 </script>
 
 <template>

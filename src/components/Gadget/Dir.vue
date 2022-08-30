@@ -1,37 +1,32 @@
 <script setup lang="ts">
 import { inject, ref, onMounted, watch } from "vue";
-import { useRoute } from 'vue-router';
 
 const api: any = inject("lapi");    // Leither api handler
 const localFiles = ref<any[]>();
 const props = defineProps({
     filePath: {type: String, required: false},
 })
-const route = useRoute()
 const componentKey = ref(0)
 
 onMounted(()=>{
     console.log("Reading dir:", (props.filePath))
-    api.client.MFOpenByPath(api.sid, "mmroot", props.filePath, 0, (mmfsid:string)=>{
+    showDir(props.filePath as string)
+})
+watch(()=>props.filePath, (toParams, prevParams)=>{
+    if (toParams as string !== prevParams as string) {
+        componentKey.value += 1
+        showDir(props.filePath as string)
+    }
+})
+function showDir(filePath: string) {
+    api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid:string)=>{
         api.client.MFReaddir(mmfsid, (files:any[])=>{
             localFiles.value = files
         })
     }, (err:Error)=>{
         console.error("Open path err=", err)
     })
-})
-watch(()=>props.filePath, (toParams, prevParams)=>{
-    if (toParams as string !== prevParams as string) {
-        componentKey.value += 1
-        api.client.MFOpenByPath(api.sid, "mmroot", props.filePath, 0, (mmfsid:string)=>{
-            api.client.MFReaddir(mmfsid, (files:any[])=>{
-                localFiles.value = files
-            })
-        }, (err:Error)=>{
-            console.error("Open path err=", err)
-        })
-    }
-})
+}
 </script>
 
 <template>
