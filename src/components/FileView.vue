@@ -15,7 +15,11 @@ const route = useRoute()
 // })
 const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const fileType = route.params.fileType as string;
-
+const User = {
+  // make sure to add a prop named exactly like the route param
+  props: ['id'],
+  template: '<div>User {{ id }}</div>'
+}
 const userComponent = computed(() => {
     if (fileType.includes("image")) {
         return MyImg

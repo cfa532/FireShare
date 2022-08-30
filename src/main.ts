@@ -4,7 +4,8 @@ import { getLApi } from './auth';
 import App from './App.vue'
 import FileListVue from './components/FileList.vue';
 import MainPageVue from './components/MainPage.vue';
-import FileViewVue from './components/FileView.vue';
+import FileViewVue from './components/FileView.vue';        // Mac file within a MM
+import FileView2Vue from './components/FileView2.vue';      // view files in webdav
 // const FileViewVue = ()=> import('./components/FileView.vue')       //lazy load
 
 const router = createRouter({
@@ -13,7 +14,8 @@ const router = createRouter({
     routes: [
         { path: '/', name:"main", component: MainPageVue},
         { path: '/filelist', name:"filelist", component: FileListVue},
-        { path: '/fileview/:macid/:fileType', name:"fileview", component: FileViewVue}
+        { path: '/fileview/:macid/:fileType', name:"fileview", component: FileViewVue},
+        { path: '/fileview2/:filePath', name:"fileview2", component: FileView2Vue, props:route=>{route.query.filePath}},
     ],
 })
 

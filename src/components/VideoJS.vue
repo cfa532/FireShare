@@ -17,8 +17,10 @@ export default defineComponent({
         //         return {};
         //     }
         // }
-        macid: {type:String, required: true},
-        fileType: {type:String, required: true}
+        macid: {type:String, required: false},
+        fileType: {type:String, required: false},
+        filePath: {type: String, required: false},
+        mmfsid: {type: String, required: false},
     },
     // watch: {
     //     "options.sources": {
@@ -36,7 +38,7 @@ export default defineComponent({
             options : {
                 controls: true,
                 autoplay: true,
-                sources: [{src:"", type:""}]
+                sources: [{src:"", type :"" as string || undefined}]
             }
         }
     },
@@ -72,6 +74,14 @@ export default defineComponent({
     },
     mounted() {
         api = (this as any).lapi    // window.lapi
+        if (typeof this.$props.filePath !== "undefined") {
+            // filePath has value, showing a local file
+            this.options.sources = [{src:api.baseUrl + "mf" + this.$props.filePath + "?mmsid="+ this.$props.mmfsid, type: this.$props.fileType}]
+            this.player = videojs(this.$refs.videoPlayer, this.options, () => {
+                this.player.log('onPlayerReady', this);
+            });
+            return
+        }
         api.client.MFOpenMacFile(api.sid, api.mid, this.$props.macid, (fsid: string) => {
             // return this.readData2Buf(fsid, 0, Array.from(new Uint8Array(0)))
             this.options.sources = [{src: api.baseUrl + "mf" + "?mmsid="+ fsid, type: this.$props.fileType}]

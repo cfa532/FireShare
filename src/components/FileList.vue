@@ -15,6 +15,7 @@ export default defineComponent({
     data() {
         return {
             fileList: [] as FVPair[],
+            localFiles: [] as any[],
             macid: "",
             fileType: "",
             query : computed(()=>{
@@ -38,6 +39,18 @@ export default defineComponent({
     },
     mounted() {
         api = (this as any).lapi    // window.lapi
+        if (this.query.title === "Webdav") {
+            // load files in webdav folder
+            api.client.MFOpenByPath(api.sid, "mmroot", '/', 0, (mmfsid:string)=>{
+                api.client.MFReaddir(mmfsid, (files:any[])=>{
+                    console.log("Read /root", files)
+                    this.localFiles = files
+                })
+            }, (err:Error)=>{
+                console.error("Open path err=", err)
+            })
+            return
+        }
         api.client.MMCreate(api.sid,"fireshare", this.query.title, "file_list", 2, "", (mid:string)=>{
             // each colume is one MM
             api.mid=mid;        // shall be the same as MM created by Uploader
@@ -74,7 +87,7 @@ export default defineComponent({
 <template>
 <NaviBar :column=query.titleZh></NaviBar>
 <!-- <PostBox></PostBox> -->
-<div>
+<div v-if="query.title!=='Webdav'">
     <Uploader @uploaded="uploaded" :content=query></Uploader>
     <ul style="padding: 0px; margin: 0 0 0 5px;">
     <li class="fileList" v-for="(file, index) in fileList" :key="index">
@@ -82,6 +95,15 @@ export default defineComponent({
             :to="{ name:'fileview', params:{macid:file.macid, fileType:file.type}}">{{file.name}}
         </RouterLink>
         <!-- <a href="#" ref="file"  @click.prevent="loadFile(file)">{{file.name}}</a> -->
+    </li>
+    </ul>
+</div>
+<div v-else-if="query.title==='Webdav'">
+    <ul style="padding: 0px; margin: 0 0 0 5px;">
+    <li class="fileList" v-for="(file, index) in localFiles" :key="index">
+        <RouterLink
+            :to="{name:'fileview2', params: {filePath:('/'+file.fName)}}">{{file.fName}}
+        </RouterLink>
     </li>
     </ul>
 </div>
