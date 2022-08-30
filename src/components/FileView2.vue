@@ -14,7 +14,7 @@ const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const userComponent = shallowRef()
 // route.params["mmfsid"] = ""
 const renderComponent = ref(true)
-const currentProperty = reactive({filePath: route.params.filePath, mmfsid:""})    // props
+const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: ""})    // props
 onMounted(()=>{
     getComponent(route.params.filePath as string)
 })
@@ -22,17 +22,18 @@ onMounted(()=>{
 function getComponent(filePath: string) {
     // check filePath info
     api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid:string)=>{
-        currentProperty.mmfsid = mmfsid    // pass mmfsid, so the component do not have to open file again
+        // pass mmfsid, so the component do not have to open file again
+        currentProperty.value = {filePath: filePath, mmfsid: mmfsid, fileType: ""}
         api.client.MFStat(mmfsid, (fi:any)=>{
             console.log(filePath, fi)
             if (fi.fIsDir) {
+                currentProperty.value.filePath = filePath
                 userComponent.value = MyDir;
             } else {
-                console.log(mmfsid, fi)
                 api.client.MFGetMimeType(mmfsid, (mimeType: string)=>{
-                    console.log("mimeType= ", mimeType)
                     var ext = filePath.substring(filePath.lastIndexOf('.')+1)
-                    if (mimeType=="video/mp4" || ['mp4','mkv','mov','avi','divx','wmv','flv'].includes(ext.toLowerCase())){
+                    if (mimeType=="video/mp4" || ['mp4','mkv','mov','avi','divx','wmv','flv'].includes(ext.toLowerCase())) {
+                        currentProperty.value.fileType = mimeType
                         userComponent.value = VideoPlayer
                     } else if (mimeType=="image/jpeg"){
                         userComponent.value = MyImg
@@ -53,9 +54,9 @@ function getComponent(filePath: string) {
 
 watch(()=>route.params.filePath, async (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {
-        // currentProperty.filePath = toParams
-        console.log(toParams);
-        router.go(0)
+        console.log(toParams, prevParams);
+        // router.go(0)
+        getComponent(route.params.filePath as string)
     }
 })
 </script>

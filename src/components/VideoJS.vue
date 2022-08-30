@@ -22,16 +22,22 @@ export default defineComponent({
         filePath: {type: String, required: false},
         mmfsid: {type: String, required: false},
     },
-    // watch: {
-    //     "options.sources": {
-    //         deep: true,
-    //         handler: function (newVal, oldVal) {
-    //             console.log(newVal, oldVal)
-    //             if (newVal[0].src !== '')
-    //                 this.loadPlayer()
-    //         }
-    //     }
-    // },
+    watch: {
+        "$props.filePath": {
+            deep: true,
+            handler: function (newVal, oldVal) {
+                if (newVal !== oldVal) {
+                    console.log(newVal, this.options)
+                    this.options.sources = [{src:api.baseUrl + "mf" + this.$props.filePath + "?mmsid="+ this.$props.mmfsid,
+                                type: this.$props.fileType}]
+                    this.loadPlayer(this.options, ()=>{
+                        // force reload new src
+                        this.$router.go(0)
+                    })
+                }
+            }
+        }
+    },
     data() {
         return {
             player: null as any,
@@ -43,54 +49,34 @@ export default defineComponent({
         }
     },
     methods: {
-        loadPlayer() {
-        //     if (this.player) {
-        //         this.player.options = this.options
-        //     } else {
-        //         this.player = videojs(this.$refs.videoPlayer, this.options, () => {
-        //             this.player.log('onPlayerReady', this);
-        //         });
-        //     }
+        loadPlayer(options: any, fn:any=null) {
+            if (this.player) {
+                this.player.options = options
+                console.log("reload player", this.player.options.sources[0])
+                // this.player.play()
+                if (fn) fn()
+            } else {
+                this.player = videojs(this.$refs.videoPlayer, options, () => {
+                    this.player.log('onPlayerReady', this);
+                });
+            }
         },
-        readData2Buf(fsid: string, start: number, d: any[]) {
-            const sliceSize = 1024 * 1024 * 10
-            const fileType = this.$props.fileType
-            api.client.MFGetData(fsid, start, sliceSize, (buf:  ArrayBuffer) => {
-                d = d.concat(Array.from(new Uint8Array(buf)))
-                if (buf.byteLength < sliceSize || d.length>sliceSize*2) {   // cannot handle big file
-                    // end of data stream
-                    const blob = new Blob([new Uint8Array(d)], {type: fileType});
-                    this.options.sources = [{src: URL.createObjectURL(blob), type: fileType}]
-                    this.player = videojs(this.$refs.videoPlayer, this.options, () => {
-                        this.player.log('onPlayerReady', this);
-                    });
-                } else {
-                    this.readData2Buf(fsid, start+sliceSize, d)
-                }
-            }, (err: Error) => {
-                console.error("Get File data error=", err)
-            })
-        }
     },
     mounted() {
         api = (this as any).lapi    // window.lapi
         if (typeof this.$props.filePath !== "undefined") {
-            // filePath has value, showing a local file
-            this.options.sources = [{src:api.baseUrl + "mf" + this.$props.filePath + "?mmsid="+ this.$props.mmfsid, type: this.$props.fileType}]
-            this.player = videojs(this.$refs.videoPlayer, this.options, () => {
-                this.player.log('onPlayerReady', this);
-            });
-            return
+            this.options.sources = [{src:api.baseUrl + "mf" + this.$props.filePath + "?mmsid="+ this.$props.mmfsid,
+                                type: this.$props.fileType}]
+            this.loadPlayer(this.options)
+        } else {
+            api.client.MFOpenMacFile(api.sid, api.mid, this.$props.macid, (fsid: string) => {
+                // return this.readData2Buf(fsid, 0, Array.from(new Uint8Array(0)))
+                this.options.sources = [{src: api.baseUrl + "mf" + "?mmsid="+ fsid, type: this.$props.fileType}]
+                this.loadPlayer(this.options)
+            }, (err: Error) => {
+                console.error("Open file error=", err)
+            })
         }
-        api.client.MFOpenMacFile(api.sid, api.mid, this.$props.macid, (fsid: string) => {
-            // return this.readData2Buf(fsid, 0, Array.from(new Uint8Array(0)))
-            this.options.sources = [{src: api.baseUrl + "mf" + "?mmsid="+ fsid, type: this.$props.fileType}]
-            this.player = videojs(this.$refs.videoPlayer, this.options, () => {
-                this.player.log('onPlayerReady', this);
-            });
-        }, (err: Error) => {
-            console.error("Open file error=", err)
-        })
     },
     beforeDestroy() {
         if (this.player) {

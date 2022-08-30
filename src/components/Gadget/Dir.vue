@@ -22,8 +22,14 @@ onMounted(()=>{
 })
 watch(()=>props.filePath, (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {
-        console.log(toParams, prevParams, props);
         componentKey.value += 1
+        api.client.MFOpenByPath(api.sid, "mmroot", props.filePath, 0, (mmfsid:string)=>{
+            api.client.MFReaddir(mmfsid, (files:any[])=>{
+                localFiles.value = files
+            })
+        }, (err:Error)=>{
+            console.error("Open path err=", err)
+        })
     }
 })
 </script>
