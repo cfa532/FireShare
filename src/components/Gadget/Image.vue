@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, inject, onUnmounted } from 'vue';
+import { onMounted, ref, inject, onUnmounted, watch } from 'vue';
 const api: any = inject("lapi");    // Leither api handler
 const props = defineProps({
     macid : {type: String, required: false},
@@ -9,6 +9,7 @@ const props = defineProps({
 })
 const imageUrl = ref("")
 const img = ref<HTMLImageElement>()
+const componentKey = ref(0)
 onMounted(async () => {
     imageUrl.value = await getLink()
     // imageUrl.value = api.baseUrl + "mf/" + encodeURI(props.macid!) + "?mmsid="+ api.mmsid
@@ -35,6 +36,14 @@ async function getLink():Promise<string> {
 }
 onUnmounted(()=>{
     // URL.revokeObjectURL()
+})
+watch(()=>props.filePath, (toParams, prevParams)=>{
+    if (toParams as string !== prevParams as string) {
+        // getCurrentInstance()?.proxy?.$forceUpdate()
+        // router.push(route.fullPath)
+        componentKey.value += 1
+        console.log(toParams, prevParams, componentKey.value);
+    }
 })
 </script>
 

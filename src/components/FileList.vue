@@ -86,7 +86,7 @@ export default defineComponent({
 
 <template>
 <NaviBar :column=query.titleZh></NaviBar>
-<!-- <PostBox></PostBox> -->
+    <hr/>
 <div v-if="query.title!=='Webdav'">
     <Uploader @uploaded="uploaded" :content=query></Uploader>
     <ul style="padding: 0px; margin: 0 0 0 5px;">

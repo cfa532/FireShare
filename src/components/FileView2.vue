@@ -6,12 +6,14 @@ import MyPdf from './Gadget/pdf.vue';
 import MyDir from './Gadget/Dir.vue';
 import { shallowRef, ref, reactive } from '@vue/reactivity';
 import VideoPlayer from './VideoJS.vue'
-import { onMounted, inject, watch, getCurrentInstance } from 'vue';
+import { onMounted, inject, watch, getCurrentInstance, nextTick } from 'vue';
 const route = useRoute()
+const router = useRouter()
 const api: any = inject("lapi");    // Leither api handler
 const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const userComponent = shallowRef()
 // route.params["mmfsid"] = ""
+const renderComponent = ref(true)
 const currentProperty = reactive({filePath: route.params.filePath, mmfsid:""})    // props
 onMounted(()=>{
     getComponent(route.params.filePath as string)
@@ -49,18 +51,21 @@ function getComponent(filePath: string) {
     })
 }
 
-// watch(()=>route.params.filePath, (toParams, prevParams)=>{
-//     console.log(toParams, prevParams);
-//     if (toParams as string !== prevParams as string) {
-//         // getCurrentInstance()?.proxy?.$forceUpdate()
-//     }
-// })
+watch(()=>route.params.filePath, async (toParams, prevParams)=>{
+    if (toParams as string !== prevParams as string) {
+        // currentProperty.filePath = toParams
+        console.log(toParams);
+        router.go(0)
+    }
+})
 </script>
 
 <template>
     <NaviBarVue :column=column.titleZh></NaviBarVue>
     <hr/>
+    <div v-if="renderComponent">
     <KeepAlive>
         <component :is="userComponent" v-bind="currentProperty"></component>
     </KeepAlive>
+    </div>
 </template>
