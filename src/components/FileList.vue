@@ -104,6 +104,7 @@ export default defineComponent({
         <RouterLink
             :to="{name:'fileview2', params: {filePath:('/'+file.fName)}}">{{file.fName}}
         </RouterLink>
+        <span v-if="file.fIsDir"> ...</span>
     </li>
     </ul>
 </div>
