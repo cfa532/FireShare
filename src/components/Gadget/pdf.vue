@@ -11,6 +11,7 @@ const props = defineProps({
 onMounted(() => {
     if (typeof props.filePath !== "undefined") {
         pdfobject.embed(api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid, "#pdfviewer", { height: "60rem" })
+        // window.open(api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid)
     } else {
         api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
             pdfobject.embed(api.baseUrl+"mf"+"?mmsid="+fsid, "#pdfviewer", { height: "60rem" })

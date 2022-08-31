@@ -9,6 +9,7 @@ import { shallowRef, ref, reactive } from '@vue/reactivity';
 import VideoPlayer from './VideoJS.vue'
 import { onMounted, inject, watch, getCurrentInstance, nextTick } from 'vue';
 const route = useRoute()
+const router = useRouter()
 const api: any = inject("lapi");    // Leither api handler
 const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const userComponent = shallowRef()
@@ -42,10 +43,13 @@ function getComponent(filePath: string) {
                         userComponent.value = MyPdf
                     } else {
                         // unhandled file types, do nothing
-                        console.log("Unknown file type", mimeType)
-                        // window.location.href = api.baseUrl+"mf"+filePath+"?mmsid="+mmfsid
-                        // window.open(api.baseUrl+"mf"+filePath+"?mmsid="+mmfsid)
-                        userComponent.value = MyObject
+                        console.log("Object type", mimeType)
+                        currentProperty.value.fileType = mimeType
+                        // userComponent.value = MyObject
+                        api.client.MFGetData(mmfsid, 0, -1, (fileData:Uint8Array)=>{
+                            downLoadByFileData(fileData, filePath, mimeType)
+                            router.go(-1)      // set correct file path
+                        })
                     }
                 }, (err: Error) => {
                     console.error("MFGetMimeType error=", err)
@@ -57,6 +61,19 @@ function getComponent(filePath: string) {
     }, (err: Error) => {
         console.error("MFOpenByPath error=", err)
     })
+}
+
+function downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {    
+    var blob = new Blob([content], {type: mimeType});    
+    var a = document.createElement("a");
+    var url = window.URL.createObjectURL(blob);    
+    a.href = url;
+    // console.log("downLoadByFileData ", fileName, "tpye=", a.type, a.href);
+    fileName = fileName.substring(fileName.lastIndexOf('/')+1)
+    a.download = fileName;
+    a.type =  mimeType;
+    a.click();
+    window.URL.revokeObjectURL(url);
 }
 
 watch(()=>route.params.filePath, async (toParams, prevParams)=>{

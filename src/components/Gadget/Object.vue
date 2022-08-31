@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, inject, watch } from 'vue';
+import { onMounted, inject, watch, ref } from 'vue';
 const api: any = inject("lapi");    // Leither api handler
 const props = defineProps({
     macid : {type: String, required: false},
@@ -7,17 +7,33 @@ const props = defineProps({
     filePath: {type: String, required: false},
     mmfsid: {type: String, required: false},
 })
+const objUrl = ref("")
 onMounted(() => {
     if (typeof props.filePath !== "undefined") {
-    } else {
-
+        objUrl.value = (api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid)
+        console.log(objUrl.value)
+        api.client.MFGetData(props.mmfsid, 0, -1, (fileData:Uint8Array)=>{
+            downLoadByFileData(fileData, props.filePath, props.fileType)
+        })
     }
 })
-watch(()=>props.filePath, async (toParams, prevParams)=>{
 
-})
+function downLoadByFileData(content:Uint8Array, fileName:string|undefined, mimeType:string|undefined) {    
+    var blob = new Blob([content], {type: mimeType});    
+    //console.log("blob.type", blob.type);
+    var a = document.createElement("a");
+    var url = window.URL.createObjectURL(blob);    
+    a.href = url;
+    a.download = fileName as string;
+    a.type =  mimeType as string;
+    console.log("downLoadByFileData ", fileName, "tpye=", a.type);
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
 </script>
 
 <template>
-    <div id="pdfviewer" style="width: 100%;"></div>
+    <div id="objViewer" style="width: 100%;">
+        <!-- <object data="objUrl"></object> -->
+    </div>
 </template>
