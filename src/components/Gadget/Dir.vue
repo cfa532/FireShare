@@ -66,7 +66,7 @@ function fileDownload(e: MouseEvent, f: any){
         <span v-if="file.fIsDir"> ...&gt;</span>
         <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
         <span v-if="['pdf', 'doc'].includes(file.fName.substring(file.fName.length-3).toLowerCase())">
-            <a href="" @click.prevent="(e)=>fileDownload(e, file)" download>&dArr;&dArr;</a>
+            <a href="" @click.prevent="(e)=>fileDownload(e, file)" download>&dArr;</a>
         </span>
     </li>
     </ul>
