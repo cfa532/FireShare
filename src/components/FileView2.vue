@@ -17,6 +17,7 @@ const userComponent = shallowRef()
 const renderComponent = ref(true)
 const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: ""})    // props
 onMounted(()=>{
+    console.log(route.params)
     getComponent(route.params.filePath as string)
 })
 
@@ -26,7 +27,7 @@ function getComponent(filePath: string) {
         // pass mmfsid, so the component do not have to open file again
         currentProperty.value = {filePath: filePath, mmfsid: mmfsid, fileType: ""}
         api.client.MFStat(mmfsid, (fi:any)=>{
-            console.log(filePath, fi)
+            // console.log(filePath, fi)
             if (fi.fIsDir) {
                 currentProperty.value.filePath = filePath
                 userComponent.value = MyDir;
@@ -38,8 +39,10 @@ function getComponent(filePath: string) {
                         currentProperty.value.fileType = "video/mp4"
                         userComponent.value = VideoPlayer
                     } else if (mimeType.includes("image")) {
+                        currentProperty.value.fileType = mimeType
                         userComponent.value = MyImg
                     } else if (mimeType.includes("pdf")) {
+                        currentProperty.value.fileType = mimeType
                         userComponent.value = MyPdf
                     } else {
                         // unhandled file types, do nothing
@@ -47,7 +50,7 @@ function getComponent(filePath: string) {
                         currentProperty.value.fileType = mimeType
                         // userComponent.value = MyObject
                         api.client.MFGetData(mmfsid, 0, -1, (fileData:Uint8Array)=>{
-                            downLoadByFileData(fileData, filePath, mimeType)
+                            api.downLoadByFileData(fileData, filePath, mimeType)
                             router.go(-1)      // set correct file path
                         })
                     }
@@ -61,19 +64,6 @@ function getComponent(filePath: string) {
     }, (err: Error) => {
         console.error("MFOpenByPath error=", err)
     })
-}
-
-function downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {    
-    var blob = new Blob([content], {type: mimeType});    
-    var a = document.createElement("a");
-    var url = window.URL.createObjectURL(blob);    
-    a.href = url;
-    // console.log("downLoadByFileData ", fileName, "tpye=", a.type, a.href);
-    fileName = fileName.substring(fileName.lastIndexOf('/')+1)
-    a.download = fileName;
-    a.type =  mimeType;
-    a.click();
-    window.URL.revokeObjectURL(url);
 }
 
 watch(()=>route.params.filePath, async (toParams, prevParams)=>{

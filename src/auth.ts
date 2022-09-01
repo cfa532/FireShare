@@ -1,4 +1,4 @@
-export { getLocalApiHandler, getLApi}
+export { getLocalApiHandler, getLApi, downLoadByFileData}
 
 declare global {
     interface Window {          //must be cap W
@@ -117,4 +117,17 @@ function getLApi() {
             })
         }
     })
+}
+
+function downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {    
+    var blob = new Blob([content], {type: mimeType});    
+    var a = document.createElement("a");
+    var url = window.URL.createObjectURL(blob);    
+    a.href = url;
+    // console.log("downLoadByFileData ", fileName, "tpye=", a.type, a.href);
+    fileName = fileName.substring(fileName.lastIndexOf('/')+1)
+    a.download = fileName;
+    a.type =  mimeType;
+    a.click();
+    window.URL.revokeObjectURL(url);
 }

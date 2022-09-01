@@ -9,7 +9,6 @@ const props = defineProps({
 })
 const imageUrl = ref("")
 // const img = ref<HTMLImageElement>()
-const componentKey = ref(0)
 onMounted(async () => {
     imageUrl.value = await getLink()
     // imageUrl.value = api.baseUrl + "mf/" + encodeURI(props.macid!) + "?mmsid="+ api.mmsid
@@ -32,12 +31,11 @@ watch(()=>props.filePath, async (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {
         // getCurrentInstance()?.proxy?.$forceUpdate()
         // router.push(route.fullPath)
-        componentKey.value += 1
         imageUrl.value = await getLink()
     }
 })
 </script>
 
 <template>
-    <img :key="componentKey" style="max-width: 100%; height: 95vh; object-fit: contain;" :src="imageUrl"/>
+    <img alt="Loading......" style="max-width: 100%; height: 95vh; object-fit: contain;" :src="imageUrl"/>
 </template>

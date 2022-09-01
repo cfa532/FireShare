@@ -1,4 +1,4 @@
-export { getLocalApiHandler, getLApi}
+export { getLocalApiHandler, getLApi, downLoadByFileData}
 
 const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmLocal", "DhtGetAllKeys","MFOpenByPath",
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
@@ -60,6 +60,7 @@ api.sid = ""
 api.ips = getcurips();
 api.baseUrl = "http://" + api.ips + "/";
 api.hosturl = "ws://" + api.ips + "/ws/";
+api.downLoadByFileData = downLoadByFileData;
 //生成操作句柄
 api.client = window.hprose.Client.create(api.hosturl, ayApi);
 //以上部分可以提取公用代码
@@ -181,4 +182,17 @@ function showFile(stub, mmfsid, filePath){
         console.log("showFileByFileData  pdf strBody=", strBody);
         document.getElementById('LeitherBody').innerHTML = strBody
     },Catch);
+}
+
+function downLoadByFileData(content, fileName, mimeType) {    
+    var blob = new Blob([content], {type: mimeType});    
+    var a = document.createElement("a");
+    var url = window.URL.createObjectURL(blob);    
+    a.href = url;
+    // console.log("downLoadByFileData ", fileName, "tpye=", a.type, a.href);
+    fileName = fileName.substring(fileName.lastIndexOf('/')+1)
+    a.download = fileName;
+    a.type =  mimeType;
+    a.click();
+    window.URL.revokeObjectURL(url);
 }

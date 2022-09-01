@@ -2,7 +2,7 @@
 import { defineComponent, computed, reactive } from "vue";
 import Uploader from "./Uploader.vue";
 import NaviBar from "./NaviBar.vue";
-
+import MyDir from './Gadget/Dir.vue';
 console.log("FileList.vue")
 // interface ScorePair {score:number, member:string}
 interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
@@ -10,7 +10,7 @@ let api: any = {}
 
 export default defineComponent({
     name: "FileList",
-    components: { Uploader, NaviBar},
+    components: { Uploader, NaviBar, MyDir},
     inject:["lapi"],    // Leither api handler
     data() {
         return {
@@ -22,7 +22,8 @@ export default defineComponent({
                 let p = localStorage.getItem("currentColumn")
                 console.log("current column,", p)
                 return p ? JSON.parse(p) : {title: "News", titleZh:"最新文档"}
-            })
+            }),
+            localRoot: '/',     // root directory to local files in webdav
         }
     },
     provide() {
@@ -99,14 +100,7 @@ export default defineComponent({
     </ul>
 </div>
 <div v-else-if="query.title==='Webdav'">
-    <ul style="padding: 0px; margin: 0 0 0 5px;">
-    <li class="fileList" v-for="(file, index) in localFiles" :key="index">
-        <RouterLink
-            :to="{name:'fileview2', params: {filePath:('/'+file.fName)}}">{{file.fName}}
-        </RouterLink>
-        <span v-if="file.fIsDir"> ...</span>
-    </li>
-    </ul>
+    <MyDir :filePath="localRoot"></MyDir>
 </div>
 </template>
 
