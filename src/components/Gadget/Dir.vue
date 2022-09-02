@@ -40,15 +40,15 @@ function showDir(filePath: string) {
 function fileDownload(e: MouseEvent, f: any){
     api.client.MFOpenByPath(api.sid, "mmroot", filePath.value+f.fName, 0, (mmfsid:string)=>{
         // var a = e.target as HTMLAnchorElement
-        // var a = document.createElement("a");
-        // a.href = api.baseUrl + "mf" + filePath.value + "?mmsid="+ mmfsid
-        // a.download = f.fName;
-        // a.type =  mimeType;
-        // console.log(a)
-        // a.click();
-        api.client.MFGetData(mmfsid, 0, -1, (fileData:Uint8Array)=>{
-            api.downLoadByFileData(fileData, f.fName, "")
-        })
+        var a = document.createElement("a");
+        a.href = api.baseUrl + "mf" + filePath.value + "?mmsid="+ mmfsid
+        a.download = f.fName;
+        // a.type =  "application/pdf";
+        console.log(a)
+        a.click();
+        // api.client.MFGetData(mmfsid, 0, -1, (fileData:Uint8Array)=>{
+        //     api.downLoadByFileData(fileData, f.fName, "")
+        // })
     })
 }
 </script>
@@ -60,14 +60,13 @@ function fileDownload(e: MouseEvent, f: any){
         <RouterLink :to="{name:'fileview2', params:{filePath: parentPath}}" style="font-weight: bold;">. .</RouterLink>
     </li>
     <li class="fileList" v-for="(file, index) in localFiles" :key="index">
-        <RouterLink
+        <a v-if="['pdf', 'doc'].includes(file.fName.substring(file.fName.length-3).toLowerCase())"
+            href="" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.fName}} &dArr;
+        </a>
+        <RouterLink v-else
             :to="{ name:'fileview2', params:{filePath: (filePath+file.fName)}}">{{file.fName}}
         </RouterLink>
         <span v-if="file.fIsDir"> ...&gt;</span>
-        <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
-        <span v-if="['pdf', 'doc'].includes(file.fName.substring(file.fName.length-3).toLowerCase())">
-            <a href="" @click.prevent="(e)=>fileDownload(e, file)" download>&dArr;</a>
-        </span>
     </li>
     </ul>
 </div>

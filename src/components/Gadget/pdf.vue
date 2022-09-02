@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import * as pdfobject from 'pdfobject'
-import { onMounted, inject, watch } from 'vue';
+// import * as pdfobject from 'pdfobject'
+import { onMounted, inject, watch, ref } from 'vue';
 const api: any = inject("lapi");    // Leither api handler
 const props = defineProps({
     macid : {type: String, required: false},
@@ -8,15 +8,19 @@ const props = defineProps({
     filePath: {type: String, required: false},
     mmfsid: {type: String, required: false},
 })
+const fileUrl = ref("")
 onMounted(() => {
     console.log(props)
     if (typeof props.filePath !== "undefined") {
-        let url = api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid
-        pdfobject.embed((url), "#pdfviewer", { height: "60rem" })
+        // show files in local /webdav
+        fileUrl.value = api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid
+        // pdfobject.embed((url), "#pdfviewer", { height: "60rem" })
         // window.open(api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid)
     } else {
         api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
-            pdfobject.embed(api.baseUrl+"mf"+"?mmsid="+fsid, "#pdfviewer", { height: "60rem" })
+            // show Mac file in MM database
+            fileUrl.value = api.baseUrl+"mf"+"?mmsid="+fsid
+            // pdfobject.embed(api.baseUrl+"mf"+"?mmsid="+fsid, "#pdfviewer", { height: "60rem" })
         }, (err: Error) => {
             console.error("Open file error=", err)
         })
@@ -24,11 +28,13 @@ onMounted(() => {
 })
 watch(()=>props.filePath, async (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {
-        pdfobject.embed(api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid, "#pdfviewer", { height: "60rem" })
+        fileUrl.value = api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid
+        // pdfobject.embed(api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid, "#pdfviewer", { height: "60rem" })
     }
 })
 </script>
 
 <template>
-    <div id="pdfviewer" style="width: 100%;"></div>
+    <!-- <div id="pdfviewer" style="width: 100%;"></div> -->
+    <object type="application/pdf" :data="fileUrl"  style="width: 100%; height: 95vh;"></object>
 </template>
