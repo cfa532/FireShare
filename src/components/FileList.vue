@@ -114,7 +114,7 @@ export default defineComponent({
     </li>
     </ul>
 </div>
-<div v-else-if="query.title==='Webdav'">
+<div v-else>
     <MyDir :filePath="localRoot"></MyDir>
 </div>
 </template>
