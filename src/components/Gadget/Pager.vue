@@ -1,9 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from "vue";
+import { reactive, onMounted, CSSProperties, computed } from "vue";
 const props = defineProps({
     currentPage: {type:Number, required: false, default:1},
     pageSize: {type:Number, required: false, default:10},
     itemNumber: {type:Number, required: true},
+})
+// const curClass = reactive<CSSProperties>({
+//     display: 'inline-block',
+//     "background-color": "red",
+// })
+const curClass = computed((n)=>{
+    console.log(n)
+    return {
+        display: 'inline-block',
+        "background-color": "red",
+    }
 })
 const emit = defineEmits(["pageChanged"])
 // page number starts at 1
@@ -27,24 +38,27 @@ function naviPage(n: number) {
 </script>
 
 <template>
-<div>
+    <hr />
+<div style="margin-top: 20px;">
 <table width="80%">
     <tr align="left">
-        <td>
+        <td style="width: 50px">
             <a href="" @click.prevent="naviPage(1)"><strong>&#8810;</strong>first</a>
         </td>
-        <td>
+        <td style="width: 20px">
             <a href="" @click.prevent="naviPage(props.currentPage-1)">&lt;</a>
         </td>
-        <td v-for="n in (lastPage-firstPage+1)">
-            <a href="" @click.prevent="naviPage(n+firstPage-1)" >{{n+firstPage-1}}</a>
+        <td style="width: 20px" v-for="n in (lastPage-firstPage+1)">
+            <a href="" @click.prevent="naviPage(n+firstPage-1)" :style="n+firstPage-1===props.currentPage?{'background-color':'red'}:{}">
+            {{n+firstPage-1}}</a>
         </td>
-        <td>
+        <td style="width: 20px">
             <a href="" @click.prevent="naviPage(props.currentPage+1)">&gt;</a>
         </td>
-        <td>
+        <td style="width: 50px">
             <a href="" @click.prevent="naviPage(Math.ceil(props.itemNumber/props.pageSize))">last<strong>&#8811;</strong></a>
         </td>
+        <td></td>
     </tr>
 </table>
 </div>

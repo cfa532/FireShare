@@ -11,7 +11,6 @@ const props = defineProps({
 })
 const parentPath = computed(()=>{
     const idx = props.filePath?.lastIndexOf('/')
-    console.log("idx=", idx, props.filePath)
     if (typeof idx==="undefined" || idx! <= 0) {
         return '/'
     } else {
@@ -28,6 +27,8 @@ onMounted(()=>{
 })
 watch(()=>props.filePath, (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {
+        console.log(toParams, prevParams)
+        currentPage.value = 1       // to reload dir data when backWard key is clicked
         showDir(props.filePath)
     }
 })
@@ -35,8 +36,8 @@ function showDir(filePath: string) {
     api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid:string)=>{
         api.client.MFReaddir(mmfsid, (files:any[])=>{
             itemNumber.value = files.length
-            console.log("total items=", itemNumber.value)
             var st = (currentPage.value-1)*pageSize.value
+            console.log("total items=", itemNumber.value, st, pageSize.value)
             localFiles.value = files.slice(st, st+pageSize.value)
         })
     }, (err:Error)=>{
@@ -82,6 +83,6 @@ function fileDownload(e: MouseEvent, file: any){
         <span v-if="file.fIsDir"> ...&gt;</span>
     </li>
     </ul>
-    <Pager @page-changed="pageChanged" :current-page="currentPage" :page-size="pageSize" :item-number="itemNumber"></Pager>
+    <Pager v-if="itemNumber/pageSize>1" @page-changed="pageChanged" :current-page="currentPage" :page-size="pageSize" :item-number="itemNumber"></Pager>
 </div>
 </template>
