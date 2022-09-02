@@ -36,6 +36,19 @@ export default defineComponent({
         uploaded(fi: FVPair) {
             // add newly uploaded file to display list
             this.fileList.unshift(fi)
+        },
+        fileDownload(e: MouseEvent, file: any){
+            api.client.MFOpenMacFile(api.sid, api.mid, file.macid, (fsid: string) => {
+                // show Mac file in MM database
+                var a = document.createElement("a");
+                    a.href = api.baseUrl + "mf?mmsid="+ fsid
+                    a.download = file.fName;
+                    a.type =  file.type;
+                    console.log(a)
+                    a.click();
+            }, (err: Error) => {
+                console.error("Open file error=", err)
+            })
         }
     },
     mounted() {
@@ -92,10 +105,12 @@ export default defineComponent({
     <Uploader @uploaded="uploaded" :content=query></Uploader>
     <ul style="padding: 0px; margin: 0 0 0 5px;">
     <li class="fileList" v-for="(file, index) in fileList" :key="index">
-        <RouterLink
+        <a v-if="['pdf', 'doc'].includes(file.name.substring(file.name.length-3).toLowerCase())"
+            href="" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.name}} &dArr;
+        </a>
+        <RouterLink v-else
             :to="{ name:'fileview', params:{macid:file.macid, fileType:file.type}}">{{file.name}}
         </RouterLink>
-        <!-- <a href="#" ref="file"  @click.prevent="loadFile(file)">{{file.name}}</a> -->
     </li>
     </ul>
 </div>

@@ -37,15 +37,17 @@ function showDir(filePath: string) {
         console.error("Open path err=", err)
     })
 }
-function fileDownload(e: MouseEvent, f: any){
-    api.client.MFOpenByPath(api.sid, "mmroot", filePath.value+f.fName, 0, (mmfsid:string)=>{
+function fileDownload(e: MouseEvent, file: any){
+    api.client.MFOpenByPath(api.sid, "mmroot", filePath.value+file.fName, 0, (mmfsid:string)=>{
         // var a = e.target as HTMLAnchorElement
-        var a = document.createElement("a");
-        a.href = api.baseUrl + "mf" + filePath.value + "?mmsid="+ mmfsid
-        a.download = f.fName;
-        // a.type =  "application/pdf";
-        console.log(a)
-        a.click();
+        api.client.MFGetMimeType(mmfsid, (mimeType: string)=>{
+            var a = document.createElement("a");
+            a.href = api.baseUrl + "mf" + "?mmsid="+ mmfsid
+            a.download = file.fName;
+            a.type =  mimeType;
+            console.log(a)
+            a.click();
+        })
         // api.client.MFGetData(mmfsid, 0, -1, (fileData:Uint8Array)=>{
         //     api.downLoadByFileData(fileData, f.fName, "")
         // })
