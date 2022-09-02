@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { inject, ref, onMounted, watch, computed } from "vue";
-
+import Pager from "./Pager.vue"
 const api: any = inject("lapi");    // Leither api handler
 const localFiles = ref<any[]>();
+const currentPage = ref(1)
 const props = defineProps({
     filePath: {type: String, required: true},
 })
@@ -37,6 +38,10 @@ function showDir(filePath: string) {
         console.error("Open path err=", err)
     })
 }
+function pageChanged(n: number) {
+    console.log("current page", n)
+    currentPage.value = n
+}
 function fileDownload(e: MouseEvent, file: any){
     api.client.MFOpenByPath(api.sid, "mmroot", filePath.value+file.fName, 0, (mmfsid:string)=>{
         // var a = e.target as HTMLAnchorElement
@@ -59,7 +64,7 @@ function fileDownload(e: MouseEvent, file: any){
 <div>
     <ul style="padding: 0px; margin: 0 0 0 5px;">
     <li v-if="props.filePath!==parentPath" class="fileList">
-        <RouterLink :to="{name:'fileview2', params:{filePath: parentPath}}" style="font-weight: bold;">. .</RouterLink>
+        <RouterLink :to="{name:'fileview2', params:{filePath: parentPath}}"><strong>. .</strong></RouterLink>
     </li>
     <li class="fileList" v-for="(file, index) in localFiles" :key="index">
         <a v-if="['pdf', 'doc'].includes(file.fName.substring(file.fName.length-3).toLowerCase())"
@@ -71,5 +76,6 @@ function fileDownload(e: MouseEvent, file: any){
         <span v-if="file.fIsDir"> ...&gt;</span>
     </li>
     </ul>
+    <Pager @page-changed="pageChanged" :current-page="currentPage" :page-size="20" :item-number="670"></Pager>
 </div>
 </template>
