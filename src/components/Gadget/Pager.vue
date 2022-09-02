@@ -5,17 +5,11 @@ const props = defineProps({
     pageSize: {type:Number, required: false, default:10},
     itemNumber: {type:Number, required: true},
 })
-// const curClass = reactive<CSSProperties>({
-//     display: 'inline-block',
-//     "background-color": "red",
-// })
-const curClass = computed((n)=>{
-    console.log(n)
-    return {
-        display: 'inline-block',
-        "background-color": "red",
-    }
+const curClass = reactive<CSSProperties>({
+    display: 'inline-block',
+    "background-color": "red",
 })
+
 const emit = defineEmits(["pageChanged"])
 // page number starts at 1
 const firstPage = computed(():number=>{
@@ -48,9 +42,10 @@ function naviPage(n: number) {
         <td style="width: 20px">
             <a href="" @click.prevent="naviPage(props.currentPage-1)">&lt;</a>
         </td>
-        <td style="width: 20px" v-for="n in (lastPage-firstPage+1)">
-            <a href="" @click.prevent="naviPage(n+firstPage-1)" :style="n+firstPage-1===props.currentPage?{'background-color':'red'}:{}">
-            {{n+firstPage-1}}</a>
+        <td style="width:20px;" v-for="n in (lastPage-firstPage+1)">
+            <a href="" @click.prevent="naviPage(n+firstPage-1)" 
+                :style="n+firstPage-1===props.currentPage?curClass:{}">{{n+firstPage-1}}
+            </a>
         </td>
         <td style="width: 20px">
             <a href="" @click.prevent="naviPage(props.currentPage+1)">&gt;</a>
