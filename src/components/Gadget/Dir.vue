@@ -4,6 +4,8 @@ import Pager from "./Pager.vue"
 const api: any = inject("lapi");    // Leither api handler
 const localFiles = ref<any[]>();
 const currentPage = ref(1)
+const pageSize  = ref(10)
+const itemNumber = ref(10000)
 const props = defineProps({
     filePath: {type: String, required: true},
 })
@@ -32,7 +34,10 @@ watch(()=>props.filePath, (toParams, prevParams)=>{
 function showDir(filePath: string) {
     api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid:string)=>{
         api.client.MFReaddir(mmfsid, (files:any[])=>{
-            localFiles.value = files
+            itemNumber.value = files.length
+            console.log("total items=", itemNumber.value)
+            var st = (currentPage.value-1)*pageSize.value
+            localFiles.value = files.slice(st, st+pageSize.value)
         })
     }, (err:Error)=>{
         console.error("Open path err=", err)
@@ -41,6 +46,7 @@ function showDir(filePath: string) {
 function pageChanged(n: number) {
     console.log("current page", n)
     currentPage.value = n
+    showDir(props.filePath)
 }
 function fileDownload(e: MouseEvent, file: any){
     api.client.MFOpenByPath(api.sid, "mmroot", filePath.value+file.fName, 0, (mmfsid:string)=>{
@@ -76,6 +82,6 @@ function fileDownload(e: MouseEvent, file: any){
         <span v-if="file.fIsDir"> ...&gt;</span>
     </li>
     </ul>
-    <Pager @page-changed="pageChanged" :current-page="currentPage" :page-size="20" :item-number="670"></Pager>
+    <Pager @page-changed="pageChanged" :current-page="currentPage" :page-size="pageSize" :item-number="itemNumber"></Pager>
 </div>
 </template>

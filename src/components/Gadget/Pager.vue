@@ -36,7 +36,7 @@ function naviPage(n: number) {
         <td>
             <a href="" @click.prevent="naviPage(props.currentPage-1)">&lt;</a>
         </td>
-        <td v-for="n in (lastPage-firstPage)">
+        <td v-for="n in (lastPage-firstPage+1)">
             <a href="" @click.prevent="naviPage(n+firstPage-1)" >{{n+firstPage-1}}</a>
         </td>
         <td>
