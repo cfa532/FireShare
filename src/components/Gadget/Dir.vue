@@ -5,7 +5,7 @@ const api: any = inject("lapi");    // Leither api handler
 const localFiles = ref<any[]>();
 const currentPage = ref(1)
 const pageSize  = ref(10)
-const itemNumber = ref(10000)
+const itemNumber = ref(1)
 const props = defineProps({
     filePath: {type: String, required: true},
 })
@@ -83,6 +83,7 @@ function fileDownload(e: MouseEvent, file: any){
         <span v-if="file.fIsDir"> ...&gt;</span>
     </li>
     </ul>
-    <Pager v-if="itemNumber/pageSize>1" @page-changed="pageChanged" :current-page="currentPage" :page-size="pageSize" :item-number="itemNumber"></Pager>
+    <Pager v-if="itemNumber/pageSize>1" @page-changed="pageChanged"
+        :current-page="currentPage" :page-size="pageSize" :item-number="itemNumber"></Pager>
 </div>
 </template>

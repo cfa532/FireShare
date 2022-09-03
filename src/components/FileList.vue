@@ -1,16 +1,18 @@
 <script lang="ts">
-import { defineComponent, computed, reactive } from "vue";
+import { defineComponent, computed, ref } from "vue";
 import Uploader from "./Uploader.vue";
 import NaviBar from "./NaviBar.vue";
 import MyDir from './Gadget/Dir.vue';
+import Pager from "./Gadget/Pager.vue"
 console.log("FileList.vue")
 // interface ScorePair {score:number, member:string}
 interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
 let api: any = {}
+let fullList:[];
 
 export default defineComponent({
     name: "FileList",
-    components: { Uploader, NaviBar, MyDir},
+    components: { Uploader, NaviBar, MyDir, Pager},
     inject:["lapi"],    // Leither api handler
     data() {
         return {
@@ -24,6 +26,9 @@ export default defineComponent({
                 return p ? JSON.parse(p) : {title: "News", titleZh:"最新文档"}
             }),
             localRoot: '/',     // root directory to local files in webdav
+            currentPage: ref(1),
+            pageSize: ref(10),
+            itemNumber: ref(1),
         }
     },
     provide() {
@@ -36,6 +41,7 @@ export default defineComponent({
         uploaded(fi: FVPair) {
             // add newly uploaded file to display list
             this.fileList.unshift(fi)
+            this.itemNumber += 1;
         },
         fileDownload(e: MouseEvent, file: any){
             api.client.MFOpenMacFile(api.sid, api.mid, file.macid, (fsid: string) => {
@@ -49,7 +55,12 @@ export default defineComponent({
             }, (err: Error) => {
                 console.error("Open file error=", err)
             })
-        }
+        },
+        pageChanged(n: number) {
+            this.currentPage = n
+            console.log("current page=", n)
+            getFileList(fullList, this)
+}
     },
     mounted() {
         api = (this as any).lapi    // window.lapi
@@ -68,23 +79,15 @@ export default defineComponent({
         api.client.MMCreate(api.sid,"fireshare", this.query.title, "file_list", 2, "", (mid:string)=>{
             // each colume is one MM
             api.mid=mid;        // shall be the same as MM created by Uploader
-            console.log("Load MM id=", mid);
             api.client.MMOpen(api.sid, mid, "cur", (mmsid:string)=>{
                 api.mmsid = mmsid
-                console.log("Open MM mmsid=", api.mmsid);
+                console.log("Open MM mmsid=", api.mmsid, "mid=", mid);
                 // var sc = Data.now()
-                api.client.Zrange(mmsid, "file_list", 0, 100, (sps:[])=>{
+                api.client.Zrange(mmsid, "file_list", 0, -1, (sps:[])=>{
+                    fullList = sps
+                    this.itemNumber = sps.length
                     console.log("Score pair lists", sps)
-                    sps.forEach((element:ScorePair) => {
-                        api.client.Hget(mmsid, "file_list", element.member, (fi:FVPair)=>{
-                            fi.macid = element.member
-                            console.log("file: ", fi)
-                            this.fileList.push(fi)
-                            this.fileList.sort((a,b) => a.macid < b.macid ? -1 : 1)
-                        }, (err:Error)=>{
-                            console.error("Hget error=", err)
-                        })
-                    });
+                    getFileList(sps, this)
                 }, (err:Error)=>{
                     console.error("Zrange error=", err)
                 })
@@ -96,6 +99,21 @@ export default defineComponent({
         })
     },
 })
+
+function getFileList(sps:[], that: any) {
+    var st = (that.currentPage-1)*that.pageSize
+    that.fileList.length = 0
+    sps.slice(st, st+that.pageSize).forEach((element:ScorePair) => {
+        api.client.Hget(api.mmsid, "file_list", element.member, (fi:FVPair)=>{
+            fi.macid = element.member
+            console.log("file: ", fi)
+            that.fileList.push(fi)
+            that.fileList.sort((a:FVPair,b:FVPair) => a.macid < b.macid ? -1 : 1)
+        }, (err:Error)=>{
+            console.error("Hget error=", err)
+        })
+    });
+}
 </script>
 
 <template>
@@ -113,6 +131,8 @@ export default defineComponent({
         </RouterLink>
     </li>
     </ul>
+    <Pager v-if="itemNumber/pageSize>1" @page-changed="pageChanged"
+        :current-page="currentPage" :page-size="pageSize" :item-number="itemNumber"></Pager>
 </div>
 <div v-else>
     <MyDir :filePath="localRoot"></MyDir>
