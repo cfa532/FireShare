@@ -17,7 +17,6 @@ function cancel() {
     emit("fileCanceled")
 }
 watch(()=>props.src, (newVal, oldVal)=>{
-    console.log(newVal, oldVal)
     if (newVal !== oldVal) {
         imageUrl.value = URL.createObjectURL(props.src)
         caption.value = props.src.name
@@ -39,8 +38,8 @@ watch(()=>props.src, (newVal, oldVal)=>{
         <div class="postbox_media_photo_img_wrapper" draggable="true">
             <img :src="imageUrl" class="postbox_media_photo_img" draggable="false">
         </div>
-        <div style="height:40px; position:absolute; bottom: 0px; left: 0px; padding-top: 5px;">
-            <span style="width: 100%; position: relative; flex-wrap: wrap;">{{caption}}</span>
+        <div style="overflow:hidden; height:40px; position:absolute; bottom: 0px; left: 0px; padding-top: 5px;">
+            <div style="inline-size: 120px; overflow-wrap: break-word;">{{caption}}</div>
         </div>
     </div>
 </template>
@@ -56,8 +55,8 @@ watch(()=>props.src, (newVal, oldVal)=>{
     transition: All .15s ease-out;
     /* max-width: calc(25% - 32px); */
     flex-grow: 1;
-    margin-right: 10px;
-    margin-top: 5px
+    margin-right: 15px;
+    margin-top: 5px;
 }
 .postbox_media_photo_img_wrapper {
     top: 10px;
