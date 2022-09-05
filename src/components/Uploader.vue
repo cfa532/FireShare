@@ -1,19 +1,14 @@
 <script setup lang="ts">
 import { CSSProperties, inject, reactive, ref } from "vue";
-
-console.log("Uploader.vue")
-// interface ScorePair { score: number, member: string }
+import Preview from "./Gadget/Preview.vue";
 class FVPair { name = ""; lastModified = 0; size = 0; type = ""; macid = "" }
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget
 }
-// export default defineComponent({
-// name: "Uploader",
 const props = defineProps(['content']);   // ColoumnContent Type
 const emit = defineEmits(["uploaded"])
 const api: any = inject('lapi');    // global Leither handler
 let file = ref<File>();
-let imageUrl = ref("")
 let textValue = ref("")
 const form = ref<HTMLFormElement>();
 const divAttach = ref<HTMLDivElement>()
@@ -44,23 +39,24 @@ function dragOver(evt: DragEvent) {
 function selectFile() {
   document.getElementById("uploadFiles")?.click();
 }
-function previewSelected(files: FileList) {
-  textArea!.value!.hidden = false
-  dropHere!.value!.hidden = true
-  if (files && files[0]) {
-    file.value = files[0]
-    if (file.value.type.includes("image")) {
-      imageUrl.value = URL.createObjectURL(file.value)
-      divAttach!.value!.hidden = false
-    } else {
-      divAttach!.value!.hidden = true
-    }
-  }
-}
+const filesUpload = ref<File[]>([])
+
 function onSelect(e: Event) {
   let files = (e as HTMLInputEvent).target.files  || (e as DragEvent).dataTransfer?.files;
   console.log(files)
-  previewSelected(files!)
+  if (!files) return
+  filesUpload.value = filesUpload.value.concat(Array.from(files!))
+  // if (files && files[0]) {
+  //   file.value = files[0]
+  //   if (file.value.type.includes("image")) {
+  //     imageUrl.value = URL.createObjectURL(file.value)
+  //   } else {
+  //     divAttach!.value!.hidden = true
+  //   }
+  // }
+  divAttach!.value!.hidden = false
+  textArea!.value!.hidden = false
+  dropHere!.value!.hidden = true
 };
 function onSubmit() {
   const r = new FileReader();
@@ -121,7 +117,6 @@ function onSubmit() {
       console.error("set temp file data error ", err);
     })
   }
-
   r.onload = e => {
     api.client.MFOpenTempFile(api.sid, (fsid: string) => {
       console.log("temp opened", api.sid, fsid, e);
@@ -130,7 +125,6 @@ function onSubmit() {
       console.error("open temp file error ", err);
     });
   }
-
   // read uploaded file
   if (file.value!.size > 500*1024*1024) {
     alert("Max file size 50MB")
@@ -142,9 +136,10 @@ function showModal(e: MouseEvent) {
   // show modal box
   classModal.display = "block"
 }
-// When the user clicks on <span> (x), close the modal
-function closeModal(e: MouseEvent) {
-  classModal.display = "none"
+function removeFile(f: File) {
+  var i = filesUpload.value.findIndex( e=> e==f);
+  filesUpload.value.splice(i,1)
+  console.log(i, filesUpload)
 }
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(e: MouseEvent) {
@@ -164,17 +159,17 @@ window.onclick = function(e: MouseEvent) {
   <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect">
     <!-- <span class="close" @click="closeModal">&times;</span> -->
     <form @submit.prevent="onSubmit" enctype="multipart/form-data">
-    <div style="width:99%; height:110px; margin-bottom: 15px;">
-      <textarea ref="textArea" :value="textValue" style="width:100%; height:100%"></textarea>
+    <div style="width:99%; height:110px; margin-bottom: 10px;">
+      <textarea ref="textArea" :value="textValue" style="border:0px; width:100%; height:100%; border-radius: 3px;"></textarea>
       <div ref="dropHere" style="border: 1px solid lightgrey; text-align: center; width:100%; height:100%; margin: 0px;" hidden>
         <p style="font-size: 24px">DROP HERE</p>
       </div>
     </div>
-    <div ref="divAttach" style="border: 1px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-left:5px;" hidden>
-      <img :src="imageUrl" style="width:100px; height:100px; opacity:0.6" />
+    <div ref="divAttach" style="border: 0px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-top:0px;" hidden>
+      <Preview @file-canceled="removeFile(file)" v-for="(file, index) in filesUpload" :key="index" v-bind:src="file" ></Preview>
     </div>
     <div>
-        <input id="uploadFiles" @change="onSelect" type="file" hidden>
+        <input id="uploadFiles" @change="onSelect" type="file" hidden multiple>
         <button @click.prevent="selectFile">Choose</button>
         <span :style="classFiles">{{file?.name}}</span>
         <button style="float: right;">Submit</button>
