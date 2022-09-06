@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeRouteUpdate, routerKey, stringifyQuery, useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import NaviBarVue from './NaviBar.vue';
 import MyImg from './Gadget/Image.vue';
 import MyPdf from './Gadget/pdf.vue';

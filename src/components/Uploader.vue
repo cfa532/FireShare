@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CSSProperties, inject, reactive, ref } from "vue";
+import { CSSProperties, inject, reactive, ref, watch } from "vue";
 import Preview from "./Gadget/Preview.vue";
 class FVPair { name = ""; lastModified = 0; size = 0; type = ""; macid = "" }
 interface HTMLInputEvent extends Event {
@@ -8,12 +8,12 @@ interface HTMLInputEvent extends Event {
 const props = defineProps(['content']);   // ColoumnContent Type
 const emit = defineEmits(["uploaded"])
 const api: any = inject('lapi');    // global Leither handler
-let file = ref<File>();
-let textValue = ref("")
+const textValue = ref("")
 const form = ref<HTMLFormElement>();
 const divAttach = ref<HTMLDivElement>()
 const dropHere = ref<HTMLElement>()
 const textArea = ref<HTMLElement>()
+const sliceSize = 1024 * 1024 * 10    // 10MB per slice of file
 const classModal = reactive<CSSProperties>({
   display: "none",
   position: "fixed",
@@ -22,23 +22,6 @@ const classModal = reactive<CSSProperties>({
   left:0, top:0, width:"100%", height:"100%",
   'background-color': "rgb(0,0,0,0.4)",
 });
-const classFiles = reactive<CSSProperties>({
-  display: 'inline-block',
-  'margin-left': "10px",
-  'max-width': "600px",
-  "font-family": "Arial",
-  "font-size": "12px",
-  'white-space':'nowrap',
-  "overflow": "hidden",
-  "text-overflow": "ellipsis",
-})
-function dragOver(evt: DragEvent) {
-  textArea!.value!.hidden = true
-  dropHere!.value!.hidden = false
-}
-function selectFile() {
-  document.getElementById("uploadFiles")?.click();
-}
 const filesUpload = ref<File[]>([])
 
 function onSelect(e: Event) {
@@ -54,79 +37,103 @@ function onSelect(e: Event) {
   textArea!.value!.hidden = false
   dropHere!.value!.hidden = true
 };
+function dragOver(evt: DragEvent) {
+  textArea!.value!.hidden = true
+  dropHere!.value!.hidden = false
+}
+function selectFile() {
+  document.getElementById("selectFiles")?.click();
+}
 function onSubmit() {
-  const r = new FileReader();
-  const sliceSize = 1024 * 1024 * 10
-  r.onerror = e => {
-    console.error("Reading failed for ", file.value?.name, e);
-  }
-  function readFileSlice(fsid: string, file: File, start: number) {
-    // reading file slice by slice, start at given position
-    var end = Math.min(start + sliceSize, (r.result as ArrayBuffer)!.byteLength);
-    api.client.MFSetData(fsid, r.result!.slice(start, end), start, (count: number) => {
-      if (end === (r.result as ArrayBuffer)!.byteLength) {
+  // if one file uploaded, without content in textArea, upload single file
+  // otherwise, upload a html file for iFrame
+  api.client.MMCreate(api.sid, "fireshare", props.content.title, "file_list", 2, "", (mid: string) => {
+    console.log("Create MM id=", mid, props.content)
+    api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
+      console.log("Open MM mmsid=", mmsid);
+      if (filesUpload.value.length === 1 && textValue.value.trim() === "") {
+        // single file uploaded without text input
+        const file = filesUpload.value[0];
+        uploadFile(file).then(macid => {
+          // create MM database for the column, new item is added to this MM.
+          var sp: ScorePair = {
+            score: Date.now(),  // index
+            member: macid       // Mac id for the uploaded file, which is converted to Mac file
+          }
+          api.client.Zadd(mmsid, "file_list", sp, (ret: number) => {
+            console.log("Zadd ScorePair for the file, ret=", ret)
+            let fi = new FVPair()
+              fi.name = file.name,
+              fi.lastModified = file.lastModified,
+              fi.size = file.size,
+              fi.type = file.type
+            api.client.Hset(mmsid, "file_list", macid, fi, (ret: number) => {
+              fi.macid = macid
+              console.log("Hset ret=", ret, fi);
+              // emit an event with infor of newly uploaded file
+              emit('uploaded', fi)
+              // clear up
+              localStorage.setItem("tempTextValueUploader", "")
+              classModal.display = "none"
+              filesUpload.value = [];   // clear file list of upload
+              textValue.value = ""
+            }, (err: Error) => {
+              console.error("Hset error=", err)
+            })
+          }, (err: Error) => {
+            console.error("Zadd error=", err)
+          })
+        }).catch(reason=>{
+          console.error("Upload single file failed", reason)
+        })
+      } else {
+        // multiple files
+      }
+    }, (err: Error) => {
+      console.error("Open MM error=", err)
+    })
+  }, (err: Error) => {
+    console.error("Create MMid error=", err)
+  })
+}
+async function uploadFile(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // read uploaded file
+    if (file.size > sliceSize * 5) {
+      alert("Max file size 50MB");
+      reject("Max file size exceeded");
+    }
+    file.arrayBuffer().then(arr => {
+      // arr: arrayBuffer of the file data
+      api.client.MFOpenTempFile(api.sid, (fsid: string) => {
+        resolve(readFileSlice(fsid, arr, 0))
+      }, (err: Error) => {
+        console.error("open temp file error ", err);
+      });
+    });
+  })
+}
+async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Promise<string> {
+  // reading file slice by slice, start at given position
+  var end = Math.min(start + sliceSize, arr.byteLength);
+  return new Promise((resolve, reject) => {
+    api.client.MFSetData(fsid, arr.slice(start, end), start, (count: number) => {
+      if (end === arr.byteLength) {
         // last slice done. Convert to Mac file
         api.client.MFTemp2MacFile(fsid, "", (macid: string) => {
           console.log("Temp file to MacID=", macid);
-          // create mmid for the column. Each colome (title) is a Mimei database, new item is added to this MM.
-          api.client.MMCreate(api.sid, "fireshare", props.content.title, "file_list", 2, "", (mid: string) => {
-            console.log("Create MM id=", mid, props.content)
-            document.getElementsByTagName("input")[0].value = "" // clear input value
-            api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
-              console.log("Open MM mmsid=", mmsid);
-              var sp: ScorePair = {
-                score: Date.now(),
-                member: macid
-              }
-              api.client.Zadd(mmsid, "file_list", sp, (ret: number) => {
-                console.log("Zadd ret=", ret)
-                let fi = new FVPair()
-                fi.name = file.name,
-                fi.lastModified = file.lastModified,
-                fi.size = file.size,
-                fi.type = file.type
-                api.client.Hset(mmsid, "file_list", macid, fi, (ret: number) => {
-                  fi.macid = macid
-                  console.log("Hset ret=", ret, fi);
-                  // emit an event with infor of newly uploaded file
-                  emit('uploaded', fi)
-                  classModal.display = "none"
-                }, (err: Error) => {
-                  console.error("Hset error=", err)
-                })
-              }, (err: Error) => {
-                console.error("Zadd error=", err)
-              })
-            }, (err: Error) => {
-              console.error("Open MM error=", err)
-            })
-          }, (err: Error) => {
-            console.error("Create MMid error=", err)
-          })
-        }, (err: Error) => {
-          console.error("Temp to Mac error ", err);
-        });
+          // now temp file is converted to Mac file
+          resolve(macid)
+        }, (err: Error)=>{
+          reject("Failed to create Mac file")
+        })
       } else {
-        readFileSlice(fsid, file, start + count)
+        readFileSlice(fsid, arr, start + count)
       }
     }, (err: Error) => {
-      console.error("set temp file data error ", err);
+      reject("Set temp file data error ");
     })
-  }
-  r.onload = e => {
-    api.client.MFOpenTempFile(api.sid, (fsid: string) => {
-      console.log("temp opened", api.sid, fsid, e);
-      readFileSlice(fsid, file.value!, 0);
-    }, (err: Error) => {
-      console.error("open temp file error ", err);
-    });
-  }
-  // read uploaded file
-  if (file.value!.size > 500*1024*1024) {
-    alert("Max file size 50MB")
-    return
-  }
-  r.readAsArrayBuffer(file.value!);
+  })
 }
 function showModal(e: MouseEvent) {
   // show modal box
@@ -144,6 +151,11 @@ window.onclick = function(e: MouseEvent) {
     classModal.display = "none";
   }
 }
+watch(()=>textValue.value, (newVal, oldVal)=>{
+  if (newVal !== oldVal) {
+    localStorage.setItem("tempTextValueUploader", newVal)
+  }
+})
 // })
 </script>
 
@@ -165,9 +177,8 @@ window.onclick = function(e: MouseEvent) {
       <Preview @file-canceled="removeFile(file)" v-for="(file, index) in filesUpload" :key="index" v-bind:src="file" ></Preview>
     </div>
     <div>
-        <input id="uploadFiles" @change="onSelect" type="file" hidden multiple>
+        <input id="selectFiles" @change="onSelect" type="file" hidden multiple>
         <button @click.prevent="selectFile">Choose</button>
-        <span :style="classFiles">{{file?.name}}</span>
         <button style="float: right;">Submit</button>
     </div>
     </form>
