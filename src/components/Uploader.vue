@@ -43,17 +43,13 @@ const filesUpload = ref<File[]>([])
 
 function onSelect(e: Event) {
   let files = (e as HTMLInputEvent).target.files  || (e as DragEvent).dataTransfer?.files;
-  console.log(files)
   if (!files) return
-  filesUpload.value = filesUpload.value.concat(Array.from(files!))
-  // if (files && files[0]) {
-  //   file.value = files[0]
-  //   if (file.value.type.includes("image")) {
-  //     imageUrl.value = URL.createObjectURL(file.value)
-  //   } else {
-  //     divAttach!.value!.hidden = true
-  //   }
-  // }
+  Array.from(files).forEach(f=>{
+    if (filesUpload.value.findIndex(e=>{return e.name===f.name && e.size===f.size && e.lastModified===f.lastModified})===-1) {
+      // remove duplication
+      filesUpload.value.push(f);
+    }
+  })
   divAttach!.value!.hidden = false
   textArea!.value!.hidden = false
   dropHere!.value!.hidden = true
