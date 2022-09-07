@@ -18,8 +18,6 @@ export default defineComponent({
         return {
             fileList: [] as FVPair[],
             localFiles: [] as any[],
-            macid: "",
-            fileType: "",
             query : computed(()=>{
                 let p = localStorage.getItem("currentColumn")
                 console.log("current column,", p)
@@ -82,6 +80,7 @@ export default defineComponent({
             api.mid=mid;        // shall be the same as MM created by Uploader
             api.client.MMOpen(api.sid, mid, "cur", (mmsid:string)=>{
                 api.mmsid = mmsid
+                localStorage.setItem("mmInfo", JSON.stringify({mmsid:mmsid, mid:mid}))
                 console.log("Open MM mmsid=", api.mmsid, "mid=", mid);
                 // var sc = Data.now()
                 api.client.Zrange(mmsid, "file_list", 0, -1, (sps:[])=>{

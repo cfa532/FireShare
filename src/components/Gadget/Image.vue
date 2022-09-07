@@ -7,6 +7,7 @@ const props = defineProps({
     filePath: {type: String, required: false},
     mmfsid: {type: String, required: false},
 })
+console.log(props)
 const imageUrl = ref("")
 // const img = ref<HTMLImageElement>()
 onMounted(async () => {

@@ -3,9 +3,9 @@ import { useRoute } from 'vue-router';
 import NaviBarVue from './NaviBar.vue';
 import MyImg from './Gadget/Image.vue';
 import MyPdf from './Gadget/pdf.vue';
-import { computed } from '@vue/reactivity';
-import VideoPlayer from './VideoJS.vue';
+import VideoPlayer from './Gadget/VideoJS.vue';
 import Page from './Gadget/Html.vue';
+import { computed } from "vue";
 // const VideoPlayer = defineAsyncComponent(()=>
 //     import('./VideoJS.vue')
 // )
@@ -29,7 +29,6 @@ const userComponent = computed(() => {
     }
 })
 const currentProperty = route.params    // props
-
 </script>
 
 <template>

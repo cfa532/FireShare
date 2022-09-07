@@ -4,8 +4,8 @@ import NaviBarVue from './NaviBar.vue';
 import MyImg from './Gadget/Image.vue';
 import MyPdf from './Gadget/pdf.vue';
 import MyDir from './Gadget/Dir.vue';
+import VideoPlayer from './Gadget/VideoJS.vue'
 import { shallowRef } from '@vue/reactivity';
-import VideoPlayer from './VideoJS.vue'
 import { onMounted, inject, watch } from 'vue';
 const route = useRoute()
 const router = useRouter()

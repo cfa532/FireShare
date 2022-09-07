@@ -1,49 +1,95 @@
 <script setup lang="ts">
-    import { onMounted, inject, shallowRef, ref, Component } from 'vue';
-    // import MyImg from './Image.vue'
-    const currentProperty = ref<{filePath:string, mmfsid:string, fileType:string}[]>()    // props
-    const userComponent = ref<Component[]>()
-    // display html page
-    const api: any = inject("lapi");    // Leither api handler
-    const props = defineProps({
-        macid : {type: String, required: false},
-        fileType: {type: String, required: false},
-        filePath: {type: String, required: false},
-        mmfsid: {type: String, required: false},
-    });
-    const macids = ref([])
-    const textContent = ref("")
-    onMounted(() => {
-        // console.log("Show page:", props)
-        // api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
-        //     api.client.MFGetObject(fsid, (obj:FVPair)=>{
-        //         console.log(obj)
-        //         const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
-        //         textContent.value = str[0];
-        //         macids.value = str.slice(1)
-        //         macids.value.forEach(e=>{
-        //             // api.client.MFOpenMacFile/
-        //         })
-        //     })
-        // }, (err: Error) => {
-        //     console.error("Open file error=", err)
-        // })
-    })
+import Image from './Image.vue';
+import pdf from './pdf.vue';
+import VideoJS from './VideoJS.vue'
+import { onMounted, inject, ref, shallowRef } from 'vue';
+const currentProperty = shallowRef<{macid:string, fileType:string}[]>([])    // props
+const userComponent = shallowRef<any[]>([])
+const fileInfos = ref<any[]>([])
+// display html page
+const api: any = inject("lapi");    // Leither api handler
+const props = defineProps({
+    macid : {type: String, required: false},
+    fileType: {type: String, required: false},
+    filePath: {type: String, required: false},
+    mmfsid: {type: String, required: false},
+});
+const mmInfo = JSON.parse(localStorage.getItem("mmInfo")!);
+const macids = ref([])
+const textContent = ref("")
+onMounted(() => {
 
-    function getLink(macid: string) {
-        return 
-    }
+    console.log("Show page:", props)
+    api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
+        api.client.MFGetObject(fsid, (obj:FVPair)=>{
+            console.log(obj)
+            const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
+            textContent.value = str[0];
+            macids.value = str.slice(1)
+            getComponents(str.slice(1)).then(results=>{
+                console.log("file infos", results)
+                results.forEach(res=>{
+                    if (res.status==="fulfilled") {
+                        var fi:any = res.value
+                        fileInfos.value.push({macid: fi.macid, fileType: fi.type, name:fi.name})
+                    //     currentProperty.value.push({macid: fi.macid, fileType: fi.type})
+                    //     var ext = fi.name.substring(fi.name.length-3)
+                    //     if (fi.type.includes("image")) {
+                    //         (Image as any).macid = fi.macid
+                    //         userComponent.value.push(Image)
+                    //     } else if (fi.type.includes("pdf")) {
+                    //         userComponent.value.push(pdf)
+                    //     } else if (fi.type=="video/mp4" || ['mp4','mkv','mov','avi','divx','wmv','flv'].includes(ext.toLowerCase())) {
+                    //         userComponent.value.push(VideoJS)
+                    } else {
+                        console.log(res.reason)
+                    }
+                })
+                console.log(fileInfos.value)
+            })
+        }, (err: Error) => {
+            console.error("MFGetObject error=", err)
+        })
+    }, (err: Error) => {
+        console.error("MFOpenMacFile error=", err)
+    })
+})
+async function getComponents(macids:string[]) {
+    return Promise.allSettled(macids.map(e=>{
+        return new Promise((resolve, reject)=>{
+            console.log("mmsid=", mmInfo.mmsid, mmInfo.mid, e)
+            api.client.Hget(mmInfo.mmsid, "file_list", e, (fi:FVPair)=>{
+                if (!fi) {
+                    reject("Mac id without info: "+e)
+                } else {
+                    (fi as any).macid = e
+                    resolve(fi)
+                }
+            }, (err: Error)=>{
+                console.error("Hget err=", err, e, mmInfo.mmsid)
+            })
+        })
+    }))        
+}
     
-    </script>
-    
-    <template>
-        <div id="objViewer" style="width: 100%;">
-            <p>{{textContent}}</p>
-            <br>
-            <div v-for="(macid, index) in macids" :key="index">
-                <!-- <component :is="userComponent![index]" v-bind="currentProperty![index]"></component> -->
-                <!-- <MyImg :macid="macid"></MyImg> -->
-                <span>{{macid}}</span>
+</script>
+
+<template>
+    <div style="width: 100%;">
+        <p>{{textContent}}</p>
+        <br>
+        <div v-for="(fi, index) in fileInfos" :key="index">
+            <div v-if="fi.fileType.includes('image')">
+                <Image v-bind=fi></Image>
+                <span>{{fi.name}}</span>
+            </div>
+            <div v-else-if="fi.fileType.includes('pdf')">
+                <pdf v-bind="fi"></pdf>
+            </div>
+            <div v-if="fi.fileType.includes('video')">
+                <VideoJS v-bind=fi></VideoJS>
+                <span>{{fi.name}}</span>
             </div>
         </div>
-    </template>
+    </div>
+</template>
