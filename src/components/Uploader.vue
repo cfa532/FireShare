@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import { CSSProperties, inject, reactive, ref, watch } from "vue";
 import Preview from "./Gadget/Preview.vue";
-class FVPair { name = ""; lastModified = 0; size = 0; type = ""; macid = "" }
+// class FVPair { name = ""; lastModified = 0; size = 0; type = ""; macid = "" }
+class FVPair {
+  name; lastModified; size; type; macid;
+  constructor(name:string, lastModified:number, size:number, type:string) {
+    this.name = name;
+    this.lastModified = lastModified;
+    this.size = size;
+    this.type = type;
+    this.macid = ""
+  }
+}
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget
 }
@@ -44,6 +54,26 @@ function dragOver(evt: DragEvent) {
 function selectFile() {
   document.getElementById("selectFiles")?.click();
 }
+async function uploadFile(files: File[]): Promise<string[]> {
+  return Promise.all(files.map(file => {
+    return new Promise<string>((resolve, reject) => {
+      // read uploaded file
+      if (file.size > sliceSize * 5) {
+        alert("Max file size 50MB");
+        reject("Max file size exceeded");
+      }
+      file.arrayBuffer().then(arr => {
+        // arr: arrayBuffer of the file data
+        api.client.MFOpenTempFile(api.sid, (fsid: string) => {
+          // resolve to macid string
+          resolve(readFileSlice(fsid, arr, 0))
+        }, (err: Error) => {
+          console.error("open temp file error ", err);
+        });
+      });
+    })
+  }))
+}
 function onSubmit() {
   // if one file uploaded, without content in textArea, upload single file
   // otherwise, upload a html file for iFrame
@@ -51,24 +81,20 @@ function onSubmit() {
     console.log("Create MM id=", mid, props.content)
     api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
       console.log("Open MM mmsid=", mmsid);
-      if (filesUpload.value.length === 1 && textValue.value.trim() === "") {
-        // single file uploaded without text input
-        const file = filesUpload.value[0];
-        uploadFile(file).then(macid => {
+      uploadFile(filesUpload.value).then(macids=>{
+        if (macids.length === 1 && textValue.value.trim() === "") {
+          // single file uploaded without text input
+          const file = filesUpload.value[0];
           // create MM database for the column, new item is added to this MM.
           var sp: ScorePair = {
             score: Date.now(),  // index
-            member: macid       // Mac id for the uploaded file, which is converted to Mac file
+            member: macids[0]       // Mac id for the uploaded file, which is converted to Mac file
           }
           api.client.Zadd(mmsid, "file_list", sp, (ret: number) => {
             console.log("Zadd ScorePair for the file, ret=", ret)
-            let fi = new FVPair()
-              fi.name = file.name,
-              fi.lastModified = file.lastModified,
-              fi.size = file.size,
-              fi.type = file.type
-            api.client.Hset(mmsid, "file_list", macid, fi, (ret: number) => {
-              fi.macid = macid
+            let fi = new FVPair(file.name, file.lastModified, file.size, file.type)
+            api.client.Hset(mmsid, "file_list", macids[0], fi, (ret: number) => {
+              fi.macid = macids[0]
               console.log("Hset ret=", ret, fi);
               // emit an event with infor of newly uploaded file
               emit('uploaded', fi)
@@ -83,34 +109,50 @@ function onSubmit() {
           }, (err: Error) => {
             console.error("Zadd error=", err)
           })
-        }).catch(reason=>{
-          console.error("Upload single file failed", reason)
-        })
-      } else {
-        // multiple files
-      }
+        } else {
+          // multiple files, or text import
+          let strs = [textValue.value]
+          strs = strs.concat(macids)    // 1st is input of textarea, followed by mac ids of uploaded file
+          let s = JSON.stringify(strs)
+          let fi = new FVPair(s, Date.now(), s.length, "page");
+          api.client.MFOpenTempFile(api.sid, (fsid: string) => {
+            api.client.MFSetObject(fsid, fi, ()=>{
+              api.client.MFTemp2MacFile(fsid, "", (macid:string)=>{
+                var sp: ScorePair = {
+                  score: Date.now(),  // index
+                  member: macid       // Mac id for the uploaded file, which is converted to Mac file
+                }
+                api.client.Zadd(mmsid, "file_list", sp, (ret: number) => {
+                  api.client.Hset(mmsid, "file_list", macid, fi, (ret: number) => {
+                    fi.macid = macid
+                    console.log("Hset ret=", ret, fi)
+                    emit('uploaded', fi)
+                    localStorage.setItem("tempTextValueUploader", "")
+                    classModal.display = "none"
+                    filesUpload.value = [];   // clear file list of upload
+                    textValue.value = "";
+                  }, (err: Error) => {
+                    console.error("Hset error=", err)
+                  })
+                }, (err: Error) => {
+                  console.error("Zadd error=", err)
+                })
+              }, (err: Error) => {
+                console.error("MFTemp2MacFile error=", err)
+              })
+            }, (err: Error) => {
+              console.error("MFSetData error=", err)
+            })
+          }, (err: Error) => {
+            console.error("MFOpenTempFile error=", err)
+          })
+        }
+      })
     }, (err: Error) => {
       console.error("Open MM error=", err)
     })
   }, (err: Error) => {
     console.error("Create MMid error=", err)
-  })
-}
-async function uploadFile(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    // read uploaded file
-    if (file.size > sliceSize * 5) {
-      alert("Max file size 50MB");
-      reject("Max file size exceeded");
-    }
-    file.arrayBuffer().then(arr => {
-      // arr: arrayBuffer of the file data
-      api.client.MFOpenTempFile(api.sid, (fsid: string) => {
-        resolve(readFileSlice(fsid, arr, 0))
-      }, (err: Error) => {
-        console.error("open temp file error ", err);
-      });
-    });
   })
 }
 async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Promise<string> {
@@ -168,7 +210,7 @@ watch(()=>textValue.value, (newVal, oldVal)=>{
     <!-- <span class="close" @click="closeModal">&times;</span> -->
     <form @submit.prevent="onSubmit" enctype="multipart/form-data">
     <div style="width:99%; height:110px; margin-bottom: 10px;">
-      <textarea ref="textArea" :value="textValue" style="border:0px; width:100%; height:100%; border-radius: 3px;"></textarea>
+      <textarea ref="textArea" v-model="textValue" placeholder="Input......" style="border:0px; width:100%; height:100%; border-radius: 3px;"></textarea>
       <div ref="dropHere" style="border: 1px solid lightgrey; text-align: center; width:100%; height:100%; margin: 0px;" hidden>
         <p style="font-size: 24px">DROP HERE</p>
       </div>

@@ -3,7 +3,7 @@ export { getLocalApiHandler, getLApi, downLoadByFileData}
 const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmLocal", "DhtGetAllKeys","MFOpenByPath",
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
     "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile","MFStat",
-    "MFReaddir", "MFGetMimeType"];
+    "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject"];
 function getcurips() {
     //缺省的地址，用于本地调试程序
     let ips = "127.0.0.1:4800";

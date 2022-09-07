@@ -108,7 +108,7 @@ function getFileList(sps:[], that: any) {
             fi.macid = element.member
             console.log("file: ", fi)
             that.fileList.push(fi)
-            that.fileList.sort((a:FVPair,b:FVPair) => a.macid < b.macid ? -1 : 1)
+            that.fileList.sort((a:FVPair,b:FVPair) => a.macid > b.macid ? -1 : 1)
         }, (err:Error)=>{
             console.error("Hget error=", err)
         })
