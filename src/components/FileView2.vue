@@ -4,17 +4,15 @@ import NaviBarVue from './NaviBar.vue';
 import MyImg from './Gadget/Image.vue';
 import MyPdf from './Gadget/pdf.vue';
 import MyDir from './Gadget/Dir.vue';
-import MyObject from './Gadget/Object.vue';
-import { shallowRef, ref, reactive } from '@vue/reactivity';
+import { shallowRef } from '@vue/reactivity';
 import VideoPlayer from './VideoJS.vue'
-import { onMounted, inject, watch, getCurrentInstance, nextTick } from 'vue';
+import { onMounted, inject, watch } from 'vue';
 const route = useRoute()
 const router = useRouter()
 const api: any = inject("lapi");    // Leither api handler
 const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const userComponent = shallowRef()
 // route.params["mmfsid"] = ""
-const renderComponent = ref(true)
 const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: ""})    // props
 onMounted(()=>{
     console.log(route.params)
@@ -26,7 +24,7 @@ function getComponent(filePath: string) {
     api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid:string)=>{
         // pass mmfsid, so the component do not have to open file again
         currentProperty.value = {filePath: filePath, mmfsid: mmfsid, fileType: ""}
-        api.client.MFStat(mmfsid, (fi:any)=>{
+        api.client.MFStat(mmfsid, (fi: any)=>{
             // console.log(filePath, fi)
             if (fi.fIsDir) {
                 currentProperty.value.filePath = filePath
@@ -79,9 +77,7 @@ watch(()=>route.params.filePath, async (toParams, prevParams)=>{
 <template>
     <NaviBarVue :column=column.titleZh></NaviBarVue>
     <hr/>
-    <div v-if="renderComponent">
     <KeepAlive>
         <component :is="userComponent" v-bind="currentProperty"></component>
     </KeepAlive>
-    </div>
 </template>

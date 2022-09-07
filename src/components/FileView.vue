@@ -4,7 +4,8 @@ import NaviBarVue from './NaviBar.vue';
 import MyImg from './Gadget/Image.vue';
 import MyPdf from './Gadget/pdf.vue';
 import { computed } from '@vue/reactivity';
-import VideoPlayer from './VideoJS.vue'
+import VideoPlayer from './VideoJS.vue';
+import Page from './Gadget/Html.vue';
 // const VideoPlayer = defineAsyncComponent(()=>
 //     import('./VideoJS.vue')
 // )
@@ -15,11 +16,6 @@ const route = useRoute()
 // })
 const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const fileType = route.params.fileType as string;
-const User = {
-  // make sure to add a prop named exactly like the route param
-  props: ['id'],
-  template: '<div>User {{ id }}</div>'
-}
 const userComponent = computed(() => {
     if (fileType.includes("image")) {
         return MyImg
@@ -27,6 +23,9 @@ const userComponent = computed(() => {
         return MyPdf
     } else if (fileType.includes("video")) {
         return VideoPlayer
+    } else if (fileType.includes("page")) {
+        // webpage that includes text and files
+        return Page
     }
 })
 const currentProperty = route.params    // props

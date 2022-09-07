@@ -8,7 +8,7 @@ console.log("FileList.vue")
 // interface ScorePair {score:number, member:string}
 interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
 let api: any = {}
-let fullList:[];
+let fullList:any;
 
 export default defineComponent({
     name: "FileList",
@@ -42,6 +42,7 @@ export default defineComponent({
             // add newly uploaded file to display list
             this.fileList.unshift(fi)
             this.itemNumber += 1;
+            // location.reload()
         },
         fileDownload(e: MouseEvent, file: any){
             api.client.MFOpenMacFile(api.sid, api.mid, file.macid, (fsid: string) => {
@@ -84,7 +85,7 @@ export default defineComponent({
                 console.log("Open MM mmsid=", api.mmsid, "mid=", mid);
                 // var sc = Data.now()
                 api.client.Zrange(mmsid, "file_list", 0, -1, (sps:[])=>{
-                    fullList = sps
+                    fullList = sps.reverse()
                     this.itemNumber = sps.length
                     console.log("Score pair lists", sps)
                     getFileList(sps, this)
@@ -105,12 +106,17 @@ function getFileList(sps:[], that: any) {
     that.fileList.length = 0
     sps.slice(st, st+that.pageSize).forEach((element:ScorePair) => {
         api.client.Hget(api.mmsid, "file_list", element.member, (fi:FVPair)=>{
+            if (!fi) {
+                console.log("mac file without info", element)
+                return
+            }
             fi.macid = element.member
-            console.log("file: ", fi)
+            // temporarily use timestamp when the file is added to the SocrePairs, for sorting
+            fi.lastModified = element.score;
             that.fileList.push(fi)
-            that.fileList.sort((a:FVPair,b:FVPair) => a.macid > b.macid ? -1 : 1)
+            that.fileList.sort((a:FVPair,b:FVPair) => a.lastModified > b.lastModified ? -1 : 1)
         }, (err:Error)=>{
-            console.error("Hget error=", err)
+            console.error("Hget error=", err, element)
         })
     });
 }
@@ -127,7 +133,7 @@ function getFileList(sps:[], that: any) {
             href="" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.name}} &dArr;
         </a>
         <RouterLink v-else
-            :to="{ name:'fileview', params:{macid:file.macid, fileType:file.type}}">{{file.name}}
+            :to="{ name:'fileview', params:{macid:file.macid, fileType:file.type}}">{{file.name+" "}}
         </RouterLink>
     </li>
     </ul>

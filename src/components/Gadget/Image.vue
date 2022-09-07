@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, inject, onUnmounted, watch } from 'vue';
+import { onMounted, ref, inject, watch } from 'vue';
 const api: any = inject("lapi");    // Leither api handler
 const props = defineProps({
     macid : {type: String, required: false},
@@ -18,12 +18,13 @@ async function getLink():Promise<string> {
         if (typeof props.filePath !== "undefined") {
             // filePath not null, showing a local file
             resolve(api.baseUrl + "mf" + props.filePath + "?mmsid="+ props.mmfsid)
+        } else {
+            api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
+                resolve(api.baseUrl + "mf" + "?mmsid="+ fsid)
+            }, (err: Error) => {
+                console.error("Open file error=", err)
+            })
         }
-        api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
-            resolve(api.baseUrl + "mf" + "?mmsid="+ fsid)
-        }, (err: Error) => {
-            console.error("Open file error=", err)
-        })
     })
 }
 
@@ -37,5 +38,5 @@ watch(()=>props.filePath, async (toParams, prevParams)=>{
 </script>
 
 <template>
-    <img alt="Loading......" style="max-width: 100%; height: 95vh; object-fit: contain;" :src="imageUrl"/>
+    <img alt="Loading......" style="max-width: 100%; object-fit: contain;" :src="imageUrl"/>
 </template>

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { reactive, onMounted, CSSProperties, computed } from "vue";
+
+// display pages of item list
 const props = defineProps({
     currentPage: {type:Number, required: false, default:1},
     pageSize: {type:Number, required: false, default:10},
