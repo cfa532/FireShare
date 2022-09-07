@@ -59,7 +59,13 @@ export default defineComponent({
             this.currentPage = n
             console.log("current page=", n)
             getFileList(fullList, this)
-}
+        },
+        fileName(file: FVPair) {
+            if (file.type.includes("page")) {
+                return JSON.parse(file.name)[0].substring(0, 30)
+            }
+            return file.name
+        }
     },
     mounted() {
         api = (this as any).lapi    // window.lapi
@@ -99,7 +105,6 @@ export default defineComponent({
         })
     },
 })
-
 function getFileList(sps:[], that: any) {
     var st = (that.currentPage-1)*that.pageSize
     that.fileList.length = 0
@@ -119,6 +124,7 @@ function getFileList(sps:[], that: any) {
         })
     });
 }
+
 </script>
 
 <template>
@@ -132,7 +138,7 @@ function getFileList(sps:[], that: any) {
             href="" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.name}} &dArr;
         </a>
         <RouterLink v-else
-            :to="{ name:'fileview', params:{macid:file.macid, fileType:file.type}}">{{file.name+" "}}
+            :to="{ name:'fileview', params:{macid:file.macid, fileType:file.type}}">{{fileName(file)}}
         </RouterLink>
     </li>
     </ul>
