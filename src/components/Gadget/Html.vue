@@ -83,12 +83,12 @@ async function getComponents(macids:string[]) {
                 <Image v-bind=fi></Image>
                 <span>{{fi.name}}</span>
             </div>
-            <div v-else-if="fi.fileType.includes('pdf')">
-                <pdf v-bind="fi"></pdf>
-            </div>
-            <div v-if="fi.fileType.includes('video')">
+            <div v-else-if="fi.fileType.includes('video')">
                 <VideoJS v-bind=fi></VideoJS>
                 <span>{{fi.name}}</span>
+            </div>
+            <div v-else>
+                <a href="">{{fi.name}}</a>
             </div>
         </div>
     </div>

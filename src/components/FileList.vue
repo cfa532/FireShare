@@ -25,7 +25,7 @@ export default defineComponent({
             }),
             localRoot: '/',     // root directory to local files in webdav
             currentPage: ref(1),
-            pageSize: ref(10),
+            pageSize: ref(20),
             itemNumber: ref(1),
         }
     },

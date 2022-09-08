@@ -4,7 +4,7 @@ import { reactive, onMounted, CSSProperties, computed } from "vue";
 // display pages of item list
 const props = defineProps({
     currentPage: {type:Number, required: false, default:1},
-    pageSize: {type:Number, required: false, default:10},
+    pageSize: {type:Number, required: false, default:20},
     itemNumber: {type:Number, required: true},
 })
 const curClass = reactive<CSSProperties>({
@@ -28,7 +28,7 @@ function naviPage(n: number) {
     if (n<1) n=1
     else if (n>Math.ceil(props.itemNumber/props.pageSize))
         n=Math.ceil(props.itemNumber/props.pageSize)
-    console.log("Go to page", n, firstPage.value, lastPage.value)
+    // console.log("Go to page", n, firstPage.value, lastPage.value)
     emit("pageChanged", n)
 }
 </script>

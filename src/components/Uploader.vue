@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CSSProperties, inject, reactive, ref, watch } from "vue";
+import { CSSProperties, inject, onMounted, reactive, ref, watch } from "vue";
 import Preview from "./Gadget/Preview.vue";
 
 // class FVPair { name = ""; lastModified = 0; size = 0; type = ""; macid = "" }
@@ -34,7 +34,10 @@ const classModal = reactive<CSSProperties>({
   'background-color': "rgb(0,0,0,0.4)",
 });
 const filesUpload = ref<File[]>([])
-
+onMounted(()=>{
+  // remember user input even after a page refresh. It is cleared only after submit
+  textValue.value = localStorage.getItem("tempTextValueUploader") as string
+})
 function onSelect(e: Event) {
   let files = (e as HTMLInputEvent).target.files  || (e as DragEvent).dataTransfer?.files;
   if (!files) return
@@ -192,9 +195,9 @@ function showModal(e: MouseEvent) {
   classModal.display = "block"
 }
 function removeFile(f: File) {
+  // removed file from preview list
   var i = filesUpload.value.findIndex( e=> e==f);
   filesUpload.value.splice(i,1)
-  console.log(i, filesUpload)
 }
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(e: MouseEvent) {
@@ -220,7 +223,7 @@ watch(()=>textValue.value, (newVal, oldVal)=>{
     <!-- <span class="close" @click="closeModal">&times;</span> -->
     <form @submit.prevent="onSubmit" enctype="multipart/form-data">
     <div style="width:99%; height:110px; margin-bottom: 10px;">
-      <textarea ref="textArea" v-model="textValue" placeholder="Input......" style="border:0px; width:100%; height:100%; border-radius: 3px;"></textarea>
+      <textarea autofocus ref="textArea" v-model="textValue" placeholder="Input......" style="border:0px; width:100%; height:100%; border-radius: 3px;"></textarea>
       <div ref="dropHere" style="border: 1px solid lightgrey; text-align: center; width:100%; height:100%; margin: 0px;" hidden>
         <p style="font-size: 24px">DROP HERE</p>
       </div>

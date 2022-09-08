@@ -8,19 +8,56 @@ const imageUrl = ref("")
 const caption = ref("")
 onMounted(()=>{
     // src file may not be image
-    // console.log(props.src)
-    imageUrl.value = URL.createObjectURL(props.src)
-    caption.value = props.src.name
+    thumbnail()
+})
+watch(()=>props.src, (newVal, oldVal)=>{
+    if (newVal !== oldVal) {
+        thumbnail()
+    }
 })
 function cancel() {
     emit("fileCanceled")
 }
-watch(()=>props.src, (newVal, oldVal)=>{
-    if (newVal !== oldVal) {
+function thumbnail() {
+    if (props.src.type.includes("image")) {
         imageUrl.value = URL.createObjectURL(props.src)
         caption.value = props.src.name
+    } else if (props.src.type.includes("video")) {
+        generateVideoThumbnail(props.src).then(url=>{
+            imageUrl.value = url
+            caption.value = props.src.name
+        })
+    } else {
+        // everything else, draw avtar with file extensioin
+        const canvas = document.createElement("canvas");
+        let ctx = canvas.getContext("2d");
+          canvas.width = 120;
+          canvas.height = 120;
+          ctx!.font = '48px serif';
+          ctx?.fillText(props.src.name.substring(props.src.name.lastIndexOf('.')+1), 15, 60);
+          imageUrl.value = canvas.toDataURL("image/png");
+          caption.value = props.src.name
     }
-})
+}
+const generateVideoThumbnail = (file: File) => {
+  return new Promise<string>((resolve) => {
+    const canvas = document.createElement("canvas");
+    const video = document.createElement("video");
+
+    // this is important
+    video.autoplay = true;
+    video.muted = true;
+    video.src = URL.createObjectURL(file) + '#t=1';     // delay 1s
+    video.onloadeddata = () => {
+      let ctx = canvas.getContext("2d");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx!.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+      video.pause();
+      return resolve(canvas.toDataURL("image/png"));
+    };
+  });
+};
 </script>
 
 <template>
