@@ -30,11 +30,11 @@ function thumbnail() {
     } else {
         // everything else, draw avtar with file extensioin
         const canvas = document.createElement("canvas");
-        let ctx = canvas.getContext("2d");
+        let ctx = canvas.getContext("2d")!;
           canvas.width = 120;
           canvas.height = 120;
-          ctx!.font = '48px serif';
-          ctx?.fillText(props.src.name.substring(props.src.name.lastIndexOf('.')+1), 15, 60);
+          ctx.font = '48px serif';
+          ctx.fillText(props.src.name.substring(props.src.name.lastIndexOf('.')+1), 15, 60);
           imageUrl.value = canvas.toDataURL("image/png");
           caption.value = props.src.name
     }

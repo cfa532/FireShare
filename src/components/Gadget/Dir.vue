@@ -51,18 +51,9 @@ function pageChanged(n: number) {
 }
 function fileDownload(e: MouseEvent, file: any){
     api.client.MFOpenByPath(api.sid, "mmroot", filePath.value+file.fName, 0, (mmfsid:string)=>{
-        // var a = e.target as HTMLAnchorElement
-        api.client.MFGetMimeType(mmfsid, (mimeType: string)=>{
-            var a = document.createElement("a");
-            a.href = api.baseUrl + "mf" + "?mmsid="+ mmfsid
-            a.download = file.fName;
-            a.type =  mimeType;
-            console.log(a)
-            a.click();
+        api.client.MFGetData(mmfsid, 0, -1, (fileData:Uint8Array)=>{
+            api.downLoadByFileData(fileData, file.fName, "")
         })
-        // api.client.MFGetData(mmfsid, 0, -1, (fileData:Uint8Array)=>{
-        //     api.downLoadByFileData(fileData, f.fName, "")
-        // })
     })
 }
 </script>

@@ -92,7 +92,6 @@ export default defineComponent({
                 api.client.Zrange(mmsid, "file_list", 0, -1, (sps:[])=>{
                     fullList = sps.reverse()
                     this.itemNumber = sps.length
-                    console.log("Score pair lists", sps)
                     getFileList(sps, this)
                 }, (err:Error)=>{
                     console.error("Zrange error=", err)

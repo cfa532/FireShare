@@ -14,11 +14,11 @@ const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const userComponent = shallowRef()
 // route.params["mmfsid"] = ""
 const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: ""})    // props
+
 onMounted(()=>{
     console.log(route.params)
     getComponent(route.params.filePath as string)
 })
-
 function getComponent(filePath: string) {
     // check filePath info
     api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid:string)=>{
