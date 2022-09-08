@@ -18,6 +18,48 @@
     
     <style>
 @charset "UTF-8";
+.postbox_media_photo_wrapper {
+    height: 170px;
+    width: 120px;
+    position: relative;
+    display: inline-block;
+    background-color: #fff;
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    transition: All .15s ease-out;
+    /* max-width: calc(25% - 32px); */
+    flex-grow: 1;
+    margin-right: 15px;
+    margin-top: 5px;
+}
+.postbox_media_photo_img_wrapper {
+    top: 10px;
+    position: absolute;
+    display: flex;
+    width: 100%;
+    height: 120px;
+    cursor: move;
+    user-select: none;
+    overflow: hidden;
+    /* height: calc(100% - 32px); */
+}
+.postbox_media_photo_img {
+    /* display: block; */
+    margin-left: auto;
+    margin-right: auto;
+    margin-top:auto;
+    margin-bottom: auto;
+    width: 100%;
+}
+.btn-reset {
+    background: none;
+    border: none;
+    filter: none;
+    padding: 0;
+    outline: none;
+    cursor: pointer;
+}
+
 a:link {
   color:#2B333F;
   text-decoration: none;
@@ -1867,18 +1909,12 @@ video::-webkit-media-text-track-display {
   border: none;
   z-index: -1000;
 }
-
 .js-focus-visible .video-js *:focus:not(.focus-visible) {
   outline: none;
 }
-
 .video-js *:focus:not(:focus-visible) {
   outline: none;
 }
-.pdfobject-container {
-    height: 60rem;
-    border: 1rem solid rgba(0, 0, 0, .1);
-}
 </style>
-  </body>
+</body>
 </html>
