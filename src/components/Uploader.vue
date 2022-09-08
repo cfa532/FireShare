@@ -36,7 +36,7 @@ const classModal = reactive<CSSProperties>({
 const filesUpload = ref<File[]>([])
 onMounted(()=>{
   // remember user input even after a page refresh. It is cleared only after submit
-  textValue.value = localStorage.getItem("tempTextValueUploader") as string
+  textValue.value = localStorage.getItem("tempTextValueUploader")? localStorage.getItem("tempTextValueUploader")! : "";
 })
 function onSelect(e: Event) {
   let files = (e as HTMLInputEvent).target.files  || (e as DragEvent).dataTransfer?.files;
