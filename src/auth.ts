@@ -8,9 +8,10 @@ declare global {
     }
 };
 
-const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmLocal", "DhtGetAllKeys",
+const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmLocal", "DhtGetAllKeys","MFOpenByPath",
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
-    "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile"];
+    "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile","MFStat",
+    "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject"];
 
 function getcurips(){
     //缺省的地址，用于本地调试程序
@@ -28,7 +29,7 @@ function getcurips(){
         // baseurl = "http://" +  window.location.host + "/"
     }
     { //for test
-        // ips = "192.168.1.102:4800"
+        ips = "192.168.1.101:4800"
     }
     // window.lapi.ips = ips
     return ips
@@ -70,6 +71,7 @@ api.sid = ""
 api.ips = getcurips();
 api.baseUrl = "http://" + api.ips + "/";
 api.hosturl = "ws://" + api.ips + "/ws/";
+api.downLoadByFileData = downLoadByFileData;
 //生成操作句柄
 api.client = window.hprose.Client.create(api.hosturl, ayApi);
 //以上部分可以提取公用代码

@@ -73,7 +73,7 @@ export default defineComponent({
             // load files in webdav folder
             api.client.MFOpenByPath(api.sid, "mmroot", '/', 0, (mmfsid:string)=>{
                 api.client.MFReaddir(mmfsid, (files:any[])=>{
-                    console.log("Read /root", files)
+                    // console.log("Read /root", files)
                     this.localFiles = files
                 })
             }, (err:Error)=>{
