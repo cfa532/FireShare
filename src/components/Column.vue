@@ -11,7 +11,6 @@ function goFilelist() {
     localStorage.setItem("currentColumn", JSON.stringify(props.content));
     router.push({
         name: "filelist",
-        // params: {content: JSON.stringify(props.content)}
     });
 };
 </script>
@@ -19,7 +18,7 @@ function goFilelist() {
 <template>
     <li class="columnList">
         <RouterLink v-if="!content.subColumn || content.subColumn.length==0"
-        to="" @click="goFilelist()">
+        to="" @click.prevent="goFilelist()">
             {{props.content.titleZh}}
         </RouterLink>
         <span v-if="content.subColumn && content.subColumn.length>0">{{props.content.titleZh}}</span>

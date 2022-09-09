@@ -1,6 +1,7 @@
 export { getLocalApiHandler, getLApi, downLoadByFileData}
 
 declare global {
+    // introduce windows object in Global scope of TS
     interface Window {          //must be cap W
         // lapi: any;
         getParam: any;

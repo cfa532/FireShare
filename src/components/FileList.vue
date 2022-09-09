@@ -1,5 +1,6 @@
 <script lang="ts">
 import { defineComponent, computed, ref } from "vue";
+import { useLeither, useMimei } from '../stores/lapi';
 import Uploader from "./Uploader.vue";
 import NaviBar from "./NaviBar.vue";
 import MyDir from './Gadget/Dir.vue';
@@ -13,7 +14,7 @@ let fullList:any;
 export default defineComponent({
     name: "FileList",
     components: { Uploader, NaviBar, MyDir, Pager},
-    inject:["lapi"],    // Leither api handler
+    // inject:["lapi"],    // Leither api handler
     data() {
         return {
             fileList: [] as FVPair[],
@@ -27,12 +28,18 @@ export default defineComponent({
             currentPage: ref(1),
             pageSize: ref(20),
             itemNumber: ref(1),
+            // api: ref({}),
         }
     },
     provide() {
         return {
             // inject a whole array
             fileList: computed(() => this.fileList)
+        }
+    },
+    computed: {
+        downloadable: function() {
+            ;
         }
     },
     methods: {
@@ -44,13 +51,11 @@ export default defineComponent({
         },
         fileDownload(e: MouseEvent, file: any){
             api.client.MFOpenMacFile(api.sid, api.mid, file.macid, (fsid: string) => {
-                // show Mac file in MM database
-                var a = document.createElement("a");
-                    a.href = api.baseUrl + "mf?mmsid="+ fsid
-                    a.download = file.fName;
-                    a.type =  file.type;
-                    console.log(a)
-                    a.click();
+                api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
+                    useMimei().downLoadByFileData(fileData, file.name, "")
+                }, (err: Error) => {
+                    console.error("Getdata error=", err)
+                })
             }, (err: Error) => {
                 console.error("Open file error=", err)
             })
@@ -62,45 +67,49 @@ export default defineComponent({
         },
         fileName(file: FVPair) {
             if (file.type.includes("page")) {
+                // show first 30 chars if the list item is a page
                 return JSON.parse(file.name)[0].substring(0, 30)
             }
             return file.name
         }
     },
     mounted() {
-        api = (this as any).lapi    // window.lapi
-        if (this.query.title === "Webdav") {
-            // load files in webdav folder
-            api.client.MFOpenByPath(api.sid, "mmroot", '/', 0, (mmfsid:string)=>{
-                api.client.MFReaddir(mmfsid, (files:any[])=>{
-                    // console.log("Read /root", files)
-                    this.localFiles = files
+        // api = (this as any).lapi    // window.lapi
+        useLeither().getLApi().then((h: any) => {
+            api = h
+            if (this.query.title === "Webdav") {
+                // load files in webdav folder
+                api.client.MFOpenByPath(api.sid, "mmroot", '/', 0, (mmfsid: string) => {
+                    api.client.MFReaddir(mmfsid, (files: any[]) => {
+                        // console.log("Read /root", files)
+                        this.localFiles = files
+                    })
+                }, (err: Error) => {
+                    console.error("Open path err=", err)
                 })
-            }, (err:Error)=>{
-                console.error("Open path err=", err)
-            })
-            return
-        }
-        api.client.MMCreate(api.sid,"fireshare", this.query.title, "file_list", 2, "", (mid:string)=>{
-            // each colume is one MM
-            api.mid=mid;        // shall be the same as MM created by Uploader
-            api.client.MMOpen(api.sid, mid, "cur", (mmsid:string)=>{
-                api.mmsid = mmsid
-                localStorage.setItem("mmInfo", JSON.stringify({mmsid:mmsid, mid:mid}))
-                console.log("Open MM mmsid=", api.mmsid, "mid=", mid);
-                // var sc = Data.now()
-                api.client.Zrange(mmsid, "file_list", 0, -1, (sps:[])=>{
-                    fullList = sps.reverse()
-                    this.itemNumber = sps.length
-                    getFileList(sps, this)
-                }, (err:Error)=>{
-                    console.error("Zrange error=", err)
+                return
+            };
+            api.client.MMCreate(api.sid, "fireshare", this.query.title, "file_list", 2, "", (mid: string) => {
+                // each colume is one MM
+                api.mid = mid;        // shall be the same as MM created by Uploader
+                api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
+                    api.mmsid = mmsid
+                    localStorage.setItem("mmInfo", JSON.stringify({ mmsid: mmsid, mid: mid }))
+                    console.log("Open MM mmsid=", api.mmsid, "mid=", mid);
+                    // var sc = Data.now()
+                    api.client.Zrange(mmsid, "file_list", 0, -1, (sps: []) => {
+                        fullList = sps.reverse()
+                        this.itemNumber = sps.length
+                        getFileList(sps, this)
+                    }, (err: Error) => {
+                        console.error("Zrange error=", err)
+                    })
+                }, (err: Error) => {
+                    console.error("MMOpen error=", err)
                 })
-            }, (err:Error)=>{
-                console.error("MMOpen error=", err)
+            }, (err: Error) => {
+                console.error("MM Create error=", err)
             })
-        }, (err:Error)=>{
-            console.error("MM Create error=", err)
         })
     },
 })
@@ -133,12 +142,12 @@ function getFileList(sps:[], that: any) {
     <Uploader @uploaded="uploaded" :content=query></Uploader>
     <ul style="padding: 0px; margin: 0 0 0 5px;">
     <li class="fileList" v-for="(file, index) in fileList" :key="index">
-        <a v-if="['pdf', 'doc'].includes(file.name.substring(file.name.length-3).toLowerCase())"
-            href="" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.name}} &dArr;
-        </a>
-        <RouterLink v-else
+        <RouterLink v-if="file.type.includes('image') || file.type.includes('video')  || file.type.includes('page')"
             :to="{ name:'fileview', params:{macid:file.macid, fileType:file.type}}">{{fileName(file)}}
         </RouterLink>
+        <a v-else
+            href="" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.name}} &dArr;
+        </a>
     </li>
     </ul>
     <Pager v-if="itemNumber/pageSize>1" @page-changed="pageChanged"

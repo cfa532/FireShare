@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { defineStore } from "pinia";
 import ColumnVue from "./Column.vue";
 
 // export typeof Column
