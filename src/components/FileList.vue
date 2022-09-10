@@ -8,7 +8,8 @@ import Pager from "./Gadget/Pager.vue"
 console.log("FileList.vue")
 // interface ScorePair {score:number, member:string}
 interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
-let api: any = {}
+let mmInfo: any = null
+let api: any = null
 let fullList:any;
 
 export default defineComponent({
@@ -37,11 +38,6 @@ export default defineComponent({
             fileList: computed(() => this.fileList)
         }
     },
-    computed: {
-        downloadable: function() {
-            ;
-        }
-    },
     methods: {
         uploaded(fi: FVPair) {
             // add newly uploaded file to display list
@@ -50,7 +46,8 @@ export default defineComponent({
             // location.reload()
         },
         fileDownload(e: MouseEvent, file: any){
-            api.client.MFOpenMacFile(api.sid, api.mid, file.macid, (fsid: string) => {
+            console.log(mmInfo.$state)
+            api.client.MFOpenMacFile(api.sid, mmInfo.mid, file.macid, (fsid: string) => {
                 api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
                     useMimei().downLoadByFileData(fileData, file.name, "")
                 }, (err: Error) => {
@@ -75,41 +72,40 @@ export default defineComponent({
     },
     mounted() {
         // api = (this as any).lapi    // window.lapi
-        useLeither().getLApi().then((h: any) => {
-            api = h
-            if (this.query.title === "Webdav") {
-                // load files in webdav folder
-                api.client.MFOpenByPath(api.sid, "mmroot", '/', 0, (mmfsid: string) => {
-                    api.client.MFReaddir(mmfsid, (files: any[]) => {
-                        // console.log("Read /root", files)
-                        this.localFiles = files
-                    })
-                }, (err: Error) => {
-                    console.error("Open path err=", err)
-                })
-                return
-            };
-            api.client.MMCreate(api.sid, "fireshare", this.query.title, "file_list", 2, "", (mid: string) => {
-                // each colume is one MM
-                api.mid = mid;        // shall be the same as MM created by Uploader
-                api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
-                    api.mmsid = mmsid
-                    localStorage.setItem("mmInfo", JSON.stringify({ mmsid: mmsid, mid: mid }))
-                    console.log("Open MM mmsid=", api.mmsid, "mid=", mid);
-                    // var sc = Data.now()
-                    api.client.Zrange(mmsid, "file_list", 0, -1, (sps: []) => {
-                        fullList = sps.reverse()
-                        this.itemNumber = sps.length
-                        getFileList(sps, this)
-                    }, (err: Error) => {
-                        console.error("Zrange error=", err)
-                    })
-                }, (err: Error) => {
-                    console.error("MMOpen error=", err)
+        api = useLeither();
+        if (this.query.title === "Webdav") {
+            // load files in webdav folder
+            api.client.MFOpenByPath(api.sid, "mmroot", '/', 0, (mmfsid: string) => {
+                api.client.MFReaddir(mmfsid, (files: any[]) => {
+                    // console.log("Read /root", files)
+                    this.localFiles = files
                 })
             }, (err: Error) => {
-                console.error("MM Create error=", err)
+                console.error("Open path err=", err)
             })
+            return
+        };
+        api.client.MMCreate(api.sid, "fireshare", this.query.title, "file_list", 2, "", (mid: string) => {
+            // each colume is one MM
+            api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
+                mmInfo = useMimei()
+                mmInfo.$patch({
+                    mid: mid,       // shall be the same as MM created by Uploader
+                    mmsid: mmsid
+                })
+                console.log("Open MM mmsid=", mmsid, "mid=", mid);
+                api.client.Zrange(mmsid, "file_list", 0, -1, (sps: []) => {
+                    fullList = sps.reverse()
+                    this.itemNumber = sps.length
+                    getFileList(sps, this)
+                }, (err: Error) => {
+                    console.error("Zrange error=", err)
+                })
+            }, (err: Error) => {
+                console.error("MMOpen error=", err)
+            })
+        }, (err: Error) => {
+            console.error("MM Create error=", err)
         })
     },
 })
@@ -117,7 +113,7 @@ function getFileList(sps:[], that: any) {
     var st = (that.currentPage-1)*that.pageSize
     that.fileList.length = 0
     sps.slice(st, st+that.pageSize).forEach((element:ScorePair) => {
-        api.client.Hget(api.mmsid, "file_list", element.member, (fi:FVPair)=>{
+        api.client.Hget(mmInfo.mmsid, "file_list", element.member, (fi:FVPair)=>{
             if (!fi) {
                 console.log("mac file without info", element)
                 return

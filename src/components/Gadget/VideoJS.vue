@@ -1,7 +1,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import videojs from 'video.js';
-let api: any = {}
+import { useLeither } from '../../stores/lapi'
+let api: any = null
 // type Option = {
 //     autoplay: boolean,
 //     controls: boolean,
@@ -9,7 +10,7 @@ let api: any = {}
 // }
 export default defineComponent({
     name: 'VideoPlayer',
-    inject:["lapi"],    // Leither api handler
+    // inject:["lapi"],    // Leither api handler
     props: {
         // options: {
         //     type: Object,
@@ -63,7 +64,7 @@ export default defineComponent({
         },
     },
     mounted() {
-        api = (this as any).lapi    // window.lapi
+        api = useLeither();
         if (typeof this.$props.filePath !== "undefined") {
             this.options.sources = [{src:api.baseUrl + "mf" + this.$props.filePath + "?mmsid="+ this.$props.mmfsid,
                                 type: this.$props.fileType}]

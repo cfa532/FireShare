@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { CSSProperties, inject, onMounted, reactive, ref, watch } from "vue";
 import Preview from "./Gadget/Preview.vue";
+import { useLeither } from '../stores/lapi'
+const api: any = useLeither();
 
 // class FVPair { name = ""; lastModified = 0; size = 0; type = ""; macid = "" }
 class FVPair {
@@ -18,7 +20,7 @@ interface HTMLInputEvent extends Event {
 }
 const props = defineProps(['content']);   // ColoumnContent Type
 const emit = defineEmits(["uploaded"])
-const api: any = inject('lapi');    // global Leither handler
+// const api: any = inject('lapi');    // global Leither handler
 const textValue = ref("")
 const form = ref<HTMLFormElement>();
 const divAttach = ref<HTMLDivElement>()
@@ -35,8 +37,8 @@ const classModal = reactive<CSSProperties>({
 });
 const filesUpload = ref<File[]>([])
 onMounted(()=>{
-  // remember user input even after a page refresh. It is cleared only after submit
-  textValue.value = localStorage.getItem("tempTextValueUploader")? localStorage.getItem("tempTextValueUploader")! : "";
+    // remember user input even after a page refresh. It is cleared only after submit
+    textValue.value = localStorage.getItem("tempTextValueUploader")? localStorage.getItem("tempTextValueUploader")! : "";
 })
 function onSelect(e: Event) {
   let files = (e as HTMLInputEvent).target.files  || (e as DragEvent).dataTransfer?.files;

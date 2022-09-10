@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
+import { useLeither, useMimei } from '../stores/lapi';
 import NaviBarVue from './NaviBar.vue';
 import MyImg from './Gadget/Image.vue';
 import MyPdf from './Gadget/pdf.vue';
@@ -9,10 +10,10 @@ import { shallowRef } from '@vue/reactivity';
 import { onMounted, inject, watch } from 'vue';
 const route = useRoute()
 const router = useRouter()
-const api: any = inject("lapi");    // Leither api handler
+const api = useLeither()
+const mmInfo = useMimei()
 const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const userComponent = shallowRef()
-// route.params["mmfsid"] = ""
 const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: ""})    // props
 
 onMounted(()=>{
@@ -48,8 +49,10 @@ function getComponent(filePath: string) {
                         currentProperty.value.fileType = mimeType
                         // userComponent.value = MyObject
                         api.client.MFGetData(mmfsid, 0, -1, (fileData:Uint8Array)=>{
-                            api.downLoadByFileData(fileData, filePath, mimeType)
+                            mmInfo.downLoadByFileData(fileData, filePath, mimeType)
                             router.go(-1)      // set correct file path
+                        }, (err: Error) => {
+                            console.error("MFGetData error=", err)
                         })
                     }
                 }, (err: Error) => {

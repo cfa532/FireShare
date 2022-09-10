@@ -1,7 +1,8 @@
 <script setup lang="ts">
 // import * as pdfobject from 'pdfobject'
 import { onMounted, inject, watch, ref } from 'vue';
-const api: any = inject("lapi");    // Leither api handler
+import { useLeither } from '../../stores/lapi';
+const api = useLeither()
 const props = defineProps({
     macid : {type: String, required: false},
     fileType: {type: String, required: false},
@@ -11,20 +12,20 @@ const props = defineProps({
 const fileUrl = ref("")
 onMounted(() => {
     console.log(props)
-    if (typeof props.filePath !== "undefined") {
-        // show files in local /webdav
-        fileUrl.value = api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid
-        // pdfobject.embed((url), "#pdfviewer", { height: "60rem" })
-        // window.open(api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid)
-    } else {
-        api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
-            // show Mac file in MM database
-            fileUrl.value = api.baseUrl+"mf"+"?mmsid="+fsid
-            // pdfobject.embed(api.baseUrl+"mf"+"?mmsid="+fsid, "#pdfviewer", { height: "60rem" })
-        }, (err: Error) => {
-            console.error("Open file error=", err)
-        })
-    }
+        if (typeof props.filePath !== "undefined") {
+            // show files in local /webdav
+            fileUrl.value = api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid
+            // pdfobject.embed((url), "#pdfviewer", { height: "60rem" })
+            // window.open(api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid)
+        } else {
+            api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
+                // show Mac file in MM database
+                fileUrl.value = api.baseUrl+"mf"+"?mmsid="+fsid
+                // pdfobject.embed(api.baseUrl+"mf"+"?mmsid="+fsid, "#pdfviewer", { height: "60rem" })
+            }, (err: Error) => {
+                console.error("Open file error=", err)
+            })
+        }
 })
 watch(()=>props.filePath, async (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {

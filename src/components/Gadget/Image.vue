@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { onMounted, ref, inject, watch } from 'vue';
-const api: any = inject("lapi");    // Leither api handler
+import { useLeither } from '../../stores/lapi';
+const api: any = useLeither();    // Leither api handler
 const props = defineProps({
     macid : {type: String, required: false},
     fileType: {type: String, required: false},
     filePath: {type: String, required: false},
     mmfsid: {type: String, required: false},
 })
-console.log(props)
 const imageUrl = ref("")
-// const img = ref<HTMLImageElement>()
 onMounted(async () => {
+    console.log(props)
     imageUrl.value = await getLink()
     // imageUrl.value = api.baseUrl + "mf/" + encodeURI(props.macid!) + "?mmsid="+ api.mmsid
 });
 async function getLink():Promise<string> {
-    return new Promise((resolve)=>{
+    return new Promise((resolve, reject)=>{
         if (typeof props.filePath !== "undefined") {
             // filePath not null, showing a local file
             resolve(api.baseUrl + "mf" + props.filePath + "?mmsid="+ props.mmfsid)
@@ -23,7 +23,7 @@ async function getLink():Promise<string> {
             api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
                 resolve(api.baseUrl + "mf" + "?mmsid="+ fsid)
             }, (err: Error) => {
-                console.error("Open file error=", err)
+                reject("Open mac file error="+err)
             })
         }
     })
@@ -31,8 +31,6 @@ async function getLink():Promise<string> {
 
 watch(()=>props.filePath, async (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {
-        // getCurrentInstance()?.proxy?.$forceUpdate()
-        // router.push(route.fullPath)
         imageUrl.value = await getLink()
     }
 })

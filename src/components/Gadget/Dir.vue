@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { inject, ref, onMounted, watch, computed } from "vue";
+import { useLeither, useMimei } from "../../stores/lapi";
 import Pager from "./Pager.vue"
-const api: any = inject("lapi");    // Leither api handler
+const api = useLeither();
+const mmInfo = useMimei();
 const localFiles = ref<any[]>();
 const currentPage = ref(1)
 const pageSize  = ref(10)
@@ -23,6 +25,7 @@ const filePath = computed(()=>{
 
 onMounted(()=>{
     // console.log("Reading dir:", (props.filePath))
+    console.log(mmInfo.$state)
     showDir(props.filePath)
 })
 watch(()=>props.filePath, (toParams, prevParams)=>{
@@ -39,6 +42,8 @@ function showDir(filePath: string) {
             var st = (currentPage.value-1)*pageSize.value
             console.log("total items=", itemNumber.value, st, pageSize.value)
             localFiles.value = files.slice(st, st+pageSize.value)
+        }, (err:Error)=>{
+            console.error("Readdir err=", err)
         })
     }, (err:Error)=>{
         console.error("Open path err=", err)
@@ -52,8 +57,12 @@ function pageChanged(n: number) {
 function fileDownload(e: MouseEvent, file: any){
     api.client.MFOpenByPath(api.sid, "mmroot", filePath.value+file.fName, 0, (mmfsid:string)=>{
         api.client.MFGetData(mmfsid, 0, -1, (fileData:Uint8Array)=>{
-            api.downLoadByFileData(fileData, file.fName, "")
+            mmInfo.downLoadByFileData(fileData, file.fName, "")
+        }, (err:Error)=>{
+            console.error("MFGetData err=", err)
         })
+    }, (err:Error)=>{
+        console.error("Open by path err=", err)
     })
 }
 </script>

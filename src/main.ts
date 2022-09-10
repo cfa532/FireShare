@@ -25,10 +25,13 @@ const pinia = createPinia()
 app.use(pinia)
 app.config.unwrapInjectedRef=true       // temp setting until ver 3.3
 app.use(router)
-useLeither().getLApi().then((api:any)=>{
-    // window.lapi = api
-    app.provide("lapi", api)    // global Leither apiHandler
-    app.mount("#app")
-}, (err:Error)=> {
-    console.error("Error getLapi", err)
-})
+await useLeither().login()
+app.mount("#app")
+
+// useLeither().getLApi().then((api:any)=>{
+//     // window.lapi = api
+//     // app.provide("lapi", api)    // global Leither apiHandler
+//     app.mount("#app")
+// }, (err:Error)=> {
+//     console.error("Error getLapi", err)
+// })
