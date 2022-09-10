@@ -1,8 +1,9 @@
 <script setup lang="ts">
 // import * as pdfobject from 'pdfobject'
 import { onMounted, inject, watch, ref } from 'vue';
-import { useLeither } from '../../stores/lapi';
+import { useLeither, useMimei } from '../../stores/lapi';
 const api = useLeither()
+const mmInfo = useMimei()
 const props = defineProps({
     macid : {type: String, required: false},
     fileType: {type: String, required: false},
@@ -18,7 +19,7 @@ onMounted(() => {
             // pdfobject.embed((url), "#pdfviewer", { height: "60rem" })
             // window.open(api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid)
         } else {
-            api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
+            api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
                 // show Mac file in MM database
                 fileUrl.value = api.baseUrl+"mf"+"?mmsid="+fsid
                 // pdfobject.embed(api.baseUrl+"mf"+"?mmsid="+fsid, "#pdfviewer", { height: "60rem" })

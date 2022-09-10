@@ -41,6 +41,7 @@ export default defineComponent({
     methods: {
         uploaded(fi: FVPair) {
             // add newly uploaded file to display list
+            console.log(fi)
             this.fileList.unshift(fi)
             this.itemNumber += 1;
             // location.reload()
@@ -65,6 +66,10 @@ export default defineComponent({
         fileName(file: FVPair) {
             if (file.type.includes("page")) {
                 // show first 30 chars if the list item is a page
+                const title = JSON.parse(file.name)[0]
+                if (title.trim()==="") {
+                    return "Page without text"
+                }
                 return JSON.parse(file.name)[0].substring(0, 30)
             }
             return file.name

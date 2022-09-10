@@ -2,17 +2,16 @@
 import Image from './Image.vue';
 import VideoJS from './VideoJS.vue'
 import { onMounted, inject, ref, shallowRef } from 'vue';
+import { useLeither, useMimei } from '../../stores/lapi';
 const fileInfos = ref<any[]>([])
-
-// display html page
-const api: any = inject("lapi");    // Leither api handler
+const api = useLeither();    // Leither api handler
+const mmInfo = useMimei();
 const props = defineProps({
     macid : {type: String, required: false},
     fileType: {type: String, required: false},
     filePath: {type: String, required: false},
     mmfsid: {type: String, required: false},
 });
-const mmInfo = JSON.parse(localStorage.getItem("mmInfo")!);
 const macids = ref([])
 const textContent = ref("")
 onMounted(() => {
@@ -21,9 +20,10 @@ onMounted(() => {
         api.client.MFGetObject(fsid, (obj:FVPair)=>{
             console.log(obj)
             const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
-            textContent.value = str[0];
+            textContent.value = str[0].trim()===""? "Page in side" : str[0];
             macids.value = str.slice(1)
             getComponents(str.slice(1)).then(results=>{
+                // get all the components required to show attached files on the html page
                 console.log("file infos", results)
                 results.forEach(res=>{
                     if (res.status==="fulfilled") {
@@ -33,7 +33,6 @@ onMounted(() => {
                         console.log(res.reason)
                     }
                 })
-                console.log(fileInfos.value)
             })
         }, (err: Error) => {
             console.error("MFGetObject error=", err)
@@ -62,7 +61,7 @@ async function getComponents(macids:string[]) {
 function fileDownload(fi: any) {
     api.client.MFOpenMacFile(api.sid, mmInfo.mid, fi.macid, (fsid: string) => {
         api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
-            api.downLoadByFileData(fileData, fi.name, "")
+            mmInfo.downLoadByFileData(fileData, fi.name, "")
         })
     }, (err: Error) => {
         console.error("Open file error", err)
@@ -72,16 +71,16 @@ function fileDownload(fi: any) {
 
 <template>
     <div style="width: 100%;">
-        <p>{{textContent}}</p>
+        <p style="margin-top: 5px; margin-bottom: 10px;">{{textContent}}</p>
         <br>
         <div v-for="(fi, index) in fileInfos" :key="index">
             <div v-if="fi.fileType.includes('image')">
                 <Image v-bind=fi></Image>
-                <span>{{fi.name}}</span>
+                <p style="margin-top: 5px; font-size: small; color:darkslategray; width: 100%; left: 40%; position:relative;">{{fi.name}}</p>
             </div>
             <div v-else-if="fi.fileType.includes('video')">
                 <VideoJS v-bind=fi></VideoJS>
-                <span>{{fi.name}}</span>
+                <p>{{fi.name}}</p>
             </div>
             <div v-else>
                 <a href="" @click.prevent="fileDownload(fi)" download="fi.name">{{fi.name}}</a>
