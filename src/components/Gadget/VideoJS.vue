@@ -2,23 +2,10 @@
 import { defineComponent } from 'vue';
 import videojs from 'video.js';
 import { useLeither, useMimei } from '../../stores/lapi'
-let api: any = null
 
-// type Option = {
-//     autoplay: boolean,
-//     controls: boolean,
-//     sources: [{ src: string, type: string }]
-// }
 export default defineComponent({
     name: 'VideoPlayer',
-    // inject:["lapi"],    // Leither api handler
     props: {
-        // options: {
-        //     type: Object,
-        //     default() {
-        //         return {};
-        //     }
-        // }
         macid: {type:String, required: false},
         fileType: {type:String, required: false},
         filePath: {type: String, required: false},
@@ -30,7 +17,7 @@ export default defineComponent({
             handler: function (newVal, oldVal) {
                 if (newVal !== oldVal) {
                     console.log(newVal, this.options)
-                    this.options.sources = [{src:api.baseUrl + "mf" + this.$props.filePath + "?mmsid="+ this.$props.mmfsid,
+                    this.options.sources = [{src: this.api.baseUrl + "mf" + this.$props.filePath + "?mmsid="+ this.$props.mmfsid,
                                 type: this.$props.fileType}]
                     this.loadPlayer(this.options, ()=>{
                         // force reload new src
@@ -51,7 +38,8 @@ export default defineComponent({
         }
     },
     computed: {
-        mmInfo: ()=>useMimei()
+        mmInfo: ()=>useMimei(),
+        api: ()=>useLeither(),
     },
     methods: {
         loadPlayer(options: any, fn:any=null) {
@@ -68,15 +56,14 @@ export default defineComponent({
         },
     },
     mounted() {
-        api = useLeither();
         if (typeof this.$props.filePath !== "undefined") {
-            this.options.sources = [{src:api.baseUrl + "mf" + this.$props.filePath + "?mmsid="+ this.$props.mmfsid,
+            this.options.sources = [{src:this.api.baseUrl + "mf" + this.$props.filePath + "?mmsid="+ this.$props.mmfsid,
                                 type: this.$props.fileType}]
             this.loadPlayer(this.options)
         } else {
-            api.client.MFOpenMacFile(api.sid, this.mmInfo.mid, this.$props.macid, (fsid: string) => {
+            this.api.client.MFOpenMacFile(this.api.sid, this.mmInfo.mid, this.$props.macid, (fsid: string) => {
                 // return this.readData2Buf(fsid, 0, Array.from(new Uint8Array(0)))
-                this.options.sources = [{src: api.baseUrl + "mf" + "?mmsid="+ fsid, type: this.$props.fileType}]
+                this.options.sources = [{src: this.api.baseUrl + "mf" + "?mmsid="+ fsid, type: this.$props.fileType}]
                 this.loadPlayer(this.options)
             }, (err: Error) => {
                 console.error("Open file error=", err)

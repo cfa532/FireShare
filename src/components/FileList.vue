@@ -8,7 +8,6 @@ import Pager from "./Gadget/Pager.vue"
 console.log("FileList.vue")
 // interface ScorePair {score:number, member:string}
 interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
-let mmInfo: any = null
 let api: any = null
 let fullList:any;
 
@@ -32,6 +31,9 @@ export default defineComponent({
             // api: ref({}),
         }
     },
+    computed: {
+        mmInfo: ()=>useMimei(),
+    },
     provide() {
         return {
             // inject a whole array
@@ -47,8 +49,7 @@ export default defineComponent({
             // location.reload()
         },
         fileDownload(e: MouseEvent, file: any){
-            console.log(mmInfo.$state)
-            api.client.MFOpenMacFile(api.sid, mmInfo.mid, file.macid, (fsid: string) => {
+            api.client.MFOpenMacFile(api.sid, this.mmInfo.mid, file.macid, (fsid: string) => {
                 api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
                     useMimei().downLoadByFileData(fileData, file.name, "")
                 }, (err: Error) => {
@@ -93,8 +94,7 @@ export default defineComponent({
         api.client.MMCreate(api.sid, "fireshare", this.query.title, "file_list", 2, "", (mid: string) => {
             // each colume is one MM
             api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
-                mmInfo = useMimei()
-                mmInfo.$patch({
+                this.mmInfo.$patch({
                     mid: mid,       // shall be the same as MM created by Uploader
                     mmsid: mmsid
                 })
@@ -118,7 +118,7 @@ function getFileList(sps:[], that: any) {
     var st = (that.currentPage-1)*that.pageSize
     that.fileList.length = 0
     sps.slice(st, st+that.pageSize).forEach((element:ScorePair) => {
-        api.client.Hget(mmInfo.mmsid, "file_list", element.member, (fi:FVPair)=>{
+        api.client.Hget(that.mmInfo.mmsid, "file_list", element.member, (fi:FVPair)=>{
             if (!fi) {
                 console.log("mac file without info", element)
                 return
