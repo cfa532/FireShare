@@ -1,8 +1,9 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import videojs from 'video.js';
-import { useLeither } from '../../stores/lapi'
+import { useLeither, useMimei } from '../../stores/lapi'
 let api: any = null
+
 // type Option = {
 //     autoplay: boolean,
 //     controls: boolean,
@@ -46,8 +47,11 @@ export default defineComponent({
                 controls: true,
                 autoplay: true,
                 sources: [{src:"", type :"" as string || undefined}]
-            }
+            },
         }
+    },
+    computed: {
+        mmInfo: ()=>useMimei()
     },
     methods: {
         loadPlayer(options: any, fn:any=null) {
@@ -70,7 +74,7 @@ export default defineComponent({
                                 type: this.$props.fileType}]
             this.loadPlayer(this.options)
         } else {
-            api.client.MFOpenMacFile(api.sid, api.mid, this.$props.macid, (fsid: string) => {
+            api.client.MFOpenMacFile(api.sid, this.mmInfo.mid, this.$props.macid, (fsid: string) => {
                 // return this.readData2Buf(fsid, 0, Array.from(new Uint8Array(0)))
                 this.options.sources = [{src: api.baseUrl + "mf" + "?mmsid="+ fsid, type: this.$props.fileType}]
                 this.loadPlayer(this.options)

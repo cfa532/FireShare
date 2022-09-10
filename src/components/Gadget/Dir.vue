@@ -6,7 +6,7 @@ const api = useLeither();
 const mmInfo = useMimei();
 const localFiles = ref<any[]>();
 const currentPage = ref(1)
-const pageSize  = ref(10)
+const pageSize  = ref(20)
 const itemNumber = ref(1)
 const props = defineProps({
     filePath: {type: String, required: true},
@@ -31,7 +31,7 @@ onMounted(()=>{
 watch(()=>props.filePath, (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {
         // console.log(toParams, prevParams)
-        currentPage.value = 1       // to reload dir data when backWard key is clicked
+        // currentPage.value = 1       // to reload dir data when backWard key is clicked
         showDir(props.filePath)
     }
 })
