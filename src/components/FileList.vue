@@ -77,7 +77,6 @@ export default defineComponent({
         }
     },
     mounted() {
-        // api = (this as any).lapi    // window.lapi
         api = useLeither();
         if (this.query.title === "Webdav") {
             // load files in webdav folder
