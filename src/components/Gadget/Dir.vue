@@ -25,7 +25,6 @@ const filePath = computed(()=>{
 
 onMounted(()=>{
     // console.log("Reading dir:", (props.filePath))
-    console.log(mmInfo.$state)
     showDir(props.filePath)
 })
 watch(()=>props.filePath, (toParams, prevParams)=>{

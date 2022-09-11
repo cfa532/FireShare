@@ -1,80 +1,61 @@
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, shallowRef, onBeforeUnmount, watch, nextTick, reactive } from 'vue';
+import { useRouter } from 'vue-router';
 import videojs from 'video.js';
 import { useLeither, useMimei } from '../../stores/lapi'
-
-export default defineComponent({
-    name: 'VideoPlayer',
-    props: {
+const router = useRouter();
+const api = useLeither();
+const mmInfo = useMimei();
+const props = defineProps({
         macid: {type:String, required: false},
         fileType: {type:String, required: false},
         filePath: {type: String, required: false},
         mmfsid: {type: String, required: false},
-    },
-    watch: {
-        "$props.filePath": {
-            deep: true,
-            handler: function (newVal, oldVal) {
-                if (newVal !== oldVal) {
-                    console.log(newVal, this.options)
-                    this.options.sources = [{src: this.api.baseUrl + "mf" + this.$props.filePath + "?mmsid="+ this.$props.mmfsid,
-                                type: this.$props.fileType}]
-                    this.loadPlayer(this.options, ()=>{
-                        // force reload new src
-                        this.$router.go(0)
-                    })
-                }
-            }
-        }
-    },
-    data() {
-        return {
-            player: null as any,
-            options : {
-                controls: true,
-                autoplay: true,
-                sources: [{src:"", type :"" as string || undefined}]
-            },
-        }
-    },
-    computed: {
-        mmInfo: ()=>useMimei(),
-        api: ()=>useLeither(),
-    },
-    methods: {
-        loadPlayer(options: any, fn:any=null) {
-            if (this.player) {
-                this.player.options = options
-                console.log("reload player", this.player.options.sources[0])
-                // this.player.play()
-                if (fn) fn()
-            } else {
-                this.player = videojs(this.$refs.videoPlayer, options, () => {
-                    this.player.log('onPlayerReady', this);
-                });
-            }
-        },
-    },
-    mounted() {
-        if (typeof this.$props.filePath !== "undefined") {
-            this.options.sources = [{src:this.api.baseUrl + "mf" + this.$props.filePath + "?mmsid="+ this.$props.mmfsid,
-                                type: this.$props.fileType}]
-            this.loadPlayer(this.options)
-        } else {
-            this.api.client.MFOpenMacFile(this.api.sid, this.mmInfo.mid, this.$props.macid, (fsid: string) => {
-                // return this.readData2Buf(fsid, 0, Array.from(new Uint8Array(0)))
-                this.options.sources = [{src: this.api.baseUrl + "mf" + "?mmsid="+ fsid, type: this.$props.fileType}]
-                this.loadPlayer(this.options)
-            }, (err: Error) => {
-                console.error("Open file error=", err)
-            })
-        }
-    },
-    beforeDestroy() {
-        if (this.player) {
-            this.player.dispose();
-        }
-    },
+});
+const videoPlayer = ref<HTMLVideoElement>()
+let player: any = null;
+const options = reactive({
+    controls: true,
+    autoplay: true,
+    sources: [{src:"", type :"" as string || undefined}]
+});
+onMounted(()=>{
+    console.log(props)
+    if (typeof props.filePath !== "undefined") {
+        options.sources = [{
+            src: api.baseUrl + "mf" + "?mmsid=" + props.mmfsid,
+            type: props.fileType
+        }]
+        loadPlayer(options)
+    } else {
+        api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
+            // return this.readData2Buf(fsid, 0, Array.from(new Uint8Array(0)))
+            options.sources = [{
+                src: api.baseUrl + "mf" + "?mmsid=" + fsid,
+                type: props.fileType
+            }]
+            loadPlayer(options)
+        }, (err: Error) => {
+            console.error("Open file error=", err)
+        })
+    }
+});
+function loadPlayer(options: any) {
+    if (player) {
+        player.options = options
+        console.log("reload player", player.options)
+    } else {
+        player = videojs(videoPlayer.value, options, ()=>{
+            player.log('onPlayerReady');
+        });
+    }
+};
+
+onBeforeUnmount(()=>{
+    if (player) {
+        console.log("Video player disposed", player)
+        player.dispose();
+    }
 })
 </script>
 

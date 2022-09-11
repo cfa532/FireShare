@@ -30,12 +30,6 @@ async function getLink():Promise<string> {
         }
     })
 }
-
-watch(()=>props.filePath, async (toParams, prevParams)=>{
-    if (toParams as string !== prevParams as string) {
-        imageUrl.value = await getLink()
-    }
-})
 </script>
 
 <template>
