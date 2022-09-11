@@ -69,8 +69,7 @@ function getComponent(filePath: string) {
 
 watch(()=>route.params.filePath, async (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {
-        console.log(toParams, prevParams);
-        // router.go(0)
+        // filePath changed, find the right component to display the new file path: doc, img, or dir
         getComponent(route.params.filePath as string)
     }
 })

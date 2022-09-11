@@ -15,24 +15,15 @@ onMounted(() => {
     console.log(props)
         if (typeof props.filePath !== "undefined") {
             // show files in local /webdav
-            fileUrl.value = api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid
-            // pdfobject.embed((url), "#pdfviewer", { height: "60rem" })
-            // window.open(api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid)
+            fileUrl.value = api.baseUrl+"mf"+"?mmsid="+props.mmfsid
         } else {
             api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
                 // show Mac file in MM database
                 fileUrl.value = api.baseUrl+"mf"+"?mmsid="+fsid
-                // pdfobject.embed(api.baseUrl+"mf"+"?mmsid="+fsid, "#pdfviewer", { height: "60rem" })
             }, (err: Error) => {
                 console.error("Open file error=", err)
             })
         }
-})
-watch(()=>props.filePath, async (toParams, prevParams)=>{
-    if (toParams as string !== prevParams as string) {
-        fileUrl.value = api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid
-        // pdfobject.embed(api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid, "#pdfviewer", { height: "60rem" })
-    }
 })
 </script>
 
