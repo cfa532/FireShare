@@ -19,10 +19,11 @@ async function getLink():Promise<string> {
     return new Promise((resolve, reject)=>{
         if (typeof props.filePath !== "undefined") {
             // filePath not null, showing a local file
-            resolve(api.baseUrl + "mf" + props.filePath + "?mmsid="+ props.mmfsid)
+            resolve(api.baseUrl + "mf" + "?mmsid="+ props.mmfsid)
         } else {
             api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
-                resolve(api.baseUrl + "mf" + "?mmsid="+ fsid)
+                // resolve(api.baseUrl + "mf" + "?mmsid="+ fsid)
+                resolve(imageUrl.value = api.baseUrl + "mf" + "?mmsid="+ fsid)
             }, (err: Error) => {
                 reject("Open mac file error="+err)
             })
