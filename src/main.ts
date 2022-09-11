@@ -25,8 +25,12 @@ const pinia = createPinia()
 app.use(pinia)
 app.config.unwrapInjectedRef=true       // temp setting until ver 3.3
 app.use(router)
-await useLeither().login()
-app.mount("#app")
+useLeither().login().then(
+    ()=>app.mount("#app"),
+    (err: Error)=>{
+        console.error("Login err=", err)
+    })
+
 
 // useLeither().getLApi().then((api:any)=>{
 //     // window.lapi = api

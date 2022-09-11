@@ -66,12 +66,11 @@ export const useLeither = defineStore({
             })
         },
         async login() {
-            let ips = getcurips()
-            this.baseUrl = "http://" + ips + "/";
-            this.hostUrl = "ws://" + ips + "/ws/";
-            try {
-                //这是提前设置好的用户名密码，资源授权的情况下，可以使用guest帐号
-                await this.client.Login("lsb", "123456", "byname").then(
+            return new Promise((resolve)=>{
+                let ips = getcurips()
+                this.baseUrl = "http://" + ips + "/";
+                this.hostUrl = "ws://" + ips + "/ws/";
+                this.client.Login("lsb", "123456", "byname").then(
                     (result:any)=>{ 
                         this.sid = result.sid
                         this.client.SignPPT(this.sid, {
@@ -84,6 +83,7 @@ export const useLeither = defineStore({
                             this.client.RequestService(ppt).then(
                                 (map:any)=>{
                                     console.log("Request service, ", map)
+                                    resolve(true)
                                 }, (err:Error)=>{
                                     console.error("Request service error=", err)
                                 })
@@ -94,9 +94,12 @@ export const useLeither = defineStore({
                         console.error("Login error=", e)
                     }
                 )
-            } catch(error) {
-                console.error("Login failed.", error)
-            }
+            })
+            // try {
+            //     //这是提前设置好的用户名密码，资源授权的情况下，可以使用guest帐号
+            // } catch(error) {
+            //     console.error("Login failed.", error)
+            // }
         }
     }
 })
