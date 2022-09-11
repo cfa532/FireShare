@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, inject, watch } from 'vue';
-import { useLeither } from '../../stores/lapi';
-const api: any = useLeither();    // Leither api handler
+import { useLeither, useMimei } from '../../stores/lapi';
+const api = useLeither();    // Leither api handler
+const mmInfo = useMimei()
 const props = defineProps({
     macid : {type: String, required: false},
     fileType: {type: String, required: false},
@@ -20,7 +21,7 @@ async function getLink():Promise<string> {
             // filePath not null, showing a local file
             resolve(api.baseUrl + "mf" + props.filePath + "?mmsid="+ props.mmfsid)
         } else {
-            api.client.MFOpenMacFile(api.sid, api.mid, props.macid, (fsid: string) => {
+            api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
                 resolve(api.baseUrl + "mf" + "?mmsid="+ fsid)
             }, (err: Error) => {
                 reject("Open mac file error="+err)
