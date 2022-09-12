@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { stringifyQuery } from 'vue-router';
 
 const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmLocal", "DhtGetAllKeys","MFOpenByPath",
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
@@ -108,7 +109,8 @@ export const useMimei = defineStore({
     id: 'MMInfo',
     state: ()=>({
         _mid: "",
-        _mmsid: ""
+        _mmsid: "",
+        _column: {title: "News", titleZh:"最新文档", orderBy:0} as ContentColumn,
     }),
     getters: {
         mid: (state) => {
@@ -123,12 +125,19 @@ export const useMimei = defineStore({
             }
             return state._mmsid;
         },
+        column: (state) => {
+            return state._column;
+        }
     },
     actions: {
         setMMInfo(mid: string, mmsid: string) {
             this.$state._mid = mid
             this.$state._mmsid = mmsid
             localStorage.setItem("mmInfo", JSON.stringify({_mid:mid, _mmsid:mmsid}))
+        },
+        setColumn(c: ContentColumn) {
+            this.$state._column = c
+            localStorage.setItem("currentColumn", JSON.stringify(c))
         },
         downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {
             var a = document.createElement("a");

@@ -8,7 +8,7 @@ const c0: ContentColumn[] = [
     {title:"News", titleZh:"最新文档", orderBy:0}, 
     {title:"Pictures", titleZh:"图片专区", orderBy:1, subColumn: [
         {title:"Western", titleZh:"洋画", orderBy:0},
-        {title:"Japan", titleZh:"邦画", orderBy:0},
+        {title:"Japan", titleZh:"邦画", orderBy:1},
     ]},
     {title:"Webdav", titleZh:"本地文档", orderBy:2}
 ];
@@ -21,7 +21,7 @@ const titleZh = "众众";
         <li><RouterLink active-class="active" :to="{name: 'main'}">{{titleZh}}</RouterLink></li>
     </ul>
     <ul>
-        <li v-for="c in c0">
+        <li v-for="(c, i) in c0" :key="i">
             <column-vue :content=c></column-vue>
         </li>
     </ul>

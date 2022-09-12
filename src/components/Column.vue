@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { PropType } from 'vue';
 import { useRouter } from 'vue-router'
-
+import { useMimei } from '../stores/lapi';
 const props = defineProps({
     content: {type: Object as PropType<ContentColumn>, required: true },
 })
 const router = useRouter();
+const mmInfo = useMimei();
 function goFilelist() {
     // remember the column to go
-    localStorage.setItem("currentColumn", JSON.stringify(props.content));
+    // localStorage.setItem("currentColumn", JSON.stringify(props.content));
+    console.log(props.content)
+    mmInfo.setColumn(props.content)
     router.push({
         name: "filelist",
     });

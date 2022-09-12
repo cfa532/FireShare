@@ -4,9 +4,9 @@ import { useLeither, useMimei } from '../stores/lapi';
 import Uploader from "./Uploader.vue";
 import NaviBar from "./NaviBar.vue";
 import MyDir from './Gadget/Dir.vue';
-import Pager from "./Gadget/Pager.vue"
+import Pager from "./Gadget/Pager.vue";
+import { storeToRefs } from 'pinia';
 interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
-
 let api: any = null;
 let fullList = ref();
 
@@ -26,12 +26,7 @@ export default defineComponent({
         }
     },
     computed: {
-        mmInfo: ()=>useMimei(),
-        query: ()=>{
-                let p = localStorage.getItem("currentColumn")
-                console.log("current column,", p)
-                return p ? JSON.parse(p) : {title: "News", titleZh:"最新文档"}
-            }
+        mmInfo: ()=> useMimei(),
     },
     provide() {
         return {
@@ -75,9 +70,10 @@ export default defineComponent({
         }
     },
     mounted() {
-        console.log("FileList mounted")
+        const {...c} = storeToRefs(this.mmInfo)
+        console.log("FileList mounted", c.column.value)
         api = useLeither();
-        if (this.query.title === "Webdav") {
+        if (this.mmInfo.column.title === "Webdav") {
             // load files in webdav folder
             api.client.MFOpenByPath(api.sid, "mmroot", '/', 0, (mmfsid: string) => {
                 api.client.MFReaddir(mmfsid, (files: any[]) => {
@@ -89,7 +85,7 @@ export default defineComponent({
             })
             return
         };
-        api.client.MMCreate(api.sid, "fireshare", this.query.title, "file_list", 2, "", (mid: string) => {
+        api.client.MMCreate(api.sid, "fireshare", this.mmInfo.column.title, "file_list", 2, "", (mid: string) => {
             // each colume is one MM
             api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
                 this.mmInfo.setMMInfo(mid, mmsid);
@@ -131,9 +127,9 @@ function getFileList(sps:[], that: any) {
 </script>
 
 <template>
-<NaviBar :column=query.titleZh></NaviBar>
+<NaviBar :column=mmInfo.column.titleZh></NaviBar>
     <hr/>
-<div v-if="query.title!=='Webdav'">
+<div v-if="mmInfo.column.title!=='Webdav'">
     <Uploader @uploaded="uploaded"></Uploader>
     <ul style="padding: 0px; margin: 0 0 0 5px;">
     <li class="fileList" v-for="(file, index) in fileList" :key="index">
