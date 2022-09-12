@@ -92,10 +92,12 @@ export default defineComponent({
         api.client.MMCreate(api.sid, "fireshare", this.query.title, "file_list", 2, "", (mid: string) => {
             // each colume is one MM
             api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
-                this.mmInfo.$patch({
-                    mid: mid,       // shall be the same as MM created by Uploader
-                    mmsid: mmsid
-                })
+                let obj = {
+                    _mid: mid,       // shall be the same as MM created by Uploader
+                    _mmsid: mmsid
+                }
+                this.mmInfo.$patch(obj)
+                localStorage.setItem("mmInfo", JSON.stringify(obj))
                 console.log("Open MM mmsid=", mmsid, "mid=", mid);
                 api.client.Zrange(mmsid, "file_list", 0, -1, (sps: []) => {
                     fullList.value = sps.reverse()
@@ -127,7 +129,7 @@ function getFileList(sps:[], that: any) {
             that.fileList.push(fi)
             that.fileList.sort((a:FVPair,b:FVPair) => a.lastModified > b.lastModified ? -1 : 1)
         }, (err:Error)=>{
-            console.error("Hget error=", err, element)
+            console.error("Hget error=", err, element, that.mmInfo)
         })
     });
 }

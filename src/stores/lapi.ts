@@ -107,9 +107,23 @@ export const useLeither = defineStore({
 export const useMimei = defineStore({
     id: 'MMInfo',
     state: ()=>({
-        mid: "",
-        mmsid: ""
+        _mid: "",
+        _mmsid: ""
     }),
+    getters: {
+        mid: (state) => {
+            if (localStorage.getItem("mmInfo")) {
+                state._mid = JSON.parse(localStorage.getItem("mmInfo")!)._mid
+            }
+            return state._mid;
+        },
+        mmsid: (state) => {
+            if (localStorage.getItem("mmInfo")) {
+                state._mmsid = JSON.parse(localStorage.getItem("mmInfo")!)._mmsid
+            }
+            return state._mmsid;
+        },
+    },
     actions: {
         downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {
             var a = document.createElement("a");
