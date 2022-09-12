@@ -125,6 +125,11 @@ export const useMimei = defineStore({
         },
     },
     actions: {
+        setMMInfo(mid: string, mmsid: string) {
+            this.$state._mid = mid
+            this.$state._mmsid = mmsid
+            localStorage.setItem("mmInfo", JSON.stringify({_mid:mid, _mmsid:mmsid}))
+        },
         downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {
             var a = document.createElement("a");
             a.href = window.URL.createObjectURL(new Blob([content], {type: mimeType}));

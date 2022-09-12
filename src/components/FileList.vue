@@ -92,13 +92,7 @@ export default defineComponent({
         api.client.MMCreate(api.sid, "fireshare", this.query.title, "file_list", 2, "", (mid: string) => {
             // each colume is one MM
             api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
-                let obj = {
-                    _mid: mid,       // shall be the same as MM created by Uploader
-                    _mmsid: mmsid
-                }
-                this.mmInfo.$patch(obj)
-                localStorage.setItem("mmInfo", JSON.stringify(obj))
-                console.log("Open MM mmsid=", mmsid, "mid=", mid);
+                this.mmInfo.setMMInfo(mid, mmsid);
                 api.client.Zrange(mmsid, "file_list", 0, -1, (sps: []) => {
                     fullList.value = sps.reverse()
                     this.itemNumber = sps.length
