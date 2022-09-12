@@ -126,6 +126,9 @@ export const useMimei = defineStore({
             return state._mmsid;
         },
         column: (state) => {
+            if (localStorage.getItem("currentColumn")) {
+                state._column = JSON.parse(localStorage.getItem("currentColumn")!)
+            }
             return state._column;
         }
     },
