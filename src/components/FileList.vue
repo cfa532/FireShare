@@ -18,11 +18,6 @@ export default defineComponent({
         return {
             fileList: [] as FVPair[],
             localFiles: [] as any[],
-            query : computed(()=>{
-                let p = localStorage.getItem("currentColumn")
-                console.log("current column,", p)
-                return p ? JSON.parse(p) : {title: "News", titleZh:"最新文档"}
-            }),
             localRoot: '/',     // root directory to local files in webdav
             currentPage: ref(1),
             pageSize: ref(20),
@@ -32,6 +27,11 @@ export default defineComponent({
     },
     computed: {
         mmInfo: ()=>useMimei(),
+        query: ()=>{
+                let p = localStorage.getItem("currentColumn")
+                console.log("current column,", p)
+                return p ? JSON.parse(p) : {title: "News", titleZh:"最新文档"}
+            }
     },
     provide() {
         return {
@@ -42,7 +42,6 @@ export default defineComponent({
     methods: {
         uploaded(fi: FVPair) {
             // add newly uploaded file to display list
-            console.log(fi)
             this.fileList.unshift(fi)
             this.itemNumber += 1;
             // location.reload()

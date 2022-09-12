@@ -11,7 +11,7 @@ const props = defineProps({
 })
 const imageUrl = ref("")
 onMounted(async () => {
-    console.log(props)
+    console.log("Image mounted", props)
     imageUrl.value = await getLink()
     // imageUrl.value = api.baseUrl + "mf/" + encodeURI(props.macid!) + "?mmsid="+ api.mmsid
 });
@@ -22,14 +22,22 @@ async function getLink():Promise<string> {
             resolve(api.baseUrl + "mf" + "?mmsid="+ props.mmfsid)
         } else {
             api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
-                // resolve(api.baseUrl + "mf" + "?mmsid="+ fsid)
-                resolve(imageUrl.value = api.baseUrl + "mf" + "?mmsid="+ fsid)
+                resolve(api.baseUrl + "mf" + "?mmsid="+ fsid)
             }, (err: Error) => {
                 reject("Open mac file error="+err)
             })
         }
     })
 }
+watch(()=>props.filePath, async (cv, pv)=>{
+    if (cv !== pv) {
+        // something changed if current value != prev value
+        console.log(props)
+        if (props.fileType?.includes("image")) {
+            imageUrl.value = await getLink()
+        }
+    }
+})
 </script>
 
 <template>

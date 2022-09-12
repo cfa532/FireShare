@@ -15,7 +15,7 @@ const props = defineProps({
 const macids = ref([])
 const textContent = ref("")
 onMounted(() => {
-    console.log("Show page:", props)
+    console.log("Page mounted:", props)
     api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
         api.client.MFGetObject(fsid, (obj:FVPair)=>{
             console.log(obj)
@@ -28,7 +28,7 @@ onMounted(() => {
                 results.forEach(res=>{
                     if (res.status==="fulfilled") {
                         var fi:any = res.value
-                        fileInfos.value.push({macid: fi.macid, fileType: fi.type, name:fi.name})
+                        fileInfos.value.push({macid: fi.macid, fileType: fi.type, name:fi.name, autoplay:false})
                     } else {
                         console.log(res.reason)
                     }
@@ -44,7 +44,7 @@ onMounted(() => {
 async function getComponents(macids:string[]) {
     return Promise.allSettled(macids.map(e=>{
         return new Promise((resolve, reject)=>{
-            console.log("mmsid=", mmInfo.mmsid, mmInfo.mid, e)
+            console.log(mmInfo)
             api.client.Hget(mmInfo.mmsid, "file_list", e, (fi:FVPair)=>{
                 if (!fi) {
                     reject("Mac id without info: "+e)

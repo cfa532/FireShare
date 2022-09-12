@@ -29,7 +29,7 @@ const filePath = computed(()=>{
 
 onMounted(()=>{
     currentPage.value = props.pageNumber;
-    console.log("Reading dir:", props)
+    console.log("Dir mounted:", props)
     showDir(props.filePath)
 })
 watch(()=>props.filePath, (toParams, prevParams)=>{
@@ -60,7 +60,7 @@ function showDir(filePath: string) {
     })
 }
 function pageChanged(n: number) {
-    console.log("current page", n)
+    console.log("current page changed to", n)
     currentPage.value = n
     showDir(props.filePath)
     emit("pageChanged", n);     // bubble to parent page

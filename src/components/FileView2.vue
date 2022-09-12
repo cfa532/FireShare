@@ -17,17 +17,16 @@ const userComponent = shallowRef()
 const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: "", pageNumber:1})    // props
 const currentPageNumber = ref(1)
 onMounted(()=>{
-    console.log("FileView2 mounted", route.params)
-    currentPageNumber.value = route.params.page ? parseInt(route.params.page as string) : currentPageNumber.value
+    console.log("FileView2 mounted", route.params, "page#=",currentPageNumber.value)
     getComponent(route.params.filePath as string)
 })
 function getComponent(filePath: string) {
     // check filePath info
     api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid:string)=>{
-        // pass mmfsid, so the component do not have to open file again
+        // pass mmfsid, so the component do not have to open file again  
         currentProperty.value = {filePath: filePath, mmfsid: mmfsid, fileType: "", pageNumber:currentPageNumber.value}
         api.client.MFStat(mmfsid, (fi: any)=>{
-            console.log(filePath, fi)
+            console.log("get component", filePath, fi)
             if (fi.fIsDir) {
                 currentProperty.value.filePath = filePath
                 userComponent.value = MyDir;
@@ -75,7 +74,7 @@ watch(()=>route.params.filePath, async (toParams, prevParams)=>{
     }
 })
 function pageChanged(n: number) {
-    console.log("page=",n)
+    console.log("current page=",n)
     currentPageNumber.value = n
 }
 </script>
@@ -83,5 +82,7 @@ function pageChanged(n: number) {
 <template>
     <NaviBarVue :column=column.titleZh></NaviBarVue>
     <hr/>
-    <component @page-changed="pageChanged" :is="userComponent" v-bind="currentProperty"></component>
+    <KeepAlive>
+        <component @page-changed="pageChanged" :is="userComponent" v-bind="currentProperty"></component>
+    </KeepAlive>
 </template>

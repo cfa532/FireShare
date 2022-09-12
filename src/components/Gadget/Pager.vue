@@ -23,7 +23,7 @@ const lastPage = computed(():number=>{
     return Math.min(props.currentPage+6, Math.ceil(props.itemNumber/props.pageSize))
 })
 onMounted(()=>{
-    console.log(firstPage.value, lastPage.value)
+    console.log("Pager mounted", props)
 })
 function naviPage(n: number) {
     if (n===props.currentPage) return

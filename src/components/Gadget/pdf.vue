@@ -12,7 +12,7 @@ const props = defineProps({
 })
 const fileUrl = ref("")
 onMounted(() => {
-    console.log(props)
+    console.log("PDF mounted", props)
         if (typeof props.filePath !== "undefined") {
             // show files in local /webdav
             fileUrl.value = api.baseUrl+"mf"+"?mmsid="+props.mmfsid
@@ -24,6 +24,15 @@ onMounted(() => {
                 console.error("Open file error=", err)
             })
         }
+})
+watch(()=>props.filePath, async (cv, pv)=>{
+    if (cv !== pv) {
+        // something changed if current value != prev value
+        console.log(props)
+        if (props.fileType?.includes("pdf")) {
+            fileUrl.value = api.baseUrl+"mf"+"?mmsid="+props.mmfsid
+        }
+    }
 })
 </script>
 
