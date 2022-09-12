@@ -7,24 +7,25 @@ import MyPdf from './Gadget/pdf.vue';
 import MyDir from './Gadget/Dir.vue';
 import VideoPlayer from './Gadget/VideoJS.vue'
 import { shallowRef } from '@vue/reactivity';
-import { onMounted, inject, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 const route = useRoute()
 const router = useRouter()
 const api = useLeither()
 const mmInfo = useMimei()
 const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const userComponent = shallowRef()
-const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: ""})    // props
-
+const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: "", pageNumber:1})    // props
+const currentPageNumber = ref(1)
 onMounted(()=>{
-    console.log(route.params)
+    console.log("FileView2 mounted", route.params)
+    currentPageNumber.value = route.params.page ? parseInt(route.params.page as string) : currentPageNumber.value
     getComponent(route.params.filePath as string)
 })
 function getComponent(filePath: string) {
     // check filePath info
     api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid:string)=>{
         // pass mmfsid, so the component do not have to open file again
-        currentProperty.value = {filePath: filePath, mmfsid: mmfsid, fileType: ""}
+        currentProperty.value = {filePath: filePath, mmfsid: mmfsid, fileType: "", pageNumber:currentPageNumber.value}
         api.client.MFStat(mmfsid, (fi: any)=>{
             console.log(filePath, fi)
             if (fi.fIsDir) {
@@ -73,11 +74,14 @@ watch(()=>route.params.filePath, async (toParams, prevParams)=>{
         getComponent(route.params.filePath as string)
     }
 })
-
+function pageChanged(n: number) {
+    console.log("page=",n)
+    currentPageNumber.value = n
+}
 </script>
 
 <template>
     <NaviBarVue :column=column.titleZh></NaviBarVue>
     <hr/>
-    <component :is="userComponent" v-bind="currentProperty"></component>
+    <component @page-changed="pageChanged" :is="userComponent" v-bind="currentProperty"></component>
 </template>

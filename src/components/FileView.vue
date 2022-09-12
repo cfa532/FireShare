@@ -26,6 +26,8 @@ const userComponent = computed(() => {
     } else if (fileType.includes("page")) {
         // webpage that includes text and files
         return Page
+    } else {
+        console.warn("Unknown file type:", fileType)
     }
 })
 const currentProperty = route.params    // props

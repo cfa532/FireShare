@@ -5,11 +5,10 @@ import Uploader from "./Uploader.vue";
 import NaviBar from "./NaviBar.vue";
 import MyDir from './Gadget/Dir.vue';
 import Pager from "./Gadget/Pager.vue"
-console.log("FileList.vue")
-// interface ScorePair {score:number, member:string}
 interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
-let api: any = null
-let fullList:any;
+
+let api: any = null;
+let fullList = ref();
 
 export default defineComponent({
     name: "FileList",
@@ -62,7 +61,7 @@ export default defineComponent({
         pageChanged(n: number) {
             this.currentPage = n
             console.log("current page=", n)
-            getFileList(fullList, this)
+            getFileList(fullList.value, this)
         },
         fileName(file: FVPair) {
             if (file.type.includes("page")) {
@@ -77,6 +76,7 @@ export default defineComponent({
         }
     },
     mounted() {
+        console.log("FileList mounted")
         api = useLeither();
         if (this.query.title === "Webdav") {
             // load files in webdav folder
@@ -99,7 +99,7 @@ export default defineComponent({
                 })
                 console.log("Open MM mmsid=", mmsid, "mid=", mid);
                 api.client.Zrange(mmsid, "file_list", 0, -1, (sps: []) => {
-                    fullList = sps.reverse()
+                    fullList.value = sps.reverse()
                     this.itemNumber = sps.length
                     getFileList(sps, this)
                 }, (err: Error) => {
@@ -139,7 +139,7 @@ function getFileList(sps:[], that: any) {
 <NaviBar :column=query.titleZh></NaviBar>
     <hr/>
 <div v-if="query.title!=='Webdav'">
-    <Uploader @uploaded="uploaded" :content=query></Uploader>
+    <Uploader @uploaded="uploaded"></Uploader>
     <ul style="padding: 0px; margin: 0 0 0 5px;">
     <li class="fileList" v-for="(file, index) in fileList" :key="index">
         <RouterLink v-if="file.type.includes('image') || file.type.includes('video') 

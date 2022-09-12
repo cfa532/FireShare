@@ -10,7 +10,11 @@ const pageSize  = ref(10)
 const itemNumber = ref(1)
 const props = defineProps({
     filePath: {type: String, required: true},
+    pageNumber: {type: Number, required: false, default: 1},
 })
+const emit = defineEmits<{
+    (e: 'pageChanged', value: number) : void
+}>()
 const parentPath = computed(()=>{
     const idx = props.filePath?.lastIndexOf('/')
     if (typeof idx==="undefined" || idx! <= 0) {
@@ -24,7 +28,8 @@ const filePath = computed(()=>{
 })
 
 onMounted(()=>{
-    // console.log("Reading dir:", (props.filePath))
+    currentPage.value = props.pageNumber;
+    console.log("Reading dir:", props)
     showDir(props.filePath)
 })
 watch(()=>props.filePath, (toParams, prevParams)=>{
@@ -58,6 +63,7 @@ function pageChanged(n: number) {
     console.log("current page", n)
     currentPage.value = n
     showDir(props.filePath)
+    emit("pageChanged", n);     // bubble to parent page
 }
 function fileDownload(e: MouseEvent, file: any){
     api.client.MFOpenByPath(api.sid, "mmroot", filePath.value+file.fName, 0, (mmfsid:string)=>{
@@ -76,14 +82,14 @@ function fileDownload(e: MouseEvent, file: any){
 <div>
     <ul style="padding: 0px; margin: 0 0 0 5px;">
     <li v-if="props.filePath!==parentPath" class="fileList">
-        <RouterLink :to="{name:'fileview2', params:{filePath: parentPath}}"><strong>. .</strong></RouterLink>
+        <RouterLink :to="{name:'fileview2', params:{filePath:parentPath}}"><strong>. .</strong></RouterLink>
     </li>
     <li class="fileList" v-for="(file, index) in localFiles" :key="index">
         <a v-if="['docx', 'doc'].includes(file.fName.substring(file.fName.length-3).toLowerCase())"
             href="" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.fName}} &dArr;
         </a>
         <RouterLink v-else
-            :to="{ name:'fileview2', params:{filePath: (filePath+file.fName)}}">{{file.fName}}
+            :to="{ name:'fileview2', params:{filePath:filePath+file.fName}}">{{file.fName}}
         </RouterLink>
         <span v-if="file.fIsDir"> ...&gt;</span>
     </li>

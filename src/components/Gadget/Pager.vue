@@ -11,9 +11,11 @@ const curClass = reactive<CSSProperties>({
     display: 'inline-block',
     "background-color": "red",
 })
+const emit = defineEmits<{
+    (e: "pageChanged", value: number): void
+}>()
 
-const emit = defineEmits(["pageChanged"])
-// page number starts at 1
+// page number starts at 1, display links to 5 pages on either side
 const firstPage = computed(():number=>{
     return Math.max(props.currentPage-5, 1)
 })

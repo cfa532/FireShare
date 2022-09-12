@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CSSProperties, inject, onMounted, reactive, ref, watch } from "vue";
+import { CSSProperties, onMounted, reactive, ref, watch } from "vue";
 import Preview from "./Gadget/Preview.vue";
 import { useLeither, useMimei } from '../stores/lapi'
 const api = useLeither();
@@ -16,12 +16,8 @@ class FVPair {
     this.macid = ""
   }
 }
-interface HTMLInputEvent extends Event {
-  target: HTMLInputElement & EventTarget
-}
-const props = defineProps(['content']);   // ColoumnContent Type
+interface HTMLInputEvent extends Event { target: HTMLInputElement & EventTarget }
 const emit = defineEmits(["uploaded"])
-// const api: any = inject('lapi');    // global Leither handler
 const textValue = ref("")
 const form = ref<HTMLFormElement>();
 const divAttach = ref<HTMLDivElement>()
