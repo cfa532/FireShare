@@ -13,7 +13,7 @@ function goFilelist() {
     console.log(props.content)
     mmInfo.setColumn(props.content)
     router.push({
-        name: "filelist",
+        name: "filelist", params:{page:1}
     });
 };
 </script>

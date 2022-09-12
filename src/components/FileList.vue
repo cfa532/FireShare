@@ -1,6 +1,7 @@
 <script lang="ts">
 import { defineComponent, computed, ref } from "vue";
 import { useLeither, useMimei } from '../stores/lapi';
+import { useRoute, useRouter } from "vue-router";
 import Uploader from "./Uploader.vue";
 import NaviBar from "./NaviBar.vue";
 import MyDir from './Gadget/Dir.vue';
@@ -13,25 +14,27 @@ let fullList = ref();
 export default defineComponent({
     name: "FileList",
     components: { Uploader, NaviBar, MyDir, Pager},
-    // inject:["lapi"],    // Leither api handler
+    props: ["page"],
     data() {
         return {
             fileList: [] as FVPair[],
             localFiles: [] as any[],
-            localRoot: '/',     // root directory to local files in webdav
-            currentPage: ref(1),
+            localRoot: '/',             // root directory to local files in webdav
             pageSize: ref(20),
             itemNumber: ref(1),
-            // api: ref({}),
+            route: useRoute(),
+            router: useRouter(),
         }
     },
     computed: {
         mmInfo: ()=> useMimei(),
+        currentPage() {     // do not use ()=>{}
+            return parseInt(this.route.params.page as string)}
     },
     provide() {
         return {
             // inject a whole array
-            fileList: computed(() => this.fileList)
+            fileList: computed(()=> this.fileList)
         }
     },
     methods: {
@@ -53,9 +56,8 @@ export default defineComponent({
             })
         },
         pageChanged(n: number) {
-            this.currentPage = n
-            console.log("current page=", n)
-            getFileList(fullList.value, this)
+            // getFileList(fullList.value, this)
+            this.router.push({name: "filelist", params:{page:n}})
         },
         fileName(file: FVPair) {
             if (file.type.includes("page")) {
@@ -71,13 +73,12 @@ export default defineComponent({
     },
     mounted() {
         const {...c} = storeToRefs(this.mmInfo)
-        console.log("FileList mounted", c.column.value)
+        console.log("FileList mounted", c.column.value, this.currentPage)
         api = useLeither();
         if (this.mmInfo.column.title === "Webdav") {
             // load files in webdav folder
             api.client.MFOpenByPath(api.sid, "mmroot", '/', 0, (mmfsid: string) => {
                 api.client.MFReaddir(mmfsid, (files: any[]) => {
-                    // console.log("Read /root", files)
                     this.localFiles = files
                 })
             }, (err: Error) => {
@@ -102,6 +103,11 @@ export default defineComponent({
         }, (err: Error) => {
             console.error("MM Create error=", err)
         })
+    },
+    watch: {
+        'currentPage'(newVal) {
+            getFileList(fullList.value, this);
+        }
     },
 })
 function getFileList(sps:[], that: any) {
