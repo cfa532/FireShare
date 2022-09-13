@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { stringifyQuery } from 'vue-router';
-
+// Hprose API
 const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmLocal", "DhtGetAllKeys","MFOpenByPath",
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
     "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile","MFStat",
@@ -9,9 +8,8 @@ const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmL
 ];
 
 function getcurips(){
-    //缺省的地址，用于本地调试程序
     let ips = "127.0.0.1:4800"
-    //获取节点链接
+    // getParam is a Leither function
     if (window.getParam != null){
         let p=window.getParam()
         ips = p["ips"][p.CurNode]
@@ -37,6 +35,7 @@ export const useLeither = defineStore({
     },
     actions: {
         getLocalApiHandler() {
+            // use local credential to access resources. Works only in local network.
             let apiHandler: any = {};
             let ips = getcurips()
             let hosturl = "ws://" + ips +"/ws/"
@@ -106,6 +105,7 @@ export const useLeither = defineStore({
 })
 
 export const useMimei = defineStore({
+    // manager persistent state variables
     id: 'MMInfo',
     state: ()=>({
         _mid: "",
@@ -114,13 +114,13 @@ export const useMimei = defineStore({
     }),
     getters: {
         mid: (state) => {
-            if (localStorage.getItem("mmInfo")) {
+            if (!state._mid) {
                 state._mid = JSON.parse(localStorage.getItem("mmInfo")!)._mid
             }
             return state._mid;
         },
         mmsid: (state) => {
-            if (localStorage.getItem("mmInfo")) {
+            if (!state._mmsid) {
                 state._mmsid = JSON.parse(localStorage.getItem("mmInfo")!)._mmsid
             }
             return state._mmsid;
