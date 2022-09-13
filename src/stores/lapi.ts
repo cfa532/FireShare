@@ -110,7 +110,7 @@ export const useMimei = defineStore({
     state: ()=>({
         _mid: "",
         _mmsid: "",
-        _column: {title: "News", titleZh:"最新文档", orderBy:0} as ContentColumn,
+        _column: null as any,
     }),
     getters: {
         mid: (state) => {
@@ -126,8 +126,12 @@ export const useMimei = defineStore({
             return state._mmsid;
         },
         column: (state) => {
-            if (localStorage.getItem("currentColumn")) {
-                state._column = JSON.parse(localStorage.getItem("currentColumn")!)
+            if (!state._column) {
+                if (!localStorage.getItem("currentColumn"))
+                    // default column item
+                    state._column = {title: "News", titleZh:"最新文档", orderBy:0}
+                else
+                    state._column = JSON.parse(localStorage.getItem("currentColumn")!)
             }
             return state._column;
         }
