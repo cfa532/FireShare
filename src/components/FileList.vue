@@ -14,7 +14,7 @@ let fullList = ref();
 export default defineComponent({
     name: "FileList",
     components: { Uploader, NaviBar, MyDir, Pager},
-    props: ["page"],
+    // props: ["page"],    // current page number for paging throgh file list
     data() {
         return {
             fileList: [] as FVPair[],
@@ -29,7 +29,7 @@ export default defineComponent({
     computed: {
         mmInfo: ()=> useMimei(),
         currentPage() {     // do not use ()=>{}
-            return parseInt(this.route.params.page as string)}
+            return this.route.params.page? parseInt(this.route.params.page as string) : 1}
     },
     provide() {
         return {
@@ -116,7 +116,7 @@ function getFileList(sps:[], that: any) {
     sps.slice(st, st+that.pageSize).forEach((element:ScorePair) => {
         api.client.Hget(that.mmInfo.mmsid, "file_list", element.member, (fi:FVPair)=>{
             if (!fi) {
-                console.log("mac file without info", element)
+                console.warn("mac file without info", element)
                 return
             }
             fi.macid = element.member
