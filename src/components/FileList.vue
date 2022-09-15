@@ -90,7 +90,9 @@ export default defineComponent({
             // each colume is one MM
             api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
                 this.mmInfo.setMMInfo(mid, mmsid);
+                window.mmInfo = this.mmInfo.$state;
                 api.client.Zrange(mmsid, "file_list", 0, -1, (sps: []) => {
+                    console.log("sps=", sps, this.mmInfo.$state)
                     fullList.value = sps.reverse()
                     this.itemNumber = sps.length
                     getFileList(sps, this)

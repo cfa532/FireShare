@@ -9,6 +9,7 @@ const c0: ContentColumn[] = [
     {title:"Pictures", titleZh:"图片专区", orderBy:1, subColumn: [
         {title:"Western", titleZh:"洋画", orderBy:0},
         {title:"Japan", titleZh:"邦画", orderBy:1},
+        {title:"Test", titleZh:"测试", orderBy:2},
     ]},
     {title:"Webdav", titleZh:"本地文档", orderBy:2}
 ];

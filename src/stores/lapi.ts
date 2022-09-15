@@ -17,6 +17,7 @@ function getcurips(){
     }
     { //for test
         ips = "192.168.1.101:4800"
+        ips = '[240e:390:e67:2a50:e4a7:c56d:a055:2]:4800'
     }
     return ips
 }

@@ -17,3 +17,7 @@ class FVPair {
       this.type = type;
     }
   }
+
+  interface Window {
+    mmInfo: any       // add to window obj for testing convenience
+  }
