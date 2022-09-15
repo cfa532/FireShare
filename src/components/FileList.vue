@@ -9,7 +9,6 @@ import Pager from "./Gadget/Pager.vue";
 import { storeToRefs } from 'pinia';
 interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
 let api: any = null;
-let fullList = ref();
 
 export default defineComponent({
     name: "FileList",
@@ -56,7 +55,6 @@ export default defineComponent({
             })
         },
         pageChanged(n: number) {
-            // getFileList(fullList.value, this)
             this.router.push({name: "filelist", params:{page:n}})
         },
         fileName(file: FVPair) {
@@ -69,6 +67,31 @@ export default defineComponent({
                 return JSON.parse(file.name)[0].substring(0, 30)
             }
             return file.name
+        },
+        getFileList() {
+            // get mm file list on current page
+            let start = (this.currentPage - 1) * this.pageSize
+            api.client.Zrevrange(this.mmInfo.mmsid, this.mmInfo.fileName, start, start + this.pageSize, (sps:[])=>{
+                console.log("sps=", sps, this.mmInfo.$state)
+                this.fileList.length = 0
+                sps.forEach((element: ScorePair) => {
+                    api.client.Hget(this.mmInfo.mmsid, this.mmInfo.fileName, element.member, (fi: FVPair) => {
+                        if (!fi) {
+                            console.warn("mac file without info", element)
+                            return
+                        }
+                        fi.macid = element.member
+                        // temporarily use timestamp when the file is added to the SocrePairs, for sorting
+                        fi.lastModified = element.score;
+                        this.fileList.push(fi)
+                        this.fileList.sort((a: FVPair, b: FVPair) => a.lastModified > b.lastModified ? -1 : 1)
+                    }, (err: Error) => {
+                        console.error("Hget error=", err, element, this.mmInfo)
+                    })
+                });
+            }, (err: Error) => {
+                console.error("Zrevrange error=", err)
+            })
         }
     },
     mounted() {
@@ -86,18 +109,17 @@ export default defineComponent({
             })
             return
         };
-        api.client.MMCreate(api.sid, "fireshare", this.mmInfo.column.title, "file_list", 2, "", (mid: string) => {
-            // each colume is one MM
+        // Important: define the Mimei that handles all data in this App
+        api.client.MMCreate(api.sid, "fireshare", this.mmInfo.column.title, this.mmInfo.fileName, 2, "", (mid: string) => {
+            // each colume is a MM. Combination of the column's title and 'file_list' determine a MM id
             api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
                 this.mmInfo.setMMInfo(mid, mmsid);
                 window.mmInfo = this.mmInfo.$state;
-                api.client.Zrange(mmsid, "file_list", 0, -1, (sps: []) => {
-                    console.log("sps=", sps, this.mmInfo.$state)
-                    fullList.value = sps.reverse()
-                    this.itemNumber = sps.length
-                    getFileList(sps, this)
+                api.client.Zcount(mmsid, this.mmInfo.fileName, 0, Date.now(), (count: number)=>{     // -1 does not work for stop
+                    this.itemNumber = count;    // total num of items in the list as a Mimei
+                    this.getFileList();
                 }, (err: Error) => {
-                    console.error("Zrange error=", err)
+                    console.error("MMOpen error=", err)
                 })
             }, (err: Error) => {
                 console.error("MMOpen error=", err)
@@ -108,29 +130,11 @@ export default defineComponent({
     },
     watch: {
         'currentPage'(newVal) {
-            getFileList(fullList.value, this);
+            this.getFileList();
         }
     },
 })
-function getFileList(sps:[], that: any) {
-    var st = (that.currentPage-1)*that.pageSize
-    that.fileList.length = 0
-    sps.slice(st, st+that.pageSize).forEach((element:ScorePair) => {
-        api.client.Hget(that.mmInfo.mmsid, "file_list", element.member, (fi:FVPair)=>{
-            if (!fi) {
-                console.warn("mac file without info", element)
-                return
-            }
-            fi.macid = element.member
-            // temporarily use timestamp when the file is added to the SocrePairs, for sorting
-            fi.lastModified = element.score;
-            that.fileList.push(fi)
-            that.fileList.sort((a:FVPair,b:FVPair) => a.lastModified > b.lastModified ? -1 : 1)
-        }, (err:Error)=>{
-            console.error("Hget error=", err, element, that.mmInfo)
-        })
-    });
-}
+
 
 </script>
 

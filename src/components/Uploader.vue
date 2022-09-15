@@ -8,7 +8,7 @@ const mmInfo = useMimei();
 // class FVPair { name = ""; lastModified = 0; size = 0; type = ""; macid = "" }
 class FVPair {
   name; lastModified; size; type; macid;
-  constructor(name:string, lastModified:number, size:number, type:string) {
+  constructor(name: string, lastModified: number, size: number, type: string) {
     this.name = name;
     this.lastModified = lastModified;
     this.size = size;
@@ -29,19 +29,19 @@ const classModal = reactive<CSSProperties>({
   position: "fixed",
   'z-index': 1,
   overflow: "auto",
-  left:0, top:0, width:"100%", height:"100%",
+  left: 0, top: 0, width: "100%", height: "100%",
   'background-color': "rgb(0,0,0,0.4)",
 });
 const filesUpload = ref<File[]>([])
-onMounted(()=>{
-    // remember user input even after a page refresh. It is cleared only after submit
-    textValue.value = localStorage.getItem("tempTextValueUploader")? localStorage.getItem("tempTextValueUploader")! : "";
+onMounted(() => {
+  // remember user input even after a page refresh. It is cleared only after submit
+  textValue.value = localStorage.getItem("tempTextValueUploader") ? localStorage.getItem("tempTextValueUploader")! : "";
 })
 function onSelect(e: Event) {
-  let files = (e as HTMLInputEvent).target.files  || (e as DragEvent).dataTransfer?.files;
+  let files = (e as HTMLInputEvent).target.files || (e as DragEvent).dataTransfer?.files;
   if (!files) return
-  Array.from(files).forEach(f=>{
-    if (filesUpload.value.findIndex(e=>{return e.name===f.name && e.size===f.size && e.lastModified===f.lastModified})===-1) {
+  Array.from(files).forEach(f => {
+    if (filesUpload.value.findIndex(e => { return e.name === f.name && e.size === f.size && e.lastModified === f.lastModified }) === -1) {
       // remove duplication
       filesUpload.value.push(f);
     }
@@ -70,12 +70,13 @@ async function uploadFile(files: File[]): Promise<string[]> {
         api.client.MFOpenTempFile(api.sid, (fsid: string) => {
           // resolve to macid string
           // resolve(readFileSlice(fsid, arrBuf, 0))
-          readFileSlice(fsid, arrBuf, 0).then(macid=>{
+          readFileSlice(fsid, arrBuf, 0).then(macid => {
             // console.log(file, macid, api)
             const fileInfo = new FVPair(file.name, file.lastModified, file.size, file.type)
-            api.client.Hset(mmInfo.mmsid, "file_list", macid, fileInfo, (ret: number) => {
+            api.client.Hset(mmInfo.mmsid, mmInfo.fileName, macid, fileInfo, (ret: number) => {
+              // set field 'macid's value to a 'fileInfo' in hashtable 'file_list'
               console.log("Hset ret=", ret)
-            }, (err:Error) => {
+            }, (err: Error) => {
               console.log("Hset error " + err)
             })
             // resolve without waiting for HSet to finish
@@ -100,7 +101,7 @@ function onSubmit() {
         score: Date.now(),  // index
         member: macids[0]       // Mac id for the uploaded file, which is converted to Mac file
       }
-      api.client.Zadd(mmInfo.mmsid, "file_list", sp, (ret: number) => {
+      api.client.Zadd(mmInfo.mmsid, mmInfo.fileName, sp, (ret: number) => {
         console.log("Zadd ScorePair for the file, ret=", ret)
         let fi = new FVPair(file.name, file.lastModified, file.size, file.type)
         // emit an event with infor of newly uploaded file
@@ -127,8 +128,8 @@ function onSubmit() {
               score: Date.now(),  // index
               member: macid       // Mac id for the uploaded file, which is converted to Mac file
             }
-            api.client.Zadd(mmInfo.mmsid, "file_list", sp, (ret: number) => {
-              api.client.Hset(mmInfo.mmsid, "file_list", macid, fi, (ret: number) => {
+            api.client.Zadd(mmInfo.mmsid, mmInfo.fileName, sp, (ret: number) => {
+              api.client.Hset(mmInfo.mmsid, mmInfo.fileName, macid, fi, (ret: number) => {
                 // fi.macid = macid
                 (fi as any)["macid"] = macid;
                 console.log("Hset ret=", ret, fi)
@@ -166,7 +167,7 @@ async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Pro
           console.log("Temp file to MacID=", macid);
           // now temp file is converted to Mac file, save file info
           resolve(macid)
-        }, (err: Error)=>{
+        }, (err: Error) => {
           reject("Failed to create Mac file")
         })
       } else {
@@ -183,17 +184,17 @@ function showModal(e: MouseEvent) {
 }
 function removeFile(f: File) {
   // removed file from preview list
-  var i = filesUpload.value.findIndex( e=> e==f);
-  filesUpload.value.splice(i,1)
+  var i = filesUpload.value.findIndex(e => e == f);
+  filesUpload.value.splice(i, 1)
 }
 // When the user clicks anywhere outside of the modal, close it
-window.onclick = function(e: MouseEvent) {
+window.onclick = function (e: MouseEvent) {
   var modal = document.getElementById("myModal");
   if (e.target == modal) {
     classModal.display = "none";
   }
 }
-watch(()=>textValue.value, (newVal, oldVal)=>{
+watch(() => textValue.value, (newVal, oldVal) => {
   if (newVal !== oldVal) {
     localStorage.setItem("tempTextValueUploader", newVal)
   }
@@ -202,31 +203,36 @@ watch(()=>textValue.value, (newVal, oldVal)=>{
 </script>
 
 <template>
-<div class="postbox">
-  <p @click="showModal" class="postbox">Tell us what is happening....</p>
-</div>
-<div id="myModal" :style="classModal">
-  <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect">
-    <!-- <span class="close" @click="closeModal">&times;</span> -->
-    <form @submit.prevent="onSubmit" enctype="multipart/form-data">
-    <div style="width:99%; height:110px; margin-bottom: 10px;">
-      <textarea autofocus ref="textArea" v-model="textValue" placeholder="Input......" style="border:0px; width:100%; height:100%; border-radius: 3px;"></textarea>
-      <div ref="dropHere" style="border: 1px solid lightgrey; text-align: center; width:100%; height:100%; margin: 0px;" hidden>
-        <p style="font-size: 24px">DROP HERE</p>
-      </div>
-    </div>
-    <div ref="divAttach" style="border: 0px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-top:0px;" hidden>
-      <Preview @file-canceled="removeFile(file)" v-for="(file, index) in filesUpload" :key="index" v-bind:src="file" ></Preview>
-    </div>
-    <div>
-        <input id="selectFiles" @change="onSelect" type="file" hidden multiple>
-        <button @click.prevent="selectFile">Choose</button>
-        <button style="float: right;">Submit</button>
-    </div>
-    </form>
+  <div class="postbox">
+    <p @click="showModal" class="postbox">Tell us what is happening....</p>
   </div>
-</div>
+  <div id="myModal" :style="classModal">
+    <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect">
+      <!-- <span class="close" @click="closeModal">&times;</span> -->
+      <form @submit.prevent="onSubmit" enctype="multipart/form-data">
+        <div style="width:99%; height:110px; margin-bottom: 10px;">
+          <textarea autofocus ref="textArea" v-model="textValue" placeholder="Input......"
+            style="border:0px; width:100%; height:100%; border-radius: 3px;"></textarea>
+          <div ref="dropHere"
+            style="border: 1px solid lightgrey; text-align: center; width:100%; height:100%; margin: 0px;" hidden>
+            <p style="font-size: 24px">DROP HERE</p>
+          </div>
+        </div>
+        <div ref="divAttach"
+          style="border: 0px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-top:0px;" hidden>
+          <Preview @file-canceled="removeFile(file)" v-for="(file, index) in filesUpload" :key="index"
+            v-bind:src="file"></Preview>
+        </div>
+        <div>
+          <input id="selectFiles" @change="onSelect" type="file" hidden multiple>
+          <button @click.prevent="selectFile">Choose</button>
+          <button style="float: right;">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </template>
 
 <style>
+
 </style>

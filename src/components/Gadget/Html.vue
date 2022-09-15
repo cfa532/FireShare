@@ -45,7 +45,7 @@ async function getComponents(macids:string[]) {
     return Promise.allSettled(macids.map(e=>{
         return new Promise((resolve, reject)=>{
             console.log(mmInfo)
-            api.client.Hget(mmInfo.mmsid, "file_list", e, (fi:FVPair)=>{
+            api.client.Hget(mmInfo.mmsid, mmInfo.fileName, e, (fi:FVPair)=>{
                 if (!fi) {
                     reject("Mac id without info: "+e)
                 } else {

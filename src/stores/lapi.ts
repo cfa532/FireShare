@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmLocal", "DhtGetAllKeys","MFOpenByPath",
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
     "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile","MFStat",
-    "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject",
+    "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange"
 ];
 
 function getcurips(){
@@ -111,6 +111,7 @@ export const useMimei = defineStore({
         _mid: "",
         _mmsid: "",
         _column: null as any,
+        _fileName: "" as string | null,        // !!! global MM table name for this App
     }),
     getters: {
         mid: (state) => {
@@ -134,6 +135,15 @@ export const useMimei = defineStore({
                     state._column = JSON.parse(localStorage.getItem("currentColumn")!)
             }
             return state._column;
+        },
+        fileName: (state) => {
+            if (state._fileName==="") {
+                if (!localStorage.getItem("mmFileName"))
+                    state._fileName = "file_list"
+                else
+                    state._fileName = localStorage.getItem("mmFileName")
+            }
+            return state._fileName;
         }
     },
     actions: {
