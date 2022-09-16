@@ -138,8 +138,10 @@ export const useMimei = defineStore({
         },
         fileName: (state) => {
             if (state._fileName==="") {
-                if (!localStorage.getItem("mmFileName"))
+                if (!localStorage.getItem("mmFileName")) {
                     state._fileName = "file_list"
+                    localStorage.setItem("mmFileName", state._fileName)
+                }
                 else
                     state._fileName = localStorage.getItem("mmFileName")
             }

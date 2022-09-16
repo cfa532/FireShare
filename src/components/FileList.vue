@@ -110,7 +110,7 @@ export default defineComponent({
             return
         };
         // Important: define the Mimei that handles all data in this App
-        api.client.MMCreate(api.sid, "fireshare", this.mmInfo.column.title, this.mmInfo.fileName, 2, "", (mid: string) => {
+        api.client.MMCreate(api.sid, "", this.mmInfo.column.title, this.mmInfo.fileName, 2, "", (mid: string) => {
             // each colume is a MM. Combination of the column's title and 'file_list' determine a MM id
             api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
                 this.mmInfo.setMMInfo(mid, mmsid);
