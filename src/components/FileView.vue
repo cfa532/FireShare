@@ -10,10 +10,6 @@ import { computed } from "vue";
 //     import('./VideoJS.vue')
 // )
 const route = useRoute()
-// const props = defineProps({
-//     macid: {type: String, required: true},
-//     fileType: {type: String, required: true}
-// })
 const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const fileType = route.params.fileType as string;
 const userComponent = computed(() => {

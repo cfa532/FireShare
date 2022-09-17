@@ -111,7 +111,7 @@ export const useMimei = defineStore({
         _mid: "",
         _mmsid: "",
         _column: null as any,
-        _fileName: "" as string | null,        // !!! global MM table name for this App
+        _fileName: "" as string | null,        // !!! global MM file name for this App
     }),
     getters: {
         mid: (state) => {
