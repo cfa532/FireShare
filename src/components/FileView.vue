@@ -5,6 +5,7 @@ import MyImg from './Gadget/Image.vue';
 import MyPdf from './Gadget/pdf.vue';
 import VideoPlayer from './Gadget/VideoJS.vue';
 import Page from './Gadget/Html.vue';
+import ShareVue from './Gadget/Share.vue';
 import { computed } from "vue";
 // const VideoPlayer = defineAsyncComponent(()=>
 //     import('./VideoJS.vue')
@@ -27,14 +28,13 @@ const userComponent = computed(() => {
     }
 })
 const currentProperty = route.params    // props
+
 </script>
 
 <template>
     <NaviBarVue :column=column.titleZh></NaviBarVue>
     <hr/>
-    <div style="position: flex; text-align: right;">
-        <span>...</span>
-    </div>
+    <ShareVue ref="shareMenu"></ShareVue>
     <KeepAlive>
         <component :is="userComponent" v-bind="currentProperty"></component>
     </KeepAlive>

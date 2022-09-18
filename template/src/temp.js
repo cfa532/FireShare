@@ -111,6 +111,7 @@ function f(){
     }
     function requestEntry() {        
         var url = getUrl(p, p.CurNode)
+        console.log(url)
         return requestUrl(url)    
     }
     window["requestEntry"] = requestEntry    

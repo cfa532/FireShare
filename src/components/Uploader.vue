@@ -23,6 +23,7 @@ const form = ref<HTMLFormElement>();
 const divAttach = ref<HTMLDivElement>()
 const dropHere = ref<HTMLElement>()
 const textArea = ref<HTMLElement>()
+const myModal = ref()
 const sliceSize = 1024 * 1024 * 10    // 10MB per slice of file
 const classModal = reactive<CSSProperties>({
   display: "none",
@@ -189,8 +190,8 @@ function removeFile(f: File) {
 }
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (e: MouseEvent) {
-  var modal = document.getElementById("myModal");
-  if (e.target == modal) {
+  // var modal = document.getElementById("myModal");
+  if (e.target == myModal.value) {
     classModal.display = "none";
   }
 }
@@ -206,7 +207,7 @@ watch(() => textValue.value, (newVal, oldVal) => {
   <div class="postbox">
     <p @click="showModal" class="postbox">Tell us what is happening....</p>
   </div>
-  <div id="myModal" :style="classModal">
+  <div ref="myModal" :style="classModal">
     <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect">
       <!-- <span class="close" @click="closeModal">&times;</span> -->
       <form @submit.prevent="onSubmit" enctype="multipart/form-data">
