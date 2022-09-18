@@ -19,5 +19,7 @@ class FVPair {
   }
 
   interface Window {
-    mmInfo: any       // add to window obj for testing convenience
+    mmInfo: any;       // add to window obj for testing convenience
+    getParam: any;
+    hprose: any;
   }
