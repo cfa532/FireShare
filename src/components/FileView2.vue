@@ -77,7 +77,7 @@ watch(()=>route.params.filePath, async (toParams, prevParams)=>{
 
 <template>
     <NaviBarVue :column=column.titleZh></NaviBarVue>
-    <hr/>
+    <hr style="margin-top:8px; margin-bottom: 4px;"/>
     <KeepAlive>
         <component :is="userComponent" v-bind="currentProperty"></component>
     </KeepAlive>

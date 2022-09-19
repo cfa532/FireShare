@@ -2,6 +2,7 @@
 // import * as pdfobject from 'pdfobject'
 import { onMounted, inject, watch, ref } from 'vue';
 import { useLeither, useMimei } from '../../stores/lapi';
+import ShareVue from './Share.vue';
 const api = useLeither()
 const mmInfo = useMimei()
 const props = defineProps({
@@ -38,5 +39,6 @@ watch(()=>props.filePath, async (cv, pv)=>{
 
 <template>
     <!-- <div id="pdfviewer" style="width: 100%;"></div> -->
+    <ShareVue ref="shareMenu"></ShareVue>
     <object type="application/pdf" :data="fileUrl"  style="width: 100%; height: 95vh;"></object>
 </template>

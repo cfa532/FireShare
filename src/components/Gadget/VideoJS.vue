@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, reactive } from 'vue';
 import videojs from 'video.js';
+import ShareVue from './Share.vue';
 import { useLeither, useMimei } from '../../stores/lapi'
 const api = useLeither();
 const mmInfo = useMimei();
@@ -70,7 +71,6 @@ onBeforeUnmount(()=>{
 </script>
 
 <template>
-    <div>
-        <video ref="videoPlayer" class="video-js vjs-default-skin  vjs-16-9" data-setup='{"fluid": true}'></video>
-    </div>
+    <ShareVue ref="shareMenu"></ShareVue>
+    <video ref="videoPlayer" class="video-js vjs-default-skin  vjs-16-9" data-setup='{"fluid": true}'></video>
 </template>

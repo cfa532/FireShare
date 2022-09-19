@@ -11,7 +11,6 @@ const props = defineProps({
     mmfsid: {type: String, required: false},
 })
 const imageUrl = ref("")
-const linkToShare = ref(window.location.href)
 onMounted(async () => {
     console.log("Image mounted", props)
     imageUrl.value = await getLink()
@@ -43,6 +42,6 @@ watch(()=>props.filePath, async (cv, pv)=>{
 </script>
 
 <template>
-    <ShareVue ref="shareMenu" :linkToShare="linkToShare"></ShareVue>
+    <ShareVue ref="shareMenu"></ShareVue>
     <img alt="Loading......" style="max-width: 100%; object-fit: contain;" :src="imageUrl"/>
 </template>

@@ -1,9 +1,6 @@
 <script setup lang="ts">
 // share menu or other right click items
 import { ref } from 'vue'
-const props = defineProps({
-    linkToShare: {type: String, required:true}
-})
 const shareMenu = ref()
 function showShareMenu() {
     shareMenu.value.hidden = false
@@ -20,8 +17,8 @@ function showShareMenu() {
     }, 50)
 }
 function copyLink() {
-    console.log(props.linkToShare);
-    navigator.clipboard.writeText(props.linkToShare)
+    console.log(window.location.href);
+    navigator.clipboard.writeText(window.location.href)
 }
 </script>
 
