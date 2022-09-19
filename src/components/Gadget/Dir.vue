@@ -6,7 +6,7 @@ const api = useLeither();
 const mmInfo = useMimei();
 const localFiles = ref<any[]>();
 const currentPage = ref(1)
-const pageSize  = ref(10)
+const pageSize  = ref(20)
 const itemNumber = ref(1)
 const props = defineProps({
     filePath: {type: String, required: true},
