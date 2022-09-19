@@ -14,17 +14,17 @@ const api = useLeither()
 const mmInfo = useMimei()
 const column = JSON.parse(localStorage.getItem("currentColumn") as string)
 const userComponent = shallowRef()
-const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: "", pageNumber:1})    // props
+const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: ""})    // props
 const currentPageNumber = ref(1)
 onMounted(()=>{
-    console.log("FileView2 mounted", route.params, "page#=",currentPageNumber.value)
+    console.log("FileView2 mounted", route.params)
     getComponent(route.params.filePath as string)
 })
 function getComponent(filePath: string) {
     // check filePath info
     api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid:string)=>{
         // pass mmfsid, so the component do not have to open file again  
-        currentProperty.value = {filePath: filePath, mmfsid: mmfsid, fileType: "", pageNumber:currentPageNumber.value}
+        currentProperty.value = {filePath: filePath, mmfsid: mmfsid, fileType: ""}
         api.client.MFStat(mmfsid, (fi: any)=>{
             console.log("get component", filePath, fi)
             if (fi.fIsDir) {
@@ -73,16 +73,12 @@ watch(()=>route.params.filePath, async (toParams, prevParams)=>{
         getComponent(route.params.filePath as string)
     }
 })
-function pageChanged(n: number) {
-    console.log("current page=",n)
-    currentPageNumber.value = n
-}
 </script>
 
 <template>
     <NaviBarVue :column=column.titleZh></NaviBarVue>
     <hr/>
     <KeepAlive>
-        <component @page-changed="pageChanged" :is="userComponent" v-bind="currentProperty"></component>
+        <component :is="userComponent" v-bind="currentProperty"></component>
     </KeepAlive>
 </template>

@@ -10,11 +10,7 @@ const pageSize  = ref(10)
 const itemNumber = ref(1)
 const props = defineProps({
     filePath: {type: String, required: true},
-    pageNumber: {type: Number, required: false, default: 1},
 })
-const emit = defineEmits<{
-    (e: 'pageChanged', value: number) : void
-}>()
 const parentPath = computed(()=>{
     const idx = props.filePath?.lastIndexOf('/')
     if (typeof idx==="undefined" || idx! <= 0) {
@@ -28,9 +24,13 @@ const filePath = computed(()=>{
 })
 
 onMounted(()=>{
-    currentPage.value = props.pageNumber;
     console.log("Dir mounted:", props)
     showDir(props.filePath)
+    self.addEventListener('pageChanged', (e:any)=>{
+        // console.log("current page changed to", e.detail)
+        currentPage.value = e.detail.page
+        showDir(props.filePath)
+    })
 })
 watch(()=>props.filePath, (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {
@@ -58,12 +58,6 @@ function showDir(filePath: string) {
     }, (err: Error) => {
         console.error("Open path err=", err)
     })
-}
-function pageChanged(n: number) {
-    console.log("current page changed to", n)
-    currentPage.value = n
-    showDir(props.filePath)
-    emit("pageChanged", n);     // bubble to parent page
 }
 function fileDownload(e: MouseEvent, file: any){
     api.client.MFOpenByPath(api.sid, "mmroot", filePath.value+file.fName, 0, (mmfsid:string)=>{
@@ -94,7 +88,7 @@ function fileDownload(e: MouseEvent, file: any){
         <span v-if="file.fIsDir"> ...&gt;</span>
     </li>
     </ul>
-    <Pager v-if="itemNumber/pageSize>1" @page-changed="pageChanged"
+    <Pager v-if="itemNumber/pageSize>1" 
         :current-page="currentPage" :page-size="pageSize" :item-number="itemNumber"></Pager>
 </div>
 </template>

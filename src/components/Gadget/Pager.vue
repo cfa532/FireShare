@@ -11,10 +11,6 @@ const curClass = reactive<CSSProperties>({
     display: 'inline-block',
     "background-color": "red",
 })
-const emit = defineEmits<{
-    (e: "pageChanged", value: number): void
-}>()
-
 // page number starts at 1, display links to 5 pages on either side
 const firstPage = computed(():number=>{
     return Math.max(props.currentPage-5, 1)
@@ -30,8 +26,8 @@ function naviPage(n: number) {
     if (n<1) n=1
     else if (n>Math.ceil(props.itemNumber/props.pageSize))
         n=Math.ceil(props.itemNumber/props.pageSize)
-    // console.log("Go to page", n, firstPage.value, lastPage.value)
-    emit("pageChanged", n)
+        
+    self.dispatchEvent(new CustomEvent('pageChanged', {detail:{'page':n}, bubbles:true, composed:true}))
 }
 </script>
 
