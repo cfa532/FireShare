@@ -1,34 +1,38 @@
 <script setup lang="ts">
 // share menu or other right click items
-import { ref, CSSProperties, reactive } from 'vue'
-const classModal = reactive<CSSProperties>({
-  display: "none",
-  position: "fixed",
-  'z-index': 1,
-  overflow: "auto",
-  left: 0, top: 0, width: "100%", height: "100%",
-//   'background-color': "rgb(0,0,0,0.4)",
-});
-
-
-
+import { ref } from 'vue'
+const props = defineProps({
+    linkToShare: {type: String, required:true}
+})
 const shareMenu = ref()
 function showShareMenu() {
-    classModal.display = "block"
+    shareMenu.value.hidden = false
+    // toggle right menu on and off
+    setTimeout(() => {
+        window.onclick = function (e: MouseEvent) {
+            if (e.target !== shareMenu.value) {
+                shareMenu.value.hidden = true
+                setTimeout(()=>{
+                    window.onclick = null
+                }, 50)
+            }
+        }
+    }, 50)
 }
-window.onclick = function (e: MouseEvent) {
-    if (e.target == shareMenu.value) {
-        classModal.display = "none"
-    }
+function copyLink() {
+    console.log(props.linkToShare);
+    navigator.clipboard.writeText(props.linkToShare)
 }
 </script>
 
 <template>
-<div style=" width:100%; position: flex; text-align: right;">
-    <a href="" @click.prevent="showShareMenu" style="font-size: 20px; color:lightgrey">&#8226; &#8226; &bull;</a>
-    <div ref="shareMenu" :style="classModal">
-        <div style="position:absolute; top:0%; right: 0%; background-color: aqua;
-            width: 300px; height: 400px">
+<div style=" width:100%; position: relative; text-align: right;">
+    <a href="#" @click.prevent="showShareMenu" style="font-size: 15px; color:lightgrey">&#8226; &#8226; &bull;</a>
+    <div ref="shareMenu" style="position: absolute; top: 5px; right: 0px; z-index: 20; background-color: whitesmoke;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        width: 250px; z-index: 100;" hidden>
+        <div style="border-bottom: 1px dotted; padding: 10px; text-align: center;">
+            <a href="#" @click.prevent="copyLink">Copy &#128279; to clipboard</a>
         </div>
     </div>
 </div>
