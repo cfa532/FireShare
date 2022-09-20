@@ -12,12 +12,15 @@ function getcurips(){
     if (window.getParam != null){
         let p=window.getParam()
         ips = p["ips"][p.CurNode]
+        console.log("window.getParam", ips)
     } else if (window.location.host != ""){
         ips = window.location.host
+        console.log("window.location", ips)
     }
     { //for test
         ips = "192.168.1.101:4800"
         // ips = '[240e:390:e67:2a50:e4a7:c56d:a055:2]:4800'
+        // ips = "fsca.leithertest.link"
     }
     return ips
 }

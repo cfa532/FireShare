@@ -18,7 +18,8 @@ function showShareMenu() {
 }
 function copyLink() {
     console.log(window.location.href);
-    navigator.clipboard.writeText(window.location.href)
+    if (window.isSecureContext && navigator.clipboard)
+        navigator.clipboard.writeText(window.location.href)
 }
 </script>
 
