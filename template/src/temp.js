@@ -53,7 +53,7 @@ function f(){
         return url 
     }
     function fetchUrl(url) {
-        fetch(url, {CurNodeUrl:url}).then(resp=>{
+        fetch(url, {CurNodeUrl:url, mode:'cors'}).then(resp=>{
             if (!resp.ok) {
                 throw new Error('HTTP error status: ${resp.status}');
             }
