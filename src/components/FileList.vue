@@ -119,7 +119,7 @@ export default defineComponent({
                     this.itemNumber = count;    // total num of items in the list as a Mimei
                     this.getFileList();
                 }, (err: Error) => {
-                    console.error("MMOpen error=", err)
+                    console.error("Zcount error=", err)
                 })
             }, (err: Error) => {
                 console.error("MMOpen error=", err)
