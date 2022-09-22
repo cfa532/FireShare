@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, watch } from 'vue';
 import { useLeither, useMimei } from '../../stores/lapi';
-import ShareVue from './Share.vue';
 const api = useLeither();    // Leither api handler
 const mmInfo = useMimei()
 const props = defineProps({
@@ -42,6 +41,5 @@ watch(()=>props.filePath, async (cv, pv)=>{
 </script>
 
 <template>
-    <ShareVue ref="shareMenu"></ShareVue>
     <img alt="Loading......" style="max-width: 100%; object-fit: contain;" :src="imageUrl"/>
 </template>

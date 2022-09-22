@@ -27,8 +27,7 @@ function copyLink() {
 <div style=" width:100%; position: relative; text-align: right;">
     <a href="#" @click.prevent="showShareMenu" style="font-size: 15px; color:lightgrey">&#8226; &#8226; &bull;</a>
     <div ref="shareMenu" style="position: absolute; top: 5px; right: 0px; z-index: 20; background-color: whitesmoke;
-        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-        width: 250px; z-index: 100;" hidden>
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); width: 250px;" hidden>
         <div style="border-bottom: 1px dotted; padding: 10px; text-align: center;">
             <a href="#" @click.prevent="copyLink">Copy &#128279; to clipboard</a>
         </div>

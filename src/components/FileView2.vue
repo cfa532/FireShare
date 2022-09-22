@@ -7,6 +7,7 @@ import MyPdf from './Gadget/pdf.vue';
 import MyDir from './Gadget/Dir.vue';
 import VideoPlayer from './Gadget/VideoJS.vue'
 import { shallowRef } from '@vue/reactivity';
+import ShareVue from './Gadget/Share.vue';
 import { onMounted, ref, watch } from 'vue';
 const route = useRoute()
 const router = useRouter()
@@ -78,6 +79,7 @@ watch(()=>route.params.filePath, async (toParams, prevParams)=>{
 <template>
     <NaviBarVue :column=column.titleZh></NaviBarVue>
     <hr style="margin-top:8px; margin-bottom: 4px;"/>
+    <ShareVue v-if="userComponent != MyDir"></ShareVue>
     <KeepAlive>
         <component :is="userComponent" v-bind="currentProperty"></component>
     </KeepAlive>
