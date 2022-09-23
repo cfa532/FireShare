@@ -1,12 +1,16 @@
+// const win = require("global")
+
 function f(){
-    var p, urls=[]
-    window["getParam"] = ()=>{              
+    var p, urls=[], ips=[]
+    function getParam(){              
         return p
     }
-    window["setParam"] = (param)=>{
+    window["getParam"] = getParam;
+    function setParam(param) {
         p = param
         initParam()
     }
+    window["setParam"] = setParam;
     function initParam(){    
         // get public IPv4, or v6 if no v4
         var p=window.getParam()
@@ -20,7 +24,7 @@ function f(){
                     continue;
                 } else {
                     // public IPv4
-                    p.CurNode = i;
+                    ips.push(i)         // p.CurNode = i;
                     urls.push(getUrl(p, i))
                 }
             } else {
@@ -32,7 +36,7 @@ function f(){
                     continue;
                 } else {
                     // public IPv6
-                    p.CurNode = i 
+                    ips.push(i)
                     urls.push(getUrl(p, i))
                 }
             }
@@ -53,29 +57,34 @@ function f(){
     };
     function requestEntry() {
         // get the first host IP that works
-        Promise.any( urls.map( url=> {
+        Promise.any( urls.map((url, index) => {
             return new Promise((resolve, reject)=>{
                 fetch(url, {CurNodeUrl:url, mode:'cors'}).then(resp=>{
                     if (!resp.ok) {
-                        reject('HTTP error status:'+resp.status);
+                        reject('HTTP error status: ' + url);
                     }
-                    resolve(resp.text())
+                    resolve([resp, ips[index]])
                 })
             })
-        })).then(txt=>{
-            var html = document.getElementById("LeitherHtml");          
-            var reg = /<html\s*\S*>([\s|\S]*)<\/html>/ig;
-            txt.replace(reg, function() {                 
-                html.innerHTML = arguments[1]
-            });             
-            var regsrc = /<script[^>]*>([\s|\S]*?)<\/script>/igm;    
-            while ((result = regsrc.exec(txt))!= null){
-                var script = document.createElement("script");
-                script.textContent = result[1]
-                document.getElementsByTagName("head")[0].appendChild(script);
-            }
+        })).then((res)=>{
+            p.CurNode = res[1]
+            res[0].text().then(txt=>{
+                var html = document.getElementById("LeitherHtml");          
+                var reg = /<html\s*\S*>([\s|\S]*)<\/html>/ig;
+                txt.replace(reg, function() {                 
+                    html.innerHTML = arguments[1]
+                });             
+                var regsrc = /<script[^>]*>([\s|\S]*?)<\/script>/igm;    
+                while ((result = regsrc.exec(txt))!= null){
+                    var script = document.createElement("script");
+                    script.textContent = result[1]
+                    document.getElementsByTagName("head")[0].appendChild(script);
+                }
+            }).catch(r=>{
+                console.error(r)
+            })
         }).catch(r=>{
-            console.log(r)
+            console.error(r)
         })
     };
     window["requestEntry"] = requestEntry    

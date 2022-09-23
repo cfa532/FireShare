@@ -12,7 +12,7 @@ function getcurips(){
     if (window.getParam != null){
         let p=window.getParam()
         ips = p["ips"][p.CurNode]
-        console.log("window.getParam", ips)
+        console.log("window.getParam", ips, p)
     } else if (window.location.host != ""){
         ips = window.location.host
         console.log("window.location", ips)
