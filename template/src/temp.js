@@ -37,9 +37,9 @@ function f(){
                 }
             }
         }
-    }
+    };
     function getUrl(param, index) {
-        url ="http://"+ param["ips"][index] +"/entry?"
+        var url ="http://"+ param["ips"][index] +"/entry?"
         if (param["aid"] != ""){
             url += "aid="+ param["aid"] + "&"
         }
@@ -49,32 +49,10 @@ function f(){
         if (param["ver"] != ""){
             url += "ver="+ param["ver"] + "&"
         }
-        url +=   "rand=" + Math.random()   
-        return url 
-    }
-    function fetchUrl(url) {
-        fetch(url, {CurNodeUrl:url, mode:'cors'}).then(resp=>{
-            if (!resp.ok) {
-                throw new Error('HTTP error status:'+resp.status);
-            }
-            return resp.text()
-        }).then(txt=>{
-            var html = document.getElementById("LeitherHtml");          
-            var reg = /<html\s*\S*>([\s|\S]*)<\/html>/ig;
-            txt.replace(reg, function() {                 
-                    html.innerHTML = arguments[1]
-            });             
-            var regsrc = /<script[^>]*>([\s|\S]*?)<\/script>/igm;    
-            while ((result = regsrc.exec(txt))!= null){
-                var script = document.createElement("script");
-                script.textContent = result[1]
-                document.getElementsByTagName("head")[0].appendChild(script);
-            }
-        }).catch(r=>{
-            console.log(r)
-        })
-    }
+        return url + "rand=" + Math.random()   
+    };
     function requestEntry() {
+        // get the first host IP that works
         Promise.any( urls.map( url=> {
             return new Promise((resolve, reject)=>{
                 fetch(url, {CurNodeUrl:url, mode:'cors'}).then(resp=>{
@@ -98,7 +76,8 @@ function f(){
             }
         }).catch(r=>{
             console.log(r)
-        })}
+        })
+    };
     window["requestEntry"] = requestEntry    
 }
 f()
