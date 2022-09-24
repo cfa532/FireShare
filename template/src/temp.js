@@ -64,6 +64,8 @@ function f(){
                         reject('HTTP error status: ' + url);
                     }
                     resolve([resp, ips[index]])
+                }).catch(r=>{
+                    reject(r)
                 })
             })
         })).then((res)=>{
