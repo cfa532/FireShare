@@ -83,10 +83,11 @@ function f(){
                     document.getElementsByTagName("head")[0].appendChild(script);
                 }
             }).catch(r=>{
-                console.error(r)
+                console.error(r);
             })
         }).catch(r=>{
-            console.error(r)
+            console.error(r);
+            alert(r);
         })
     };
     window["requestEntry"] = requestEntry    
