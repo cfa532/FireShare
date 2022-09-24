@@ -18,8 +18,14 @@ function showShareMenu() {
 }
 function copyLink() {
     console.log(window.location.href);
-    if (window.isSecureContext && navigator.clipboard)
-        navigator.clipboard.writeText(window.location.href)
+    var input = document.body.appendChild(document.createElement("input"));
+    input.value = window.location.href;
+    input.focus();
+    input.select();
+    document.execCommand('copy');
+    input.parentNode!.removeChild(input);
+    // if (window.isSecureContext && navigator.clipboard)
+    // navigator.clipboard.writeText(window.location.href)
 }
 </script>
 
