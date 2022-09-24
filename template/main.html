@@ -3,7 +3,7 @@
 <head id="LeitherHeader">
 <script type="text/javascript">
 function f(){
-    var p, urls=[], ips=[]
+    var p, urls=[], ips=[], curNode=[]
     function getParam(){              
         return p
     }
@@ -26,7 +26,7 @@ function f(){
                     continue;
                 } else {
                     // public IPv4
-                    ips.push(i)         // p.CurNode = i;
+                    ips.push([i, 4])         // p.CurNode = i; IPv4
                     urls.push(getUrl(p, i))
                 }
             } else {
@@ -38,7 +38,7 @@ function f(){
                     continue;
                 } else {
                     // public IPv6
-                    ips.push(i)
+                    ips.push([i, 6])    // node id and node type
                     urls.push(getUrl(p, i))
                 }
             }
@@ -57,41 +57,54 @@ function f(){
         }
         return url + "rand=" + Math.random()   
     };
-    function requestEntry() {
-        // get the first host IP that works
-        Promise.any( urls.map((url, index) => {
-            return new Promise((resolve, reject)=>{
-                fetch(url, {CurNodeUrl:url, mode:'cors'}).then(resp=>{
-                    if (!resp.ok) {
-                        reject('HTTP error status: ' + url);
-                    }
-                    resolve([resp, ips[index]])
-                }).catch(r=>{
-                    reject(r)
-                })
-            })
-        })).then((res)=>{
-            p.CurNode = res[1]
-            res[0].text().then(txt=>{
-                var html = document.getElementById("LeitherHtml");          
-                var reg = /<html\s*\S*>([\s|\S]*)<\/html>/ig;
-                txt.replace(reg, function() {                 
-                    html.innerHTML = arguments[1]
-                });             
-                var regsrc = /<script[^>]*>([\s|\S]*?)<\/script>/igm;    
-                while ((result = regsrc.exec(txt))!= null){
-                    var script = document.createElement("script");
-                    script.textContent = result[1]
-                    document.getElementsByTagName("head")[0].appendChild(script);
-                }
-            }).catch(r=>{
-                console.error(r);
-            })
+    function replaceHtml(resp) {
+        resp.text().then(txt=>{
+            var html = document.getElementById("LeitherHtml");          
+            var reg = /<html\s*\S*>([\s|\S]*)<\/html>/ig;
+            txt.replace(reg, function() {                 
+                html.innerHTML = arguments[1]
+            });             
+            var regsrc = /<script[^>]*>([\s|\S]*?)<\/script>/igm;    
+            while ((result = regsrc.exec(txt))!= null){
+                var script = document.createElement("script");
+                script.textContent = result[1]
+                document.getElementsByTagName("head")[0].appendChild(script);
+            }
         }).catch(r=>{
             console.error(r);
-            alert(r);
         })
-    };
+    }
+    function requestEntry() {
+        // get the first host IP that works
+        urls.forEach((url, index) => {
+            fetch(url, { CurNodeUrl: url, mode: 'cors' }).then(resp => {
+                if (!resp.ok) {
+                    console.error('HTTP error status: ' + url);
+                    return
+                }
+                if (curNode[1] == 4) {
+                    // a usable IPv4 address has been found. Quit.
+                    console.log("A IPv4 node exists", ips[index])
+                } else if (ips[index][1] == 4) {
+                    // this node is IPv4, update curNode and fetch url
+                    console.log("A IPv4 node found", ips[index])
+                    curNode = ips[index]
+                    p.curNode = ips[index][0]
+                    replaceHtml(resp);
+                    return
+                } else {
+                    if (curNode[1] != 6) {
+                        // this node is IPv6 and curNode is null
+                        curNode = ips[index]
+                        p.curNode = ips[index][0]
+                        replaceHtml(resp);
+                    }
+                }
+            }).catch(r=>{
+                console.error(r)
+            })
+        })
+    }
     window["requestEntry"] = requestEntry    
 }
 f()
@@ -103,7 +116,7 @@ window.setParam({
         aid: "{{.AppID}}",
         remote:"{{.RemoteIP}}",
         mid:"{{.MID}}",
-        ips: {{.IPS}}    
+        ips: {{.IPS}}
 })
 window.requestEntry()
 </script>
