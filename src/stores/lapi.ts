@@ -19,7 +19,7 @@ function getcurips(){
     }
     { //for test
         ips = "192.168.1.101:4800"
-        ips = '[240e:390:e5e:1860:e4a7:c56d:a055:2]:4800'
+        // ips = '[240e:390:e5e:1860:e4a7:c56d:a055:2]:4800'
         // ips = "fsca.leithertest.link"
     }
     return ips

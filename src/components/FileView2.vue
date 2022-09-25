@@ -27,7 +27,7 @@ function getComponent(filePath: string) {
         // pass mmfsid, so the component do not have to open file again  
         currentProperty.value = {filePath: filePath, mmfsid: mmfsid, fileType: ""}
         api.client.MFStat(mmfsid, (fi: any)=>{
-            console.log("get component", filePath, fi)
+            // console.log("get component", filePath, fi)
             if (fi.fIsDir) {
                 currentProperty.value.filePath = filePath
                 userComponent.value = MyDir;
