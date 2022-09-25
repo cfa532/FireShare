@@ -57,7 +57,7 @@ function f(){
     };
     function requestEntry() {
         // get the first host IP that works
-        Promise.any( urls.map((url, index) => {
+        Promise.any(urls.map((url, index) => {
             return new Promise((resolve, reject)=>{
                 fetch(url, {CurNodeUrl:url, mode:'cors'}).then(resp=>{
                     if (!resp.ok) {
