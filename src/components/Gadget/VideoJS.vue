@@ -12,6 +12,7 @@ const props = defineProps({
         autoplay: {type: Boolean, required: false, default: true},
 });
 const videoPlayer = ref<HTMLVideoElement>()
+const vdiv = ref()
 let player: any = null;
 const options = reactive({
     controls: true,
@@ -20,6 +21,7 @@ const options = reactive({
 });
 onMounted(()=>{
     console.log("Videoplayer mounted", props)
+    vdiv.value.hidden = false
     if (typeof props.filePath !== "undefined") {
         options.sources = [{
             src: api.baseUrl + "mf" + "?mmsid=" + props.mmfsid,
@@ -50,6 +52,7 @@ function loadPlayer(options:any, fn:()=>void = null as any) {
 watch(()=>props.filePath, async (cv, pv)=>{
     if (cv !== pv) {
         // something changed if current value != prev value
+        vdiv.value.hidden = false
         console.log(props, options)
         if (props.fileType?.includes("video")) {
             // Finally, enforce it to play new source
@@ -58,6 +61,9 @@ watch(()=>props.filePath, async (cv, pv)=>{
                 type: props.fileType
             })
             player.play()
+        } else {
+            // videoPlayer.value?.hidden = true
+            vdiv.value.hidden = true
         }
     }
 })
@@ -70,5 +76,7 @@ onBeforeUnmount(()=>{
 </script>
 
 <template>
+    <div ref="vdiv" hidden>
     <video ref="videoPlayer" class="video-js vjs-default-skin  vjs-16-9" data-setup='{"fluid": true}'></video>
+    </div>
 </template>
