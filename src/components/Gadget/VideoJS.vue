@@ -53,7 +53,7 @@ watch(()=>props.filePath, async (cv, pv)=>{
     if (cv !== pv) {
         // something changed if current value != prev value
         vdiv.value.hidden = false
-        console.log(props, options)
+        // console.log(props, options)
         if (props.fileType?.includes("video")) {
             // Finally, enforce it to play new source
             player.src({
