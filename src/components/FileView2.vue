@@ -34,7 +34,7 @@ function getComponent(filePath: string) {
             } else {
                 api.client.MFGetMimeType(mmfsid, (mimeType: string)=>{
                     var ext = filePath.substring(filePath.lastIndexOf('.')+1)
-                    if (mimeType=="video/mp4" || ['mp4','mkv','mov','avi','divx','wmv','flv'].includes(ext.toLowerCase())) {
+                    if (mimeType=="video/mp4" || ['mp4','mkv','mov','avi','divx','wmv','flv','rmvb'].includes(ext.toLowerCase())) {
                     // if (mimeType.includes("video")) {
                         currentProperty.value.fileType = "video/mp4"
                         userComponent.value = VideoPlayer
