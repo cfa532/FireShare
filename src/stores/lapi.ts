@@ -66,6 +66,8 @@ export const useLeither = defineStore({
                 return apiHandler
                 //查询应用            
                 //showapps(sid)
+            }).catch((r:Error)=>{
+                console.error(r)
             })
         },
         async login() {
@@ -96,13 +98,10 @@ export const useLeither = defineStore({
                     }, function(e:Error) {
                         console.error("Login error=", e)
                     }
-                )
+                ).catch((r:Error)=>{
+                    console.error(r)
+                })
             })
-            // try {
-            //     //这是提前设置好的用户名密码，资源授权的情况下，可以使用guest帐号
-            // } catch(error) {
-            //     console.error("Login failed.", error)
-            // }
         }
     }
 })
