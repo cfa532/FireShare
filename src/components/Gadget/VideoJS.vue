@@ -12,7 +12,7 @@ const props = defineProps({
         autoplay: {type: Boolean, required: false, default: true},
 });
 const videoPlayer = ref<HTMLVideoElement>()
-const vdiv = ref()
+const vdiv = ref()  // to deal with a bug sometime player do not hide when switching components in parent Vue
 let player: any = null;
 const options = reactive({
     controls: true,

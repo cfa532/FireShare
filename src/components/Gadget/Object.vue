@@ -22,13 +22,12 @@ function downLoadByFileData(content:Uint8Array, fileName:string|undefined, mimeT
     var blob = new Blob([content], {type: mimeType});    
     //console.log("blob.type", blob.type);
     var a = document.createElement("a");
-    var url = window.URL.createObjectURL(blob);    
-    a.href = url;
+    a.href = window.URL.createObjectURL(blob);    
     a.download = fileName as string;
     a.type =  mimeType as string;
     console.log("downLoadByFileData ", fileName, "tpye=", a.type);
     a.click();
-    window.URL.revokeObjectURL(url);
+    window.URL.revokeObjectURL(a.href);
 }
 </script>
 
