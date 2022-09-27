@@ -31,15 +31,10 @@ export const useLeither = defineStore({
         sid: "",
         hostUrl: "",
         baseUrl: "",
-        _client: null,
     }),
     getters: {
         // console.log(state.hostUrl)
-        client: (state) => {
-            if (!state._client)
-                state._client = window.hprose.Client.create(state.hostUrl, ayApi)
-            return state._client; 
-        }
+        client: (state) => window.hprose.Client.create(state.hostUrl, ayApi)
     },
     actions: {
         getLocalApiHandler() {
