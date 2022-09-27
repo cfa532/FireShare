@@ -11,7 +11,7 @@ const objUrl = ref("")
 onMounted(() => {
     if (typeof props.filePath !== "undefined") {
         objUrl.value = (api.baseUrl+"mf"+props.filePath+"?mmsid="+props.mmfsid)
-        console.log(objUrl.value)
+        console.log("Download", objUrl.value)
         api.client.MFGetData(props.mmfsid, 0, -1, (fileData:Uint8Array)=>{
             downLoadByFileData(fileData, props.filePath, props.fileType)
         })
@@ -25,7 +25,6 @@ function downLoadByFileData(content:Uint8Array, fileName:string|undefined, mimeT
     a.href = window.URL.createObjectURL(blob);    
     a.download = fileName as string;
     a.type =  mimeType as string;
-    console.log("downLoadByFileData ", fileName, "tpye=", a.type);
     a.click();
     window.URL.revokeObjectURL(a.href);
 }
