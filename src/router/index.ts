@@ -14,6 +14,8 @@ export const router = createRouter({
         { path: '/filelist/:page?', name:"filelist", component: FileListVue},
         { path: '/fileview/:macid/:fileType', name:"fileview", component: FileViewVue},
         { path: '/fileview2/:filePath', name:"fileview2", component: FileView2Vue},
+        // catch all redirect to home page
+        { path: '/:pathMatch(.*)*', redirect: '/' }
     ],
 });
 
