@@ -98,9 +98,7 @@ export const useLeither = defineStore({
                     }, function(e:Error) {
                         console.error("Login error=", e)
                     }
-                ).catch((r:Error)=>{
-                    console.error(r)
-                })
+                )
             })
         }
     }
