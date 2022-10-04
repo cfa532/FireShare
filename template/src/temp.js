@@ -16,7 +16,7 @@ function f(){
         var p=window.getParam()
         for (i=0; i< p.ips.length; i++){
             var ip = p.ips[i].split(":")
-            if (ip.length==2) {
+            if (ip.length < 3) {
                 // IPv4 address, 1.172.121.64:4800
                 var a = ip[0].split('.')
                 if ( a[0]==10 || (a[0]==192 && a[1]==168) || (a[0]==172 && a[1>15 && a[1]<32])) {
@@ -87,7 +87,7 @@ function f(){
             })
         }).catch(r=>{
             console.error(r);
-            alert(r);
+            alert("No valid IP: "+e.ips);
         })
     };
     window["requestEntry"] = requestEntry    
