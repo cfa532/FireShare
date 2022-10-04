@@ -23,12 +23,14 @@ onMounted(()=>{
     console.log("Videoplayer mounted", props)
     vdiv.value.hidden = false
     if (typeof props.filePath !== "undefined") {
+        // play local file in /webdav
         options.sources = [{
             src: api.baseUrl + "mf" + "?mmsid=" + props.mmfsid,
             type: props.fileType
         }]
         loadPlayer(options)
     } else {
+        // play mimei file
         api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
             options.sources = [{
                 src: api.baseUrl + "mf" + "?mmsid=" + fsid,
