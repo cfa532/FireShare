@@ -17,7 +17,7 @@ let player: any = null;
 const options = reactive({
     controls: true,
     autoplay: props.autoplay,
-    sources: [{src:"", type :"" as string || undefined}]
+    sources: [{src:"", type :"" as string | undefined}]
 });
 onMounted(()=>{
     console.log("Videoplayer mounted", props)
