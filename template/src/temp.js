@@ -30,8 +30,7 @@ function f(){
             } else {
                 // public IPv6, [2001:b011:e608:33c7:497d:480:498:45b8]:4800"
                 // private, fe80::3509:974:e443:8b8c
-                var a = p.ips[i].replace(/\[|\]/g,'').split(':');
-                if (a.length < 8) {
+                if (p.ips[i].match(/^fe|^fc|^fd|::/i)) {
                     // private IPv6
                     continue;
                 } else {
