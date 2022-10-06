@@ -87,7 +87,8 @@ function f(){
             })
         }).catch(r=>{
             console.error(r);
-            alert("No valid IP: "+e.ips);
+            document.getElementById("LeitherHtml").innerHTML = "<head><title>ErrInfo</title></head><body><p>No valid IP: "
+                + p.ips + "</p></body>"
         })
     };
     window["requestEntry"] = requestEntry    
