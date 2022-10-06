@@ -1,5 +1,3 @@
-// const win = require("global")
-
 function f(){
     var p, urls=[], ips=[]
     function getParam(){              
@@ -19,7 +17,7 @@ function f(){
             if (ip.length < 3) {
                 // IPv4 address, 1.172.121.64:4800
                 var a = ip[0].split('.')
-                if ( a[0]==10 || (a[0]==192 && a[1]==168) || (a[0]==172 && a[1>15 && a[1]<32])) {
+                if ( a[0]==10 || (a[0]==192 && a[1]==168) || (a[0]==172 && a[1]>15 && a[1]<32)) {
                     // private IPv4 for sure
                     continue;
                 } else {
@@ -91,5 +89,4 @@ function f(){
         })
     };
     window["requestEntry"] = requestEntry    
-}
-f()
+}; f()
