@@ -20,7 +20,7 @@ function getcurips(){
     { //for test
         ips = "192.168.1.101:4800"
         ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        // ips = "fsca.leithertest.link"
+        ips = "1.172.107.76:4800"
     }
     return ips
 }
