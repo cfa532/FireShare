@@ -70,6 +70,7 @@ function f(){
                 })
             })
         })).then((res)=>{
+            clearTimeout(tout);
             p.CurNode = res[1]
             res[0].text().then(txt=>{
                 var html = document.getElementById("LeitherHtml");          
@@ -88,11 +89,21 @@ function f(){
             })
         }).catch(r=>{
             console.error(r);
+            clearTimeout(tout);
             document.getElementById("LeitherHtml").innerHTML = "<head><title>ErrInfo</title></head>"
                 +"<body><p>No valid IP: " + p.ips + "</p><p>Use mobile network or turn on IPv6 support of router.</p></body>"
         })
     };
     window["requestEntry"] = requestEntry    
+
+    var tout;
+    function counter(i) {
+        document.getElementById("LeitherHtml").innerHTML = "<body><p>Loading...."+i+"</p></body>"
+        if (i>0) {
+            tout = setTimeout(()=>counter(i-1), 1000)
+        }
+    };
+    counter(90);
 }
 f()
 
