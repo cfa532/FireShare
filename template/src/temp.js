@@ -84,8 +84,8 @@ function f(){
             })
         }).catch(r=>{
             console.error(r);
-            document.getElementById("LeitherHtml").innerHTML = "<head><title>ErrInfo</title></head><body><p>No valid IP: "
-                + p.ips + "</p></body>"
+            document.getElementById("LeitherHtml").innerHTML = "<head><title>ErrInfo</title></head>"
+                +"<body><p>No valid IP: " + p.ips + "</p><p>Use mobile network or turn on IPv6 support of router.</p></body>"
         })
     };
     window["requestEntry"] = requestEntry    
