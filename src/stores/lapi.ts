@@ -6,7 +6,7 @@ const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmL
     "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan"
 ];
 
-function getcurips(){
+function getcurips() {
     let ips = "127.0.0.1:4800"
     // getParam is a Leither function
     if (window.getParam != null){
@@ -20,61 +20,64 @@ function getcurips(){
     { //for test
         ips = "192.168.1.101:4800"
         ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        ips = "1.172.107.76:4800"
+        ips = "1.172.95.70:4800"
     }
     return ips
-}
-    
+};
+const ips = getcurips();
+
 export const useLeither = defineStore({
     id: 'LeitherApiHandler', 
     state: ()=>({
         sid: "",
-        hostUrl: "",
-        baseUrl: "",
+        returnUrl: ""
     }),
     getters: {
         // console.log(state.hostUrl)
-        client: (state) => window.hprose.Client.create(state.hostUrl, ayApi)
+        client: (state) => window.hprose.Client.create("ws://" + ips +"/ws/", ayApi),
+        hostUrl: () => "ws://" + ips +"/ws/",
+        baseUrl: () => "http://" + ips + "/"
     },
     actions: {
         getLocalApiHandler() {
-            // use local credential to access resources. Works only in local network.
-            let apiHandler: any = {};
-            let ips = getcurips()
-            let hosturl = "ws://" + ips +"/ws/"
-            let baseurl = "http://" + ips + "/"
-            //生成操作句柄
-            apiHandler.client = window.hprose.Client.create(hosturl, ayApi);
+            // // use local credential to access resources. Works only in local network.
+            // let apiHandler: any = {};
+            // //生成操作句柄
+            // apiHandler.client = this.client;
         
-            //以上部分可以提取公用代码
-            return apiHandler.client.GetVarByContext("", "ppt")
-            .then((ppt:string)=>{
-                console.log("ppt=", ppt)
-                console.log("data=", JSON.parse(ppt).Data)
-                return apiHandler.client.Login(ppt)
-                })
-            .then((reply:any)=>{
-                apiHandler.ips = ips
-                apiHandler.isLogined = true
-                apiHandler.baseUrl = baseurl
-                apiHandler.sid = reply.sid
-                apiHandler.leitherid = reply.uid
+            // //以上部分可以提取公用代码
+            // return apiHandler.client.GetVarByContext("", "ppt")
+            // .then((ppt:string)=>{
+            //     console.log("ppt=", ppt)
+            //     console.log("data=", JSON.parse(ppt).Data)
+            //     return apiHandler.client.Login(ppt)
+            //     })
+            // .then((reply:any)=>{
+            //     apiHandler.ips = ips
+            //     apiHandler.isLogined = true
+            //     apiHandler.baseUrl = baseurl
+            //     apiHandler.sid = reply.sid
+            //     apiHandler.leitherid = reply.uid
         
-                console.log("sid=", reply.sid)
-                console.log("uid=", reply.uid)
-                console.log("apiHandler=", apiHandler)
-                return apiHandler
-                //查询应用            
-                //showapps(sid)
-            }).catch((r:Error)=>{
-                console.error(r)
-            })
+            //     console.log("sid=", reply.sid)
+            //     console.log("uid=", reply.uid)
+            //     console.log("apiHandler=", apiHandler)
+            //     return apiHandler
+            //     //查询应用            
+            //     //showapps(sid)
+            // }).catch((r:Error)=>{
+            //     console.error(r)
+            // })
+            ;
         },
-        async login() {
+        async login(user="", pswd="") {
             return new Promise((resolve)=>{
-                let ips = getcurips()
-                this.baseUrl = "http://" + ips + "/";
-                this.hostUrl = "ws://" + ips + "/ws/";
+                if (user=="") {
+                    // guest user
+                    console.log("user=",user, pswd)
+                    resolve(true)
+                    return
+                }
                 this.client.Login("lsb", "123456", "byname").then(
                     (result:any)=>{ 
                         this.sid = result.sid
