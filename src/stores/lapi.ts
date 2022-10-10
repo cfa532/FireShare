@@ -30,13 +30,13 @@ export const useLeither = defineStore({
     id: 'LeitherApiHandler', 
     state: ()=>({
         sid: "",
-        returnUrl: ""
+        returnUrl: "",
+        hostUrl: "ws://" + ips +"/ws/",
+        baseUrl: "http://" + ips + "/",
     }),
     getters: {
         // console.log(state.hostUrl)
-        client: (state) => window.hprose.Client.create("ws://" + ips +"/ws/", ayApi),
-        hostUrl: () => "ws://" + ips +"/ws/",
-        baseUrl: () => "http://" + ips + "/"
+        client: (state) => window.hprose.Client.create(state.hostUrl, ayApi),
     },
     actions: {
         getLocalApiHandler() {
