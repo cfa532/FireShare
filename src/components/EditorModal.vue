@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { CSSProperties, onMounted, reactive, ref, watch } from "vue";
+import { CSSProperties, onMounted, reactive, ref, shallowRef, watch } from "vue";
 import Preview from "./Gadget/Preview.vue";
 import { useLeither, useMimei } from '../stores/lapi'
 const api = useLeither();
 const mmInfo = useMimei();
 
-// class FVPair { name = ""; lastModified = 0; size = 0; type = ""; macid = "" }
-class FVPair {
-  name; lastModified; size; type; macid;
-  constructor(name: string, lastModified: number, size: number, type: string) {
-    this.name = name;
-    this.lastModified = lastModified;
-    this.size = size;
-    this.type = type;
-    this.macid = ""
-  }
-}
+// class FVPair {
+//   name; lastModified; size; type; macid;
+//   constructor(name: string, lastModified: number, size: number, type: string) {
+//     this.name = name;
+//     this.lastModified = lastModified;
+//     this.size = size;
+//     this.type = type;
+//     this.macid = ""
+//   }
+// }
 interface HTMLInputEvent extends Event { target: HTMLInputElement & EventTarget }
 const emit = defineEmits(["uploaded"])
 const textValue = ref("")
@@ -33,11 +32,17 @@ const classModal = reactive<CSSProperties>({
   left: 0, top: 0, width: "100%", height: "100%",
   'background-color': "rgb(0,0,0,0.4)",
 });
-const filesUpload = ref<File[]>([])
-onMounted(() => {
-  // remember user input even after a page refresh. It is cleared only after submit
-  textValue.value = localStorage.getItem("tempTextValueUploader") ? localStorage.getItem("tempTextValueUploader")! : "";
+const filesUpload = shallowRef();
+const props = defineProps({
+    text : {type: String, required: false},
+    attachments: {type: [File], required: false},
 })
+
+onMounted(() => {
+  textValue.value = props.text? props.text : "";
+  filesUpload.value = props.attachments? props.attachments : [];
+})
+
 function onSelect(e: Event) {
   let files = (e as HTMLInputEvent).target.files || (e as DragEvent).dataTransfer?.files;
   if (!files) return
@@ -59,7 +64,6 @@ function selectFile() {
   document.getElementById("selectFiles")?.click();
 }
 async function uploadFile(files: File[]): Promise<string[]> {
-  // upload multiple files to MiMei database
   return Promise.all(files.map(file => {
     return new Promise<string>((resolve, reject) => {
       // read uploaded file
@@ -118,8 +122,8 @@ function onSubmit() {
         console.error("Zadd error=", err)
       })
     } else {
-      // multiple files, or text input
-      // 1st item is input of textarea, followed by mac ids of uploaded files
+      // multiple files, or text import
+      // 1st is input of textarea, followed by mac ids of uploaded file
       let s = JSON.stringify([textValue.value].concat(macids))
       let fi = new FVPair(s, Date.now(), s.length, "page");
 
@@ -201,13 +205,9 @@ watch(() => textValue.value, (newVal, oldVal) => {
     localStorage.setItem("tempTextValueUploader", newVal)
   }
 })
-// })
 </script>
 
 <template>
-  <div class="postbox">
-    <p @click="showModal" class="postbox">Tell us what is happening....</p>
-  </div>
   <div ref="myModal" :style="classModal">
     <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect">
       <!-- <span class="close" @click="closeModal">&times;</span> -->

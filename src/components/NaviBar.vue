@@ -1,7 +1,8 @@
 <script setup lang="ts">
-
+import { PropType } from 'vue';
+import { useMimei } from "../stores/lapi";
 const props = defineProps({
-    column: {type: String, required: true }
+    column: {type: Object as PropType<ContentColumn>, required: true }
 })
 </script>
 
@@ -10,6 +11,6 @@ const props = defineProps({
 <ul class="naviBar">
     <li><RouterLink active-class="active" :to="{name: 'main'}">众众</RouterLink></li>
     <li>--</li>
-    <li><RouterLink class="active" :to="{name: 'filelist'}">{{props.column}}</RouterLink></li>
+    <li><RouterLink class="active" :to="{name: 'filelist', params:{title: props.column.title}}">{{props.column.titleZh}}</RouterLink></li>
 </ul>
 </template>

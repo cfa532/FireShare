@@ -9,12 +9,13 @@ type ContentColumn = {
 interface ScorePair { score: number, member: string }
 
 class FVPair {
-    name; lastModified; size; type;
-    constructor(name:string, lastModified:number, size:number, type:string) {
+    name; lastModified; size; type; macid;
+    constructor(name:string, lastModified:number, size:number, type:string, macid:string="") {
       this.name = name;
       this.lastModified = lastModified;
       this.size = size;
       this.type = type;
+      this.macid = macid;
     }
   }
 

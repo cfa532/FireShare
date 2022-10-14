@@ -6,14 +6,10 @@ const props = defineProps({
     content: {type: Object as PropType<ContentColumn>, required: true },
 })
 const router = useRouter();
-const mmInfo = useMimei();
 function goFilelist() {
-    // remember the column to go
-    // localStorage.setItem("currentColumn", JSON.stringify(props.content));
     console.log(props.content)
-    mmInfo.setColumn(props.content)
     router.push({
-        name: "filelist", params:{page:1}
+        name: "filelist", params:{page:1, title:props.content.title}
     });
 };
 </script>

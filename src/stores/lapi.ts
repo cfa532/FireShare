@@ -19,8 +19,8 @@ function getcurips() {
     }
     { //for test
         ips = "192.168.1.101:4800"
-        ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        ips = "1.172.95.70:4800"
+        // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
+        // ips = "1.172.95.70:4800"
     }
     return ips
 };
@@ -72,15 +72,17 @@ export const useLeither = defineStore({
         },
         async login(user="", pswd="") {
             return new Promise((resolve)=>{
-                if (user=="") {
-                    // guest user
-                    console.log("user=",user, pswd)
-                    resolve(true)
-                    return
-                }
+                // if (user=="") {
+                //     // guest user
+                //     console.log("user=",user, pswd)
+                //     resolve(true)
+                //     return
+                // }
                 this.client.Login("lsb", "123456", "byname").then(
                     (result:any)=>{ 
                         this.sid = result.sid
+
+                        
                         this.client.SignPPT(this.sid, {
                             CertFor: "Self",
                             Userid: result.uid,
@@ -113,8 +115,17 @@ export const useMimei = defineStore({
     state: ()=>({
         _mid: "",
         _mmsid: "",
-        _column: null as any,
-        _fileName: "" as string | null,        // !!! global MM file name for this App
+        _fileName: "" as string | null,        // !!! global MiMei file name for this App
+        column: {} as ContentColumn | undefined,            // current Column object. Set when title is checked.
+        naviColumnTree: [
+            {title:"News", titleZh:"最新文档", orderBy:0}, 
+            {title:"Pictures", titleZh:"图片专区", orderBy:1, subColumn: [
+                {title:"Western", titleZh:"洋画", orderBy:0},
+                {title:"Japan", titleZh:"邦画", orderBy:1},
+                {title:"Test", titleZh:"TCL", orderBy:2},
+            ]},
+            {title:"Webdav", titleZh:"本地文档", orderBy:2}
+        ],
     }),
     getters: {
         mid: (state) => {
@@ -129,17 +140,8 @@ export const useMimei = defineStore({
             }
             return state._mmsid;
         },
-        column: (state) => {
-            if (!state._column) {
-                if (!localStorage.getItem("currentColumn"))
-                    // default column item
-                    state._column = {title: "News", titleZh:"最新文档", orderBy:0}
-                else
-                    state._column = JSON.parse(localStorage.getItem("currentColumn")!)
-            }
-            return state._column;
-        },
         fileName: (state) => {
+            // MiMei file name for this APP
             if (state._fileName==="") {
                 if (!localStorage.getItem("mmFileName")) {
                     state._fileName = "file_list"
@@ -157,9 +159,14 @@ export const useMimei = defineStore({
             this.$state._mmsid = mmsid
             localStorage.setItem("mmInfo", JSON.stringify({_mid:mid, _mmsid:mmsid}))
         },
-        setColumn(c: ContentColumn) {
-            this.$state._column = c
-            localStorage.setItem("currentColumn", JSON.stringify(c))
+        // setColumn(c: ContentColumn) {
+        //     this.$state._column = c
+        //     localStorage.setItem("currentColumn", JSON.stringify(c))
+        // },
+        getColumn(title: string) {
+            // given title, return Column obj, and set Column at the same time
+            this.$state.column = findColumn(this.$state.naviColumnTree, title);
+            return this.$state.column;
         },
         downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {
             var a = document.createElement("a");
@@ -171,5 +178,18 @@ export const useMimei = defineStore({
         }
     // return { downLoadByFileData, mid, mmsid}
     }
-})
+});
+
+function findColumn(cols:ContentColumn[], title:string):ContentColumn|undefined  {
+    let col = cols.find((c) => c.title===title);
+    if (!col) {
+        for(var c of cols) {
+            if (c.subColumn) {
+                var c1 = findColumn(c.subColumn, title);
+                if (c1) return c1;
+            }
+        }
+    }
+    return col
+}
 

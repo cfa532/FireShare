@@ -7,7 +7,7 @@ import NaviBar from "./NaviBar.vue";
 import MyDir from './Gadget/Dir.vue';
 import Pager from "./Gadget/Pager.vue";
 import { storeToRefs } from 'pinia';
-interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
+// interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
 let api: any = null;
 
 export default defineComponent({
@@ -28,7 +28,13 @@ export default defineComponent({
     computed: {
         mmInfo: ()=> useMimei(),
         currentPage() {     // do not use ()=>{}
-            return this.route.params.page? parseInt(this.route.params.page as string) : 1}
+            return this.route.params.page? parseInt(this.route.params.page as string) : 1
+        },
+        currentColumn() {
+            let c = this.mmInfo.getColumn(this.route.params.title as string)
+            if (!c) c=this.mmInfo.naviColumnTree[0]
+            return c
+        }
     },
     provide() {
         return {
@@ -95,10 +101,9 @@ export default defineComponent({
         }
     },
     mounted() {
-        const {...c} = storeToRefs(this.mmInfo)
-        console.log("FileList mounted", c.column.value, this.currentPage)
+        console.log("FileList mounted:", this.currentColumn)
         api = useLeither();
-        if (this.mmInfo.column.title === "Webdav") {
+        if (this.currentColumn!.title === "Webdav") {
             // load files in webdav folder
             api.client.MFOpenByPath(api.sid, "mmroot", '/', 0, (mmfsid: string) => {
                 api.client.MFReaddir(mmfsid, (files: any[]) => {
@@ -110,7 +115,7 @@ export default defineComponent({
             return
         };
         // Important: define the Mimei that handles all data in this App
-        api.client.MMCreate(api.sid, "", this.mmInfo.column.title, this.mmInfo.fileName, 2, "", (mid: string) => {
+        api.client.MMCreate(api.sid, "", this.currentColumn!.title, this.mmInfo.fileName, 2, "", (mid: string) => {
             // each colume is a MM. Combination of the column's title and 'file_list' determine a MM id
             api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
                 this.mmInfo.setMMInfo(mid, mmsid);
@@ -139,15 +144,15 @@ export default defineComponent({
 </script>
 
 <template>
-<NaviBar :column=mmInfo.column.titleZh></NaviBar>
+<NaviBar :column=currentColumn></NaviBar>
     <hr/>
-<div v-if="mmInfo.column.title!=='Webdav'">
+<div v-if="currentColumn!.title !== 'Webdav'">
     <Uploader @uploaded="uploaded"></Uploader>
     <ul style="padding: 0px; margin: 0 0 0 5px;">
     <li class="fileList" v-for="(file, index) in fileList" :key="index">
         <RouterLink v-if="file.type.includes('image') || file.type.includes('video') 
-            || file.type.includes('page') || file.type.includes('pdf')"
-            :to="{ name:'fileview', params:{macid:file.macid, fileType:file.type}}">{{fileName(file)}}
+                    || file.type.includes('page') || file.type.includes('pdf')"
+            :to="{ name:'fileview', params:{title:currentColumn.title, macid:file.macid, fileType:file.type}}">{{fileName(file)}}
         </RouterLink>
         <a v-else
             href="" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.name}} &dArr;

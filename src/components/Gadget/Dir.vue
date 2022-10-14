@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { useLeither, useMimei } from "../../stores/lapi";
 import Pager from "./Pager.vue"
 const api = useLeither();

@@ -13,10 +13,10 @@ const route = useRoute()
 const router = useRouter()
 const api = useLeither()
 const mmInfo = useMimei()
-const column = JSON.parse(localStorage.getItem("currentColumn") as string)
+mmInfo.getColumn(route.params.title as string);
 const userComponent = shallowRef()
 const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: ""})    // props
-const currentPageNumber = ref(1)
+
 onMounted(()=>{
     console.log("FileView2 mounted", route.params)
     getComponent(route.params.filePath as string)
@@ -77,7 +77,7 @@ watch(()=>route.params.filePath, async (toParams, prevParams)=>{
 </script>
 
 <template>
-    <NaviBarVue :column=column.titleZh></NaviBarVue>
+    <NaviBarVue :column=mmInfo.column!></NaviBarVue>
     <hr style="margin-top:8px; margin-bottom: 4px;"/>
     <ShareVue v-if="userComponent != MyDir"></ShareVue>
     <KeepAlive>
