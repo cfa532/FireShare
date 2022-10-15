@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { useMimei } from "../stores/lapi";
+import { useMimei, useLeither } from "../stores/lapi";
 import NaviBarVue from './NaviBar.vue';
 import MyImg from './Gadget/Image.vue';
 import MyPdf from './Gadget/pdf.vue';
 import VideoPlayer from './Gadget/VideoJS.vue';
 import Page from './Gadget/Html.vue';
 import ShareVue from './Gadget/Share.vue';
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 // const VideoPlayer = defineAsyncComponent(()=>
 //     import('./VideoJS.vue')
 // )
 const route = useRoute()
-const mmInfo = useMimei()
+const mmInfo = useMimei();
 mmInfo.getColumn(route.params.title as string);     // make sure mmInfo valid upon refresh
 
 const fileType = route.params.fileType as string;
@@ -31,7 +31,10 @@ const userComponent = computed(() => {
     }
 })
 const currentProperty = route.params    // params: {macid:file.macid, fileType:file.type}}
-
+onMounted(async ()=>{
+    // await mmInfo.init(useLeither())
+    console.log("FileView mounted,", mmInfo.$state)
+})
 </script>
 
 <template>

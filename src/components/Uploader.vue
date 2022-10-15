@@ -5,7 +5,6 @@ import { useLeither, useMimei } from '../stores/lapi'
 const api = useLeither();
 const mmInfo = useMimei();
 
-// class FVPair { name = ""; lastModified = 0; size = 0; type = ""; macid = "" }
 class FVPair {
   name; lastModified; size; type; macid;
   constructor(name: string, lastModified: number, size: number, type: string) {
@@ -71,10 +70,9 @@ async function uploadFile(files: File[]): Promise<string[]> {
         // arr: arrayBuffer of the file data
         api.client.MFOpenTempFile(api.sid, (fsid: string) => {
           // resolve to macid string
-          // resolve(readFileSlice(fsid, arrBuf, 0))
-          readFileSlice(fsid, arrBuf, 0).then(macid => {
-            // console.log(file, macid, api)
-            const fileInfo = new FVPair(file.name, file.lastModified, file.size, file.type)
+          readFileSlice(fsid, arrBuf, 0, (macid: string) => {
+            console.log(file, macid, api.$state)
+            const fileInfo = new FVPair(file.name, file.lastModified, file.size, file.type);
             api.client.Hset(mmInfo.mmsid, mmInfo.fileName, macid, fileInfo, (ret: number) => {
               // set field 'macid's value to a 'fileInfo' in hashtable 'file_list'
               console.log("Hset ret=", ret)
@@ -158,27 +156,26 @@ function onSubmit() {
     }
   })
 }
-async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Promise<string> {
+function readFileSlice(fsid: string, arr: ArrayBuffer, start: number, fn: any) {
   // reading file slice by slice, start at given position
   var end = Math.min(start + sliceSize, arr.byteLength);
-  return new Promise((resolve, reject) => {
     api.client.MFSetData(fsid, arr.slice(start, end), start, (count: number) => {
+      console.log("count=", count, end)
       if (end === arr.byteLength) {
         // last slice done. Convert temp to Mac file
         api.client.MFTemp2MacFile(fsid, "", (macid: string) => {
-          console.log("Temp file to MacID=", macid);
+          console.log("Temp file to MacID=", macid, arr.byteLength);
           // now temp file is converted to Mac file, save file info
-          resolve(macid)
+          fn(macid)
         }, (err: Error) => {
-          reject("Failed to create Mac file")
+          console.error("Failed to create Mac file:", err)
         })
       } else {
-        readFileSlice(fsid, arr, start + count)
+        readFileSlice(fsid, arr, start + count, fn)
       }
     }, (err: Error) => {
-      reject("Set temp file data error ");
+      console.error("Set temp file data error=", err);
     })
-  })
 }
 function showModal(e: MouseEvent) {
   // show modal box

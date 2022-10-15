@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 // Hprose API
 const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmLocal", "DhtGetAllKeys","MFOpenByPath",
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
-    "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile","MFStat",
+    "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Hmget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile","MFStat",
     "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan"
 ];
 
@@ -81,8 +81,6 @@ export const useLeither = defineStore({
                 this.client.Login("lsb", "123456", "byname").then(
                     (result:any)=>{ 
                         this.sid = result.sid
-
-                        
                         this.client.SignPPT(this.sid, {
                             CertFor: "Self",
                             Userid: result.uid,
@@ -115,8 +113,8 @@ export const useMimei = defineStore({
     state: ()=>({
         _mid: "",
         _mmsid: "",
-        _fileName: "" as string | null,        // !!! global MiMei file name for this App
-        column: {} as ContentColumn | undefined,            // current Column object. Set when title is checked.
+        _fileName: "file_list",        // !!! global MiMei file name for this App
+        column: {} as ContentColumn,            // current Column object. Set when title is checked.
         naviColumnTree: [
             {title:"News", titleZh:"最新文档", orderBy:0}, 
             {title:"Pictures", titleZh:"图片专区", orderBy:1, subColumn: [
@@ -128,44 +126,39 @@ export const useMimei = defineStore({
         ],
     }),
     getters: {
-        mid: (state) => {
-            if (!state._mid) {
-                state._mid = JSON.parse(localStorage.getItem("mmInfo")!)._mid
-            }
+        mid: function(state) {
             return state._mid;
         },
-        mmsid: (state) => {
-            if (!state._mmsid) {
-                state._mmsid = JSON.parse(localStorage.getItem("mmInfo")!)._mmsid
-            }
+        mmsid: function(state) {
             return state._mmsid;
         },
         fileName: (state) => {
-            // MiMei file name for this APP
-            if (state._fileName==="") {
-                if (!localStorage.getItem("mmFileName")) {
-                    state._fileName = "file_list"
-                    localStorage.setItem("mmFileName", state._fileName)
-                }
-                else
-                    state._fileName = localStorage.getItem("mmFileName")
+            // MiMei file name for this APP. Change localStorage's value manually to use a new MM database
+            if (state._fileName !== localStorage.getItem("mmFileName")) {
+                state._fileName = localStorage.getItem("mmFileName")!
             }
             return state._fileName;
         }
     },
     actions: {
-        setMMInfo(mid: string, mmsid: string) {
-            this.$state._mid = mid
-            this.$state._mmsid = mmsid
-            localStorage.setItem("mmInfo", JSON.stringify({_mid:mid, _mmsid:mmsid}))
+        init(api: any) {        // leither api object
+            return new Promise<typeof this>((resolve, reject)=>{
+                api.client.MMCreate(api.sid, "", this.$state.column.title, this.$state._fileName, 2, "", (mid: string) => {
+                    this.$state._mid = mid;
+                    api.client.MMOpen(api.sid, this.mid, "cur", (mmsid: string) => {
+                        this.$state._mmsid = mmsid
+                        resolve(this)
+                    }, (err:Error) => {
+                        reject("MMOpen failed")
+                    })
+                }, (err:Error) => {
+                    reject("MMCreate failed")
+                })
+            })
         },
-        // setColumn(c: ContentColumn) {
-        //     this.$state._column = c
-        //     localStorage.setItem("currentColumn", JSON.stringify(c))
-        // },
         getColumn(title: string) {
             // given title, return Column obj, and set Column at the same time
-            this.$state.column = findColumn(this.$state.naviColumnTree, title);
+            this.$state.column = findColumn(this.$state.naviColumnTree, title)!;
             return this.$state.column;
         },
         downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {
@@ -176,7 +169,6 @@ export const useMimei = defineStore({
             a.click();
             window.URL.revokeObjectURL(a.href);
         }
-    // return { downLoadByFileData, mid, mmsid}
     }
 });
 

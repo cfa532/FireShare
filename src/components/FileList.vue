@@ -23,10 +23,10 @@ export default defineComponent({
             itemNumber: ref(1),
             route: useRoute(),
             router: useRouter(),
+            mmInfo: useMimei(),     // Important: define the Mimei that handles all data in this App
         }
     },
     computed: {
-        mmInfo: ()=> useMimei(),
         currentPage() {     // do not use ()=>{}
             return this.route.params.page? parseInt(this.route.params.page as string) : 1
         },
@@ -100,7 +100,7 @@ export default defineComponent({
             })
         }
     },
-    mounted() {
+    async mounted() {
         console.log("FileList mounted:", this.currentColumn)
         api = useLeither();
         if (this.currentColumn!.title === "Webdav") {
@@ -113,25 +113,15 @@ export default defineComponent({
                 console.error("Open path err=", err)
             })
             return
-        };
-        // Important: define the Mimei that handles all data in this App
-        api.client.MMCreate(api.sid, "", this.currentColumn!.title, this.mmInfo.fileName, 2, "", (mid: string) => {
-            // each colume is a MM. Combination of the column's title and 'file_list' determine a MM id
-            api.client.MMOpen(api.sid, mid, "cur", (mmsid: string) => {
-                this.mmInfo.setMMInfo(mid, mmsid);
-                window.mmInfo = this.mmInfo.$state;
-                api.client.Zcount(mmsid, this.mmInfo.fileName, 0, Date.now(), (count: number)=>{     // -1 does not work for stop
-                    this.itemNumber = count;    // total num of items in the list as a Mimei
-                    this.getFileList();
-                }, (err: Error) => {
-                    console.error("Zcount error=", err)
-                })
+        } else {
+            await this.mmInfo.init(api);        // init mimei id, mimei sid, etc...
+            api.client.Zcount(this.mmInfo.mmsid, this.mmInfo.fileName, 0, Date.now(), (count: number)=>{     // -1 does not work for stop
+                this.itemNumber = count;    // total num of items in the list as a Mimei
+                this.getFileList();
             }, (err: Error) => {
-                console.error("MMOpen error=", err)
+                console.error("Zcount error=", err)
             })
-        }, (err: Error) => {
-            console.error("MM Create error=", err)
-        })
+        }
     },
     watch: {
         'currentPage'(newVal) {

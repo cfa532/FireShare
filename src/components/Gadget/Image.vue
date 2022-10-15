@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useLeither, useMimei } from '../../stores/lapi';
 const api = useLeither();    // Leither api handler
 const mmInfo = useMimei()
@@ -11,7 +11,7 @@ const props = defineProps({
 })
 const imageUrl = ref("")
 onMounted(async () => {
-    console.log("Image mounted", props)
+    console.log("Image mounted", props, mmInfo.$state)
     imageUrl.value = await getLink()
     // imageUrl.value = api.baseUrl + "mf/" + encodeURI(props.macid!) + "?mmsid="+ api.mmsid
 });

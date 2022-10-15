@@ -5,33 +5,27 @@ import { onMounted, inject, ref, shallowRef } from 'vue';
 import { useLeither, useMimei } from '../../stores/lapi';
 const fileInfos = ref<any[]>([])
 const api = useLeither();    // Leither api handler
-const mmInfo = useMimei();
+const mmInfo = useMimei()
 const props = defineProps({
     macid : {type: String, required: false},
     fileType: {type: String, required: false},
     filePath: {type: String, required: false},
     mmfsid: {type: String, required: false},
 });
-const macids = ref([])
 const textContent = ref("")
-onMounted(() => {
-    console.log("Page mounted:", props)
+onMounted(async () => {
+    await mmInfo.init(api)
+    console.log("Page mounted:", props, mmInfo.$state)
     api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
         api.client.MFGetObject(fsid, (obj:FVPair)=>{
             console.log(obj)
             const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
-            textContent.value = str[0].trim()===""? "Page in side" : str[0];
-            macids.value = str.slice(1)
-            getComponents(str.slice(1)).then(results=>{
+            textContent.value = str[0].trim()===""? "Page inside" : str[0];
+            let macids = str.slice(1);
+            getComponents(macids).then(results => {
                 // get all the components required to show attached files on the html page
-                console.log("file infos", results)
-                results.forEach(res=>{
-                    if (res.status==="fulfilled") {
-                        var fi:any = res.value
-                        fileInfos.value.push({macid: fi.macid, fileType: fi.type, name:fi.name, autoplay:false})
-                    } else {
-                        console.log(res.reason)
-                    }
+                results.forEach((fi, i) => {
+                    fileInfos.value.push({macid: macids[i], fileType: fi.type, name:fi.name, autoplay:false})
                 })
             })
         }, (err: Error) => {
@@ -41,22 +35,14 @@ onMounted(() => {
         console.error("MFOpenMacFile error=", err)
     });
 })
-async function getComponents(macids:string[]) {
-    return Promise.allSettled(macids.map(e=>{
-        return new Promise((resolve, reject)=>{
-            console.log(mmInfo)
-            api.client.Hget(mmInfo.mmsid, mmInfo.fileName, e, (fi:FVPair)=>{
-                if (!fi) {
-                    reject("Mac id without info: "+e)
-                } else {
-                    (fi as any).macid = e
-                    resolve(fi)
-                }
-            }, (err: Error)=>{
-                console.error("Hget err=", err, e, mmInfo.mmsid)
-            })
+function getComponents(macids:string[]) {
+    return new Promise<FVPair[]>((resolve, reject)=>{
+        api.client.Hmget(mmInfo.mmsid, mmInfo.fileName, ...macids, (fis:any[])=>{
+            resolve(fis)
+        }, (err: Error)=>{
+            console.error("Hmget err=", err, macids)
         })
-    }))        
+    })
 }
 function fileDownload(fi: any) {
     api.client.MFOpenMacFile(api.sid, mmInfo.mid, fi.macid, (fsid: string) => {
