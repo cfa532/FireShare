@@ -134,8 +134,10 @@ export const useMimei = defineStore({
         },
         fileName: (state) => {
             // MiMei file name for this APP. Change localStorage's value manually to use a new MM database
+            let ls = localStorage.getItem("mmFileName")
+            if (!ls) localStorage.setItem("mmFileName", state._fileName)
             if (state._fileName !== localStorage.getItem("mmFileName")) {
-                state._fileName = localStorage.getItem("mmFileName")!
+                state._fileName = ls!
             }
             return state._fileName;
         }

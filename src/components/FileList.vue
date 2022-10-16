@@ -78,7 +78,6 @@ export default defineComponent({
             // get mm file list on current page
             let start = (this.currentPage - 1) * this.pageSize
             api.client.Zrevrange(this.mmInfo.mmsid, this.mmInfo.fileName, start, start + this.pageSize, (sps:[])=>{
-                console.log("sps=", sps, this.mmInfo.$state)
                 this.fileList.length = 0
                 sps.forEach((element: ScorePair) => {
                     api.client.Hget(this.mmInfo.mmsid, this.mmInfo.fileName, element.member, (fi: FVPair) => {
@@ -115,6 +114,7 @@ export default defineComponent({
             return
         } else {
             await this.mmInfo.init(api);        // init mimei id, mimei sid, etc...
+            console.log(this.mmInfo.$state)
             api.client.Zcount(this.mmInfo.mmsid, this.mmInfo.fileName, 0, Date.now(), (count: number)=>{     // -1 does not work for stop
                 this.itemNumber = count;    // total num of items in the list as a Mimei
                 this.getFileList();
