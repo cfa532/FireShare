@@ -1,60 +1,62 @@
 <script setup lang="ts">
-import { CSSProperties, onMounted, reactive, ref, shallowRef, watch } from "vue";
+import { CSSProperties, onMounted, ref, shallowRef, watch, computed, reactive } from "vue";
 import Preview from "./Gadget/Preview.vue";
 import { useLeither, useMimei } from '../stores/lapi'
 const api = useLeither();
 const mmInfo = useMimei();
-
-// class FVPair {
-//   name; lastModified; size; type; macid;
-//   constructor(name: string, lastModified: number, size: number, type: string) {
-//     this.name = name;
-//     this.lastModified = lastModified;
-//     this.size = size;
-//     this.type = type;
-//     this.macid = ""
-//   }
-// }
+class FVPair {
+  name; lastModified; size; type; macid;
+  constructor(name: string, lastModified: number, size: number, type: string) {
+    this.name = name;
+    this.lastModified = lastModified;
+    this.size = size;
+    this.type = type;
+    this.macid = ""
+  }
+}
 interface HTMLInputEvent extends Event { target: HTMLInputElement & EventTarget }
-const emit = defineEmits(["uploaded"])
+const emit = defineEmits(["uploaded", "hide"])
 const textValue = ref("")
-const form = ref<HTMLFormElement>();
-const divAttach = ref<HTMLDivElement>()
-const dropHere = ref<HTMLElement>()
-const textArea = ref<HTMLElement>()
+const form = ref();
+const divAttach = ref()
+const dropHere = ref()
+const textArea = ref()
 const myModal = ref()
 const sliceSize = 1024 * 1024 * 10    // 10MB per slice of file
-const classModal = reactive<CSSProperties>({
-  display: "none",
-  position: "fixed",
-  'z-index': 1,
-  overflow: "auto",
-  left: 0, top: 0, width: "100%", height: "100%",
-  'background-color': "rgb(0,0,0,0.4)",
-});
-const filesUpload = shallowRef();
+const filesUpload = ref();
 const props = defineProps({
-    text : {type: String, required: false},
+    text : {type: String, required: false},       // text input from editor
     attachments: {type: [File], required: false},
+    display: {type: String, required: false, default:"none"}
+})
+const classModal = computed(():CSSProperties=>{
+  return {
+    display: props.display,
+    position: "fixed",
+    'z-index': 1,
+    overflow: "auto",
+    left: 0, top: 0, width: "100%", height: "100%",
+    'background-color': "rgb(0,0,0,0.4)",
+  }
 })
 
 onMounted(() => {
   textValue.value = props.text? props.text : "";
-  filesUpload.value = props.attachments? props.attachments : [];
+  filesUpload.value = props.attachments? props.attachments.slice(0) : [];
 })
 
 function onSelect(e: Event) {
   let files = (e as HTMLInputEvent).target.files || (e as DragEvent).dataTransfer?.files;
   if (!files) return
   Array.from(files).forEach(f => {
-    if (filesUpload.value.findIndex(e => { return e.name === f.name && e.size === f.size && e.lastModified === f.lastModified }) === -1) {
-      // remove duplication
+    if (filesUpload.value.findIndex((e:File) => { return e.name === f.name && e.size === f.size && e.lastModified === f.lastModified }) === -1) {
+      // filter duplication
       filesUpload.value.push(f);
     }
   })
-  divAttach!.value!.hidden = false
-  textArea!.value!.hidden = false
-  dropHere!.value!.hidden = true
+  divAttach.value!.hidden = false
+  textArea.value!.hidden = false
+  dropHere.value!.hidden = true
 };
 function dragOver(evt: DragEvent) {
   textArea!.value!.hidden = true
@@ -63,7 +65,7 @@ function dragOver(evt: DragEvent) {
 function selectFile() {
   document.getElementById("selectFiles")?.click();
 }
-async function uploadFile(files: File[]): Promise<string[]> {
+function uploadFile(files: File[]): Promise<string[]> {
   return Promise.all(files.map(file => {
     return new Promise<string>((resolve, reject) => {
       // read uploaded file
@@ -115,7 +117,6 @@ function onSubmit() {
         emit('uploaded', fi)
         // clear up
         localStorage.setItem("tempTextValueUploader", "")
-        classModal.display = "none"
         filesUpload.value = [];   // clear file list of upload
         textValue.value = ""
       }, (err: Error) => {
@@ -141,7 +142,6 @@ function onSubmit() {
                 console.log("Hset ret=", ret, fi)
                 emit('uploaded', fi)
                 localStorage.setItem("tempTextValueUploader", "")
-                classModal.display = "none"
                 filesUpload.value = [];   // clear file list of upload
                 textValue.value = "";
               }, (err: Error) => {
@@ -162,7 +162,7 @@ function onSubmit() {
     }
   })
 }
-async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Promise<string> {
+function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Promise<string> {
   // reading file slice by slice, start at given position
   var end = Math.min(start + sliceSize, arr.byteLength);
   return new Promise((resolve, reject) => {
@@ -184,20 +184,16 @@ async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Pro
     })
   })
 }
-function showModal(e: MouseEvent) {
-  // show modal box
-  classModal.display = "block"
-}
 function removeFile(f: File) {
   // removed file from preview list
-  var i = filesUpload.value.findIndex(e => e == f);
+  var i = filesUpload.value.findIndex((e:File) => e==f);
   filesUpload.value.splice(i, 1)
 }
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (e: MouseEvent) {
   // var modal = document.getElementById("myModal");
   if (e.target == myModal.value) {
-    classModal.display = "none";
+    emit("hide")
   }
 }
 watch(() => textValue.value, (newVal, oldVal) => {
@@ -215,13 +211,13 @@ watch(() => textValue.value, (newVal, oldVal) => {
         <div style="width:99%; height:110px; margin-bottom: 10px;">
           <textarea autofocus ref="textArea" v-model="textValue" placeholder="Input......"
             style="border:0px; width:100%; height:100%; border-radius: 3px;"></textarea>
-          <div ref="dropHere"
-            style="border: 1px solid lightgrey; text-align: center; width:100%; height:100%; margin: 0px;" hidden>
+          <div ref="dropHere" hidden
+            style="border: 1px solid lightgrey; text-align: center; width:100%; height:100%; margin: 0px;">
             <p style="font-size: 24px">DROP HERE</p>
           </div>
         </div>
-        <div ref="divAttach"
-          style="border: 0px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-top:0px;" hidden>
+        <div ref="divAttach" hidden
+          style="border: 0px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-top:0px;" >
           <Preview @file-canceled="removeFile(file)" v-for="(file, index) in filesUpload" :key="index"
             v-bind:src="file"></Preview>
         </div>
@@ -234,7 +230,3 @@ watch(() => textValue.value, (newVal, oldVal) => {
     </div>
   </div>
 </template>
-
-<style>
-
-</style>

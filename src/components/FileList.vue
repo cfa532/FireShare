@@ -6,13 +6,14 @@ import Uploader from "./Uploader.vue";
 import NaviBar from "./NaviBar.vue";
 import MyDir from './Gadget/Dir.vue';
 import Pager from "./Gadget/Pager.vue";
-import { storeToRefs } from 'pinia';
+import EditorModal from "./EditorModal.vue";
+
 // interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
 let api: any = null;
 
 export default defineComponent({
     name: "FileList",
-    components: { Uploader, NaviBar, MyDir, Pager},
+    components: { EditorModal, NaviBar, MyDir, Pager},
     // props: ["page"],    // current page number for paging throgh file list
     data() {
         return {
@@ -24,6 +25,7 @@ export default defineComponent({
             route: useRoute(),
             router: useRouter(),
             mmInfo: useMimei(),     // Important: define the Mimei that handles all data in this App
+            showEditor: "none",
         }
     },
     computed: {
@@ -47,7 +49,15 @@ export default defineComponent({
             // add newly uploaded file to display list
             this.fileList.unshift(fi)
             this.itemNumber += 1;
+            this.showEditor = "none"
             // location.reload()
+        },
+        showModal(e: MouseEvent) {
+            // show modal box
+            this.showEditor = "block"
+        },
+        hide() {
+            this.showEditor = "none"
         },
         fileDownload(e: MouseEvent, file: any){
             api.client.MFOpenMacFile(api.sid, this.mmInfo.mid, file.macid, (fsid: string) => {
@@ -129,15 +139,16 @@ export default defineComponent({
         }
     },
 })
-
-
 </script>
 
 <template>
 <NaviBar :column=currentColumn></NaviBar>
     <hr/>
 <div v-if="currentColumn!.title !== 'Webdav'">
-    <Uploader @uploaded="uploaded"></Uploader>
+    <div class="postbox">
+        <p @click="showModal" class="postbox">Tell us what is happening....</p>
+    </div>
+    <EditorModal @uploaded="uploaded" @hide="hide" :display="showEditor"></EditorModal>
     <ul style="padding: 0px; margin: 0 0 0 5px;">
     <li class="fileList" v-for="(file, index) in fileList" :key="index">
         <RouterLink v-if="file.type.includes('image') || file.type.includes('video') 
