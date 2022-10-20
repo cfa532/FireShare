@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { PropType } from 'vue';
+import { onMounted, PropType } from 'vue';
 import { useMimei } from "../stores/lapi";
 const props = defineProps({
     column: {type: Object as PropType<ContentColumn>, required: true }
+})
+onMounted(()=>{
+    console.log("Navibar", props.column)
 })
 </script>
 

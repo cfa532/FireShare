@@ -39,45 +39,14 @@ export const useLeither = defineStore({
         client: (state) => window.hprose.Client.create(state.hostUrl, ayApi),
     },
     actions: {
-        getLocalApiHandler() {
-            // // use local credential to access resources. Works only in local network.
-            // let apiHandler: any = {};
-            // //生成操作句柄
-            // apiHandler.client = this.client;
-        
-            // //以上部分可以提取公用代码
-            // return apiHandler.client.GetVarByContext("", "ppt")
-            // .then((ppt:string)=>{
-            //     console.log("ppt=", ppt)
-            //     console.log("data=", JSON.parse(ppt).Data)
-            //     return apiHandler.client.Login(ppt)
-            //     })
-            // .then((reply:any)=>{
-            //     apiHandler.ips = ips
-            //     apiHandler.isLogined = true
-            //     apiHandler.baseUrl = baseurl
-            //     apiHandler.sid = reply.sid
-            //     apiHandler.leitherid = reply.uid
-        
-            //     console.log("sid=", reply.sid)
-            //     console.log("uid=", reply.uid)
-            //     console.log("apiHandler=", apiHandler)
-            //     return apiHandler
-            //     //查询应用            
-            //     //showapps(sid)
-            // }).catch((r:Error)=>{
-            //     console.error(r)
-            // })
-            ;
-        },
         async login(user="", pswd="") {
             return new Promise((resolve)=>{
-                // if (user=="") {
-                //     // guest user
-                //     console.log("user=",user, pswd)
-                //     resolve(true)
-                //     return
-                // }
+                if (user=="") {
+                    // guest user
+                    console.log("user=",user, "psd=", pswd)
+                    resolve(true)
+                    return
+                }
                 this.client.Login("lsb", "123456", "byname").then(
                     (result:any)=>{ 
                         this.sid = result.sid
@@ -111,57 +80,70 @@ export const useMimei = defineStore({
     // manager persistent state variables
     id: 'MMInfo',
     state: ()=>({
-        _mid: "",
+        api: {} as any,      // leither api handler
+        midNaviBar: "RyaWr1HkShxQvonM9aVqAb7ShXf",      // navigation bar' mid
+        mid: "q-GWapj7PzWmgpn1AGi2srtaERM",             // APP datbase mid
         _mmsid: "",
-        _fileName: "file_list",        // !!! global MiMei file name for this App
-        column: {} as ContentColumn,            // current Column object. Set when title is checked.
-        naviColumnTree: [
-            {title:"News", titleZh:"最新文档", orderBy:0}, 
-            {title:"Pictures", titleZh:"图片专区", orderBy:1, subColumn: [
-                {title:"Western", titleZh:"洋画", orderBy:0},
-                {title:"Japan", titleZh:"邦画", orderBy:1},
-                {title:"Test", titleZh:"TCL", orderBy:2},
-            ]},
-            {title:"Webdav", titleZh:"本地文档", orderBy:2}
-        ],
+        _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
+        // naviColumnTree: [
+        //     {title:"News", titleZh:"最新文档", orderBy:0}, 
+        //     {title:"Pictures", titleZh:"图片专区", orderBy:1, subColumn: [
+        //         {title:"Western", titleZh:"洋画", orderBy:0},
+        //         {title:"Japan", titleZh:"邦画", orderBy:1},
+        //         {title:"Test", titleZh:"TCL", orderBy:2},
+        //     ]},
+        //     {title:"Webdav", titleZh:"本地文档", orderBy:2}
+        // ],
     }),
     getters: {
-        mid: function(state) {
-            return state._mid;
-        },
-        mmsid: function(state) {
-            return state._mmsid;
-        },
-        fileName: (state) => {
-            // MiMei file name for this APP. Change localStorage's value manually to use a new MM database
-            let ls = localStorage.getItem("mmFileName")
-            if (!ls) localStorage.setItem("mmFileName", state._fileName)
-            if (state._fileName !== localStorage.getItem("mmFileName")) {
-                state._fileName = ls!
-            }
-            return state._fileName;
-        }
-    },
-    actions: {
-        init(api: any) {        // leither api object
-            return new Promise<typeof this>((resolve, reject)=>{
-                api.client.MMCreate(api.sid, "", this.$state.column.title, this.$state._fileName, 2, "", (mid: string) => {
-                    this.$state._mid = mid;
-                    api.client.MMOpen(api.sid, this.mid, "cur", (mmsid: string) => {
-                        this.$state._mmsid = mmsid
-                        resolve(this)
-                    }, (err:Error) => {
-                        reject("MMOpen failed")
+        naviColumnTree: function(state) {
+            return new Promise<ContentColumn[]>((resolve, reject)=>{
+                if (state._naviColumnTree.length>0) resolve(state._naviColumnTree);
+                else {
+                    // if (localStorage.getItem("navibarcolumns")) {
+                    //     state._naviColumnTree = JSON.parse(localStorage.getItem("navibarcolumns")!)
+                    //     resolve(state._naviColumnTree)
+                    //     return
+                    // }
+                    this.api.client.MMOpen(this.api.sid, this.midNaviBar, "last", (mmsid: string)=>{
+                        this.api.client.MFGetObject(mmsid, (o:any)=>{
+                            state._naviColumnTree = o
+                            resolve(o)
+                        }, (err:Error)=>{
+                            reject("useMimei MFGetObject err="+err)
+                        })
+                    }, (err:Error)=>{
+                        reject("useMimei MMOpen err="+err)
                     })
-                }, (err:Error) => {
-                    reject("MMCreate failed")
-                })
+                }
+            })
+        },    
+        mmsid: function(state) {
+            return new Promise((resolve, reject)=>{
+                if (state._mmsid) resolve(state._mmsid);
+                else {
+                    this.api.client.MMOpen(this.api.sid, this.mid, "cur", (mmsid: string)=>{
+                        state._mmsid = mmsid;
+                        resolve(mmsid);
+                    }, (err:Error)=>{
+                        reject("useMimei MMOpen mmsid err="+err)
+                    })
+                }
             })
         },
-        getColumn(title: string) {
+    },
+    actions: {
+        async init(api: any) {        // leither api object
+            this.$state.api = api;
+            return Promise.allSettled([this.mmsid, this.naviColumnTree]).then((res)=>{
+                localStorage.setItem("navibarcolumns", JSON.stringify(res[1].value))        // do it once during initiation  
+                window.mmInfo = this.$state;
+                return this;
+            })
+        },
+        async getColumn(title: string) {
             // given title, return Column obj, and set Column at the same time
-            this.$state.column = findColumn(this.$state.naviColumnTree, title)!;
-            return this.$state.column;
+            return findColumn(await this.naviColumnTree, title);
         },
         downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {
             var a = document.createElement("a");
@@ -174,7 +156,7 @@ export const useMimei = defineStore({
     }
 });
 
-function findColumn(cols:ContentColumn[], title:string):ContentColumn|undefined  {
+function findColumn(cols:ContentColumn[], title:string) :ContentColumn|undefined  {
     let col = cols.find((c) => c.title===title);
     if (!col) {
         for(var c of cols) {

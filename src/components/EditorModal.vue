@@ -109,7 +109,7 @@ function onSubmit() {
         score: Date.now(),  // index
         member: macids[0]       // Mac id for the uploaded file, which is converted to Mac file
       }
-      api.client.Zadd(mmInfo.mmsid, mmInfo.fileName, sp, (ret: number) => {
+      api.client.Zadd(mmInfo.mmsid, mmInfo.column!.title, sp, (ret: number) => {
         console.log("Zadd ScorePair for the file, ret=", ret)
         let fi = new FVPair(file.name, file.lastModified, file.size, file.type)
         // emit an event with infor of newly uploaded file
