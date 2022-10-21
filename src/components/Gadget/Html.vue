@@ -21,7 +21,7 @@ onMounted(async () => {
         api.client.MFGetObject(fsid, (obj:FVPair)=>{
             console.log(obj)
             const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
-            textContent.value = str[0].trim()===""? "Page inside" : str[0];
+            // textContent.value = str[0].trim()===""? "" : str[0];
             let macids = str.slice(1);
             getComponents(macids).then(results => {
                 // get all the components required to show attached files on the html page
