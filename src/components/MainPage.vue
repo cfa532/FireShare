@@ -3,12 +3,11 @@ import { ref } from "vue";
 import ColumnVue from "./Column.vue";
 import { useMimei, useLeither } from "../stores/lapi"
 import { onMounted } from "vue";
-import { computed } from "@vue/reactivity";
 
 const api = useLeither();
 const mmInfo = useMimei();
-const titleZh = "众众";
 const contentColumn = ref()
+const titleZh = "众众";
 
 onMounted(async ()=>{
     await mmInfo.init(api)
@@ -26,7 +25,7 @@ onMounted(async ()=>{
     </ul>
     <ul>
         <li v-for="(c, i) in contentColumn" :key="i">
-            <column-vue :content=c></column-vue>
+            <column-vue :column=c></column-vue>
         </li>
     </ul>
 </template>

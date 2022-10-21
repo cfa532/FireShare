@@ -27,7 +27,8 @@ const filesUpload = ref();
 const props = defineProps({
     text : {type: String, required: false},       // text input from editor
     attachments: {type: [File], required: false},
-    display: {type: String, required: false, default:"none"}
+    display: {type: String, required: false, default:"none"},
+    column: {type: String, required: true}
 })
 const classModal = computed(():CSSProperties=>{
   return {
@@ -40,9 +41,11 @@ const classModal = computed(():CSSProperties=>{
   }
 })
 
-onMounted(() => {
+onMounted(async () => {
+  await mmInfo.init(api)
   textValue.value = props.text? props.text : "";
   filesUpload.value = props.attachments? props.attachments.slice(0) : [];
+  console.log("Editor mount", props)
 })
 
 function onSelect(e: Event) {
@@ -75,13 +78,14 @@ function uploadFile(files: File[]): Promise<string[]> {
       }
       file.arrayBuffer().then(arrBuf => {
         // arr: arrayBuffer of the file data
+        console.log(arrBuf, api.$state)
         api.client.MFOpenTempFile(api.sid, (fsid: string) => {
           // resolve to macid string
           // resolve(readFileSlice(fsid, arrBuf, 0))
-          readFileSlice(fsid, arrBuf, 0).then(macid => {
+          readFileSlice(fsid, arrBuf, 0).then(async macid => {
             // console.log(file, macid, api)
             const fileInfo = new FVPair(file.name, file.lastModified, file.size, file.type)
-            api.client.Hset(mmInfo.mmsid, mmInfo.fileName, macid, fileInfo, (ret: number) => {
+            api.client.Hset(await mmInfo.mmsid, props.column, macid, fileInfo, (ret: number) => {
               // set field 'macid's value to a 'fileInfo' in hashtable 'file_list'
               console.log("Hset ret=", ret)
             }, (err: Error) => {
@@ -100,7 +104,7 @@ function uploadFile(files: File[]): Promise<string[]> {
 function onSubmit() {
   // if one file uploaded, without content in textArea, upload single file
   // otherwise, upload a html file for iFrame
-  uploadFile(filesUpload.value).then(macids => {
+  uploadFile(filesUpload.value).then(async macids => {
     if (macids.length === 1 && textValue.value.trim() === "") {
       // single file uploaded without text input
       const file = filesUpload.value[0];
@@ -109,7 +113,7 @@ function onSubmit() {
         score: Date.now(),  // index
         member: macids[0]       // Mac id for the uploaded file, which is converted to Mac file
       }
-      api.client.Zadd(mmInfo.mmsid, mmInfo.column!.title, sp, (ret: number) => {
+      api.client.Zadd(await mmInfo.mmsid, props.column, sp, (ret: number) => {
         console.log("Zadd ScorePair for the file, ret=", ret)
         let fi = new FVPair(file.name, file.lastModified, file.size, file.type)
         // emit an event with infor of newly uploaded file
@@ -130,13 +134,13 @@ function onSubmit() {
 
       api.client.MFOpenTempFile(api.sid, (fsid: string) => {
         api.client.MFSetObject(fsid, fi, () => {
-          api.client.MFTemp2MacFile(fsid, "", (macid: string) => {
+          api.client.MFTemp2MacFile(fsid, "", async (macid: string) => {
             var sp: ScorePair = {
               score: Date.now(),  // index
               member: macid       // Mac id for the uploaded file, which is converted to Mac file
             }
-            api.client.Zadd(mmInfo.mmsid, mmInfo.fileName, sp, (ret: number) => {
-              api.client.Hset(mmInfo.mmsid, mmInfo.fileName, macid, fi, (ret: number) => {
+            api.client.Zadd(await mmInfo.mmsid, props.column, sp, async (ret: number) => {
+              api.client.Hset(await mmInfo.mmsid, props.column, macid, fi, (ret: number) => {
                 // fi.macid = macid
                 (fi as any)["macid"] = macid;
                 console.log("Hset ret=", ret, fi)

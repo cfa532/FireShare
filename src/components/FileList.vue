@@ -5,29 +5,25 @@ import { useRoute, useRouter } from "vue-router";
 import MyDir from './Gadget/Dir.vue';
 import Pager from "./Gadget/Pager.vue";
 import EditorModal from "./EditorModal.vue";
-// import NaviBar from "./NaviBar.vue";
-const NaviBar = ()=>import("./NaviBar.vue")
+import NaviBar from "./NaviBar.vue";
 const api = useLeither()
 const mmInfo = useMimei()
+
 const route = useRoute()
 const router = useRouter()
-const fileList = ref()
+const fileList = ref<FVPair[]>([])
 const pageSize = ref(20)
 const itemNumber = ref(1)
 const showEditor =  ref("none")
-const currentColumn = ref()
 const currentPage = computed(() => route.params.page? parseInt(route.params.page as string) : 1)
-mmInfo.api = api
 const localRoot = '/'
-const columnTitle = ref()
+const columnTitle = ref("News")
 
-onBeforeMount(async ()=>{
+onMounted(async ()=>{
+    await mmInfo.init(api)
     console.log("FileList mounted:", route.params)
-    currentColumn.value = await mmInfo.getColumn(route.params.title as string);
-    console.log("current column:", currentColumn.value)
-    columnTitle.value = currentColumn.value.title;
-    // column.value = currentColumn.value
-    if (currentColumn.value.title !== "Webdav") {
+    columnTitle.value = route.params.title as string;
+    if (route.params.title !== "Webdav") {
         api.client.Zcount(mmInfo.mmsid, route.params.title, 0, Date.now(), (count: number)=>{     // -1 does not work for stop
             itemNumber.value = count;    // total num of items in the list as a Mimei
             getFileList();
@@ -74,13 +70,15 @@ function fileName(file: FVPair) {
     }
     return file.name
 }
-function getFileList() {
+async function getFileList() {
     // get mm file list on current page
     let start = (currentPage.value - 1) * pageSize.value
-    api.client.Zrevrange(mmInfo.mmsid, route.params.title, start, start + pageSize.value, (sps:[])=>{
+    console.log(mmInfo.$state, route.params, start)
+    api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start + pageSize.value, (sps:[])=>{
         fileList.value.length = 0
-        sps.forEach((element: ScorePair) => {
-            api.client.Hget(mmInfo.mmsid, route.params.title, element.member, (fi: FVPair) => {
+        console.log(sps)
+        sps.forEach(async (element: ScorePair) => {
+            api.client.Hget(await mmInfo.mmsid, route.params.title, element.member, (fi: FVPair) => {
                 if (!fi) {
                     console.warn("mac file without info", element)
                     return
@@ -104,18 +102,18 @@ watch(currentPage, (newVal)=>{
 </script>
 
 <template>
-<NaviBar :column=currentColumn></NaviBar>
+<NaviBar :column="columnTitle"></NaviBar>
     <hr/>
-<div v-if="columnTitle !== 'Webdav'">
+<div v-if="route.params.column !== 'Webdav'">
     <div class="postbox">
         <p @click="showModal" class="postbox">Tell us what is happening....</p>
     </div>
-    <EditorModal @uploaded="uploaded" @hide="hide" :display="showEditor"></EditorModal>
+    <EditorModal @uploaded="uploaded" @hide="hide" :display="showEditor" :column="columnTitle"></EditorModal>
     <ul style="padding: 0px; margin: 0 0 0 5px;">
     <li class="fileList" v-for="(file, index) in fileList" :key="index">
         <RouterLink v-if="file.type.includes('image') || file.type.includes('video') 
                     || file.type.includes('page') || file.type.includes('pdf')"
-            :to="{ name:'fileview', params:{title:columnTitle, macid:file.macid, fileType:file.type}}">{{fileName(file)}}
+            :to="{ name:'fileview', params:{title:route.params.column, macid:file.macid, fileType:file.type}}">{{fileName(file)}}
         </RouterLink>
         <a v-else
             href="" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.name}} &dArr;
