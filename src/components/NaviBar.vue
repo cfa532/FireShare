@@ -6,15 +6,11 @@ const props = defineProps({
 })
 const api = useLeither()
 const mmInfo = useMimei()
-const title = ref("News")
-const titleZh = ref("")
+const col = ref<ContentColumn>({title:"News", titleZh:""});
 onMounted(async ()=>{
     await mmInfo.init(api)
-    console.log("navibar mount", props.column)
-    const col = await mmInfo.getColumn(props.column) as ContentColumn
-    title.value = col.title
-    titleZh.value = col.titleZh
-    console.log("Navibar mounted", props.column, col)
+    col.value = await mmInfo.getColumn(props.column) as ContentColumn
+    // console.log("Navibar mounted", props.column, col.value)
 })
 </script>
 
@@ -23,7 +19,7 @@ onMounted(async ()=>{
 <ul class="naviBar">
     <li><RouterLink active-class="active" :to="{name: 'main'}">众众</RouterLink></li>
     <li>--</li>
-    <li><RouterLink class="active" :to="{name: 'filelist', params:{title: title}}">
-        {{titleZh}}</RouterLink></li>
+    <li><RouterLink class="active" :to="{name: 'filelist', params:{title: col.title}}">
+        {{col.titleZh}}</RouterLink></li>
 </ul>
 </template>
