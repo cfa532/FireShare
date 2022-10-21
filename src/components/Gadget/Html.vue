@@ -3,14 +3,15 @@ import Image from './Image.vue';
 import VideoJS from './VideoJS.vue'
 import { onMounted, inject, ref, shallowRef } from 'vue';
 import { useLeither, useMimei } from '../../stores/lapi';
+import { useRoute } from 'vue-router';
 const fileInfos = ref<any[]>([])
+const route = useRoute()
 const api = useLeither();    // Leither api handler
 const mmInfo = useMimei()
 const props = defineProps({
     macid : {type: String, required: false},
     fileType: {type: String, required: false},
-    filePath: {type: String, required: false},
-    mmfsid: {type: String, required: false},
+    column: {type: String, required: false},
 });
 const textContent = ref("")
 onMounted(async () => {
@@ -37,7 +38,7 @@ onMounted(async () => {
 })
 function getComponents(macids:string[]) {
     return new Promise<FVPair[]>(async (resolve, reject)=>{
-        api.client.Hmget(await mmInfo.mmsid, mmInfo.fileName, ...macids, (fis:any[])=>{
+        api.client.Hmget(await mmInfo.mmsid, route.params.title, ...macids, (fis:any[])=>{
             resolve(fis)
         }, (err: Error)=>{
             console.error("Hmget err=", err, macids)

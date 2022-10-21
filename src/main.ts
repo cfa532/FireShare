@@ -10,7 +10,10 @@ app.use(pinia)
 app.config.unwrapInjectedRef=true       // temp setting until ver 3.3
 // console.log(app.config)
 app.use(router)
-useLeither().login().then(()=>app.mount("#app"),
+useLeither().login().then(()=>{
+    console.log("MOUNT APP")
+    app.mount("#app")
+},
     (err: Error)=>{
         console.error("Login err=", err)
     })

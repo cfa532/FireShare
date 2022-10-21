@@ -83,7 +83,7 @@ function uploadFile(files: File[]): Promise<string[]> {
           // resolve to macid string
           // resolve(readFileSlice(fsid, arrBuf, 0))
           readFileSlice(fsid, arrBuf, 0).then(async macid => {
-            // console.log(file, macid, api)
+            console.log(file, macid, api)
             const fileInfo = new FVPair(file.name, file.lastModified, file.size, file.type)
             api.client.Hset(await mmInfo.mmsid, props.column, macid, fileInfo, (ret: number) => {
               // set field 'macid's value to a 'fileInfo' in hashtable 'file_list'
@@ -123,6 +123,13 @@ function onSubmit() {
         localStorage.setItem("tempTextValueUploader", "")
         filesUpload.value = [];   // clear file list of upload
         textValue.value = ""
+
+        // release mimei data
+        api.client.MMRelease(api.sid, "cur", (newVer:string)=>{
+          console.log(newVer)
+        }, (err: Error) => {
+        console.error("MMRelease error=", err)
+      })
       }, (err: Error) => {
         console.error("Zadd error=", err)
       })

@@ -3,7 +3,8 @@ import { defineStore } from 'pinia'
 const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmLocal", "DhtGetAllKeys","MFOpenByPath",
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
     "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Hmget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile","MFStat",
-    "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan"
+    "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan", "MMRelease",
+    "MFBackup"
 ];
 
 function getcurips() {
@@ -20,7 +21,7 @@ function getcurips() {
     { //for test
         ips = "192.168.1.101:4800"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        ips = "1.172.98.151:4800"
+        // ips = "1.172.98.151:4800"
     }
     return ips
 };
@@ -41,12 +42,12 @@ export const useLeither = defineStore({
     actions: {
         async login(user="", pswd="") {
             return new Promise((resolve)=>{
-                if (user=="") {
-                    // guest user
-                    console.log("user=",user, "psd=", pswd)
-                    resolve(true)
-                    return
-                }
+                // if (user=="") {
+                //     // guest user
+                //     console.log("user=",user, "psd=", pswd)
+                //     resolve(true)
+                //     return
+                // }
                 this.client.Login("lsb", "123456", "byname").then(
                     (result:any)=>{ 
                         this.sid = result.sid
@@ -82,7 +83,7 @@ export const useMimei = defineStore({
     state: ()=>({
         api: {} as any,      // leither api handler
         midNaviBar: "RyaWr1HkShxQvonM9aVqAb7ShXf",      // navigation bar' mid
-        mid: "q-GWapj7PzWmgpn1AGi2srtaERM",             // APP datbase mid
+        mid: "q812I4M1SeEI8BuSJ1XK02sELgT",             // APP datbase mid
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
         // naviColumnTree: [

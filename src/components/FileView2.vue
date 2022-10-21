@@ -15,6 +15,7 @@ const api = useLeither()
 const mmInfo = useMimei()
 const userComponent = shallowRef()
 const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: ""})    // props
+const columnTitle = ref("Webdav");      // local files
 
 onMounted(()=>{
     console.log("FileView2 mounted", route.params)
@@ -67,7 +68,7 @@ function getComponent(filePath: string) {
     })
 }
 
-watch(()=>route.params.filePath, async (toParams, prevParams)=>{
+watch(()=>route.params.filePath, (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {
         // filePath changed, find the right component to display the new file path: doc, img, or dir
         getComponent(route.params.filePath as string)
@@ -76,7 +77,7 @@ watch(()=>route.params.filePath, async (toParams, prevParams)=>{
 </script>
 
 <template>
-    <NaviBarVue :column=route.params.title as string></NaviBarVue>
+    <NaviBarVue :column="columnTitle"></NaviBarVue>
     <hr style="margin-top:8px; margin-bottom: 4px;"/>
     <ShareVue v-if="userComponent != MyDir"></ShareVue>
     <KeepAlive>

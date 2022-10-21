@@ -33,7 +33,7 @@ onMounted(()=>{
 </script>
 
 <template>
-    <NaviBarVue :column=route.params.title as string></NaviBarVue>
+    <NaviBarVue :column="(route.params.title as string)"></NaviBarVue>
     <hr/>
     <ShareVue ref="shareMenu" v-bind="currentProperty"></ShareVue>
     <KeepAlive>

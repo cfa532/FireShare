@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useMimei, useLeither } from "../stores/lapi";
 const props = defineProps({
     column: {type: String, required: true }
 })
 const api = useLeither()
 const mmInfo = useMimei()
-const col = ref<ContentColumn>({title:"News", titleZh:""});
+const col = ref<ContentColumn>({title:"News", titleZh:""});     // placeholder because of async mounted()
 onMounted(async ()=>{
     await mmInfo.init(api)
     col.value = await mmInfo.getColumn(props.column) as ContentColumn
-    // console.log("Navibar mounted", props.column, col.value)
+    console.log("Navibar mounted", props.column, col.value)
 })
 </script>
 
