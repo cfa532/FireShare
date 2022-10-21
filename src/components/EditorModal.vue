@@ -104,6 +104,8 @@ function uploadFile(files: File[]): Promise<string[]> {
 function onSubmit() {
   // if one file uploaded, without content in textArea, upload single file
   // otherwise, upload a html file for iFrame
+  if (filesUpload.value.length===0 && textValue.value.trim() === "") return
+  
   uploadFile(filesUpload.value).then(async macids => {
     if (macids.length === 1 && textValue.value.trim() === "") {
       // single file uploaded without text input
@@ -125,7 +127,7 @@ function onSubmit() {
         textValue.value = ""
 
         // release mimei data
-        api.client.MMRelease(api.sid, "cur", (newVer:string)=>{
+        api.client.MMRelease(api.sid, mmInfo.mid, "cur", (newVer:string)=>{
           console.log(newVer)
         }, (err: Error) => {
         console.error("MMRelease error=", err)
