@@ -13,7 +13,6 @@ const route = useRoute()
 const router = useRouter()
 const api = useLeither()
 const mmInfo = useMimei()
-mmInfo.getColumn(route.params.title as string);
 const userComponent = shallowRef()
 const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: ""})    // props
 
@@ -77,7 +76,7 @@ watch(()=>route.params.filePath, async (toParams, prevParams)=>{
 </script>
 
 <template>
-    <NaviBarVue :column=mmInfo.column!></NaviBarVue>
+    <NaviBarVue :column=route.params.title as string></NaviBarVue>
     <hr style="margin-top:8px; margin-bottom: 4px;"/>
     <ShareVue v-if="userComponent != MyDir"></ShareVue>
     <KeepAlive>

@@ -36,8 +36,8 @@ onMounted(async () => {
     });
 })
 function getComponents(macids:string[]) {
-    return new Promise<FVPair[]>((resolve, reject)=>{
-        api.client.Hmget(mmInfo.mmsid, mmInfo.fileName, ...macids, (fis:any[])=>{
+    return new Promise<FVPair[]>(async (resolve, reject)=>{
+        api.client.Hmget(await mmInfo.mmsid, mmInfo.fileName, ...macids, (fis:any[])=>{
             resolve(fis)
         }, (err: Error)=>{
             console.error("Hmget err=", err, macids)

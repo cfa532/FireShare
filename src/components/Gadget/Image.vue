@@ -11,7 +11,7 @@ const props = defineProps({
 })
 const imageUrl = ref("")
 onMounted(async () => {
-    console.log("Image mounted", props, mmInfo.$state)
+    console.log("Image mounted", props)
     imageUrl.value = await getLink()
     // imageUrl.value = api.baseUrl + "mf/" + encodeURI(props.macid!) + "?mmsid="+ api.mmsid
 });
