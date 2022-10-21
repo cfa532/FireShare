@@ -101,13 +101,13 @@ watch(currentPage, (newVal)=>{
 </script>
 
 <template>
-<NaviBar :column="columnTitle"></NaviBar>
+<NaviBar :column="(columnTitle as string)"></NaviBar>
     <hr/>
 <div v-if="columnTitle !== 'Webdav'">
     <div class="postbox">
         <p @click="showModal" class="postbox">Tell us what is happening....</p>
     </div>
-    <EditorModal @uploaded="uploaded" @hide="hide" :display="showEditor" :column="columnTitle"></EditorModal>
+    <EditorModal @uploaded="uploaded" @hide="hide" :display="showEditor" :column="(columnTitle as string)"></EditorModal>
     <ul style="padding: 0px; margin: 0 0 0 5px;">
     <li class="fileList" v-for="(file, index) in fileList" :key="index">
         <RouterLink v-if="file.type.includes('image') || file.type.includes('video') 
