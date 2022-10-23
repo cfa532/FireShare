@@ -68,7 +68,7 @@ export const useLeither = defineStore({
                         }, (err:Error)=>{
                             console.error("Sign PPT error=", err)
                         })
-                    }, function(e:Error) {
+                    }, (e:Error) => {
                         console.error("Login error=", e)
                     }
                 )
@@ -86,15 +86,6 @@ export const useMimei = defineStore({
         mid: "q812I4M1SeEI8BuSJ1XK02sELgT",             // APP datbase mid
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
-        // naviColumnTree: [
-        //     {title:"News", titleZh:"最新文档", orderBy:0}, 
-        //     {title:"Pictures", titleZh:"图片专区", orderBy:1, subColumn: [
-        //         {title:"Western", titleZh:"洋画", orderBy:0},
-        //         {title:"Japan", titleZh:"邦画", orderBy:1},
-        //         {title:"Test", titleZh:"TCL", orderBy:2},
-        //     ]},
-        //     {title:"Webdav", titleZh:"本地文档", orderBy:2}
-        // ],
     }),
     getters: {
         naviColumnTree: function(state) {

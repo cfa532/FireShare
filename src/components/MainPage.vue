@@ -10,9 +10,13 @@ const contentColumn = ref()
 const titleZh = "众众";
 
 onMounted(async ()=>{
-    await mmInfo.init(api)
     console.log("main page mounted", mmInfo.$state)
-    contentColumn.value = await mmInfo.naviColumnTree
+    try {
+        await mmInfo.init(api)
+        contentColumn.value = await mmInfo.naviColumnTree
+    } catch(e) {
+        console.error(e)
+    }
 })
 
 
