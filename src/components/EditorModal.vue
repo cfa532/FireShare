@@ -2,6 +2,7 @@
 import { CSSProperties, onMounted, ref, shallowRef, watch, computed, reactive } from "vue";
 import Preview from "./Gadget/Preview.vue";
 import { useLeither, useMimei } from '../stores/lapi'
+import Login from "./Login.vue";
 const api = useLeither();
 const mmInfo = useMimei();
 class FVPair {
@@ -42,7 +43,7 @@ const classModal = computed(():CSSProperties=>{
 })
 
 onMounted(async () => {
-  await mmInfo.init(api)
+  // await mmInfo.init(api)
   textValue.value = props.text? props.text : "";
   filesUpload.value = props.attachments? props.attachments.slice(0) : [];
   console.log("Editor mount", props)
@@ -218,7 +219,10 @@ watch(() => textValue.value, (newVal, oldVal) => {
 
 <template>
   <div ref="myModal" :style="classModal">
-    <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect">
+    <div class="modal-content" v-if="api.sid!==''">
+      <Login></Login>
+    </div>
+    <div v-else class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect">
       <!-- <span class="close" @click="closeModal">&times;</span> -->
       <form @submit.prevent="onSubmit" enctype="multipart/form-data">
         <div style="width:99%; height:110px; margin-bottom: 10px;">

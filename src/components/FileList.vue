@@ -102,7 +102,7 @@ watch(currentPage, (newVal)=>{
 
 <template>
 <NaviBar :column="(columnTitle as string)"></NaviBar>
-    <hr/>
+    <!-- <hr/> -->
 <div v-if="columnTitle !== 'Webdav'">
     <div class="postbox">
         <p @click="showModal" class="postbox">Tell us what is happening....</p>
