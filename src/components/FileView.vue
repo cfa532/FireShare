@@ -34,7 +34,7 @@ onMounted(()=>{
 
 <template>
     <NaviBarVue :column="(route.params.title as string)"></NaviBarVue>
-    <hr/>
+    <!-- <hr/> -->
     <ShareVue ref="shareMenu" v-bind="currentProperty"></ShareVue>
     <KeepAlive>
         <component :is="userComponent" v-bind="currentProperty"></component>

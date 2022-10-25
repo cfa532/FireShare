@@ -101,31 +101,32 @@ watch(currentPage, (newVal)=>{
 </script>
 
 <template>
-<NaviBar :column="(columnTitle as string)"></NaviBar>
+    <NaviBar :column="(columnTitle as string)"></NaviBar>
     <!-- <hr/> -->
-<div v-if="columnTitle !== 'Webdav'">
-    <div v-if="api.sid">
-    <div class="postbox">
-        <p @click="showModal" class="postbox">Tell us what is happening....</p>
+    <div v-if="columnTitle !== 'Webdav'">
+        <div v-show="api.sid">
+            <div class="postbox">
+                <p @click="showModal" class="postbox">Tell us what is happening....</p>
+            </div>
+            <EditorModal v-if="api.sid" @uploaded="uploaded" @hide="hide" :display="showEditor"
+                :column="(columnTitle as string)"></EditorModal>
+        </div>
+        <ul style="padding: 0px; margin: 0 0 0 5px;">
+            <li class="fileList" v-for="(file, index) in fileList" :key="index">
+                <RouterLink v-if="file.type.includes('image') || file.type.includes('video')
+                || file.type.includes('page') || file.type.includes('pdf')"
+                    :to="{ name: 'fileview', params: { title: columnTitle, macid: file.macid, fileType: file.type } }">
+                    {{ fileName(file) }}
+                </RouterLink>
+                <a v-else href="" @click.prevent="(e) => fileDownload(e, file)" download>{{ file.name }} &dArr;
+                </a>
+            </li>
+        </ul>
+        <Pager v-if="itemNumber / pageSize > 1" @page-changed="pageChanged" :current-page="currentPage"
+            :page-size="pageSize" :item-number="itemNumber"></Pager>
     </div>
-    <EditorModal v-if="api.sid" @uploaded="uploaded" @hide="hide" :display="showEditor" :column="(columnTitle as string)"></EditorModal>
-</div>
-    <ul style="padding: 0px; margin: 0 0 0 5px;">
-    <li class="fileList" v-for="(file, index) in fileList" :key="index">
-        <RouterLink v-if="file.type.includes('image') || file.type.includes('video') 
-                    || file.type.includes('page') || file.type.includes('pdf')"
-            :to="{ name:'fileview', params:{title:columnTitle, macid:file.macid, fileType:file.type}}">{{fileName(file)}}
-        </RouterLink>
-        <a v-else
-            href="" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.name}} &dArr;
-        </a>
-    </li>
-    </ul>
-    <Pager v-if="itemNumber/pageSize>1" @page-changed="pageChanged"
-        :current-page="currentPage" :page-size="pageSize" :item-number="itemNumber"></Pager>
-</div>
-<div v-else>
-    <MyDir :filePath="localRoot"></MyDir>
-</div>
+    <div v-else>
+        <MyDir :filePath="localRoot"></MyDir>
+    </div>
 </template>
 

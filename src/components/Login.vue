@@ -7,13 +7,14 @@ const router = useRouter()
 const usr = ref()
 const psd = ref()
 async function login() {
-    await api.login();
-    console.log(usr.value, psd.value, api.sid)
-    router.push({name: "main"})
+    try {
+        await api.login(usr.value, psd.value);
+    } catch(err) {
+        console.error(err)
+    }
 }
 onMounted(()=>{
     console.log("login mounted")
-    // logio()
 })
 </script>
 

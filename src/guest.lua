@@ -6,7 +6,7 @@ print("sid=", sid)
 local mm = require('mimei');
 
 --创建弥媒
-mid, err = mm.MMCreate(sid, '', '', 'testguest', 2, 0x07276705);
+mid, err = mm.MMCreate(sid, '', '', 'fireshare', 2, 0x07276707);
 if (err ~= nil) then
 	print('MMCreate err=',  err);
 	return err
@@ -22,11 +22,21 @@ if (err ~= nil) then
 end
 print('MMOpen mmsid=', mmsid);
 
-err = mm.Set(mmsid, 'key0', 'value0');
+Fi = {}
+Fi.new = function()
+    self = {}
+    self.name='ffhjhhhh'
+    return self
+end
+f=Fi.new()
+
+mmsid = 'f81d70735abc1063a0b8c967e11c22bcb2ea3441'
+ret, err = mm.HSet(mmsid, 'Test', 'E9BJr32Rn4kHG1VSJqVbjHE44ky',f);
 if (err ~= nil) then
-	log.Debug('Set err=%v',  err);
+	print('Set err=%v',  err);
 	return err
 end
+print ('Hset ret=', ret);
 
 --guest用户打开弥媒
 mmsid1, err = mm.MMOpen('', mid, 'cur');
@@ -37,12 +47,11 @@ end
 print('guest MMOpen mmsid1=', mmsid1);
 
 
-value, err = mm.Get(mmsid1, 'key0');
+value, err = mm.HGet(mmsid1, 'key0', 'field0');
 if (err ~= nil) then
-	log.Debug('Get err=%v',  err);
+	print('Get err=%v',  err);
 	return err
 end
-
-print('Get key0', value);
+print('HGet key0', value);
 
 return "test guest ok"

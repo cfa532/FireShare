@@ -1,4 +1,7 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
+// import { useRouter} from 'vue-router';
+import { router } from '../router'
+// const router = useRouter();
 // Hprose API
 const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmLocal", "DhtGetAllKeys","MFOpenByPath",
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
@@ -30,7 +33,7 @@ const ips = getcurips();
 export const useLeither = defineStore({
     id: 'LeitherApiHandler', 
     state: ()=>({
-        sid: "",
+        _sid: "",
         returnUrl: "",
         hostUrl: "ws://" + ips +"/ws/",
         baseUrl: "http://" + ips + "/",
@@ -38,20 +41,28 @@ export const useLeither = defineStore({
     getters: {
         // console.log(state.hostUrl)
         client: (state) => window.hprose.Client.create(state.hostUrl, ayApi),
+        sid: (state) => {
+            if (sessionStorage.getItem("sid")) {
+                state._sid = sessionStorage.getItem("sid")!
+            }
+            return state._sid;
+        }
     },
     actions: {
         async login(user="", pswd="") {
-            return new Promise((resolve)=>{
+            return new Promise((resolve, reject)=>{
                 // if (user=="") {
                 //     // guest user
                 //     console.log("user=",user, "psd=", pswd)
                 //     resolve(true)
                 //     return
                 // }
-                this.client.Login("lsb", "123456", "byname").then(
+                this.client.Login(user, pswd, "byname").then(
+                    // this.client.Login("lsb", "123456", "byname").then(
                     (result:any)=>{ 
-                        this.sid = result.sid
-                        this.client.SignPPT(this.sid, {
+                        this._sid = result.sid
+                        sessionStorage.setItem("sid", result.sid)
+                        this.client.SignPPT(this._sid, {
                             CertFor: "Self",
                             Userid: result.uid,
                             RequestService: "mimei"
@@ -62,17 +73,27 @@ export const useLeither = defineStore({
                                 (map:any)=>{
                                     console.log("Request service, ", map)
                                     resolve(true)
+                                    console.log("return url", this.returnUrl)
+                                    router.push(this.returnUrl.slice(2))    // remove the leading #/
                                 }, (err:Error)=>{
                                     console.error("Request service error=", err)
+                                    reject("Request service error")
                                 })
                         }, (err:Error)=>{
                             console.error("Sign PPT error=", err)
+                            reject("Sign PPT error")
                         })
                     }, (e:Error) => {
                         console.error("Login error=", e)
+                        reject("Login error")
                     }
                 )
             })
+        },
+        logout() {
+            sessionStorage.setItem("sid", "");
+            this._sid = "";
+            router.push({name: "main"});
         }
     }
 })
@@ -83,7 +104,7 @@ export const useMimei = defineStore({
     state: ()=>({
         api: {} as any,      // leither api handler
         midNaviBar: "RyaWr1HkShxQvonM9aVqAb7ShXf",      // navigation bar' mid
-        mid: "q812I4M1SeEI8BuSJ1XK02sELgT",             // APP datbase mid
+        mid: "u7Z_JaPAUdZQ0t7a6WQik5vd-bd",             // APP datbase mid
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
     }),

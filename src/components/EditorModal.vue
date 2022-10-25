@@ -84,8 +84,8 @@ function uploadFile(files: File[]): Promise<string[]> {
           // resolve to macid string
           // resolve(readFileSlice(fsid, arrBuf, 0))
           readFileSlice(fsid, arrBuf, 0).then(async macid => {
-            console.log(file, macid, api)
             const fileInfo = new FVPair(file.name, file.lastModified, file.size, file.type)
+            console.log(fileInfo, macid, api.$state, props)
             api.client.Hset(await mmInfo.mmsid, props.column, macid, fileInfo, (ret: number) => {
               // set field 'macid's value to a 'fileInfo' in hashtable 'file_list'
               console.log("Hset ret=", ret)

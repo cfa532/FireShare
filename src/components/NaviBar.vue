@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue';
-import { router } from '../router';
+import { useRouter } from "vue-router";
 import { useMimei, useLeither } from "../stores/lapi";
+const router = useRouter()
 const props = defineProps({
     column: {type: String, required: true }
 })
@@ -18,9 +19,9 @@ onMounted(async ()=>{
 })
 function logout() {
     if (api.sid) {
-        api.sid = "";
-        router.push({name: "main"});
+        api.logout();
     } else {
+        api.returnUrl = window.location.hash;
         router.push({name: "login"});
     }
 }
@@ -34,9 +35,7 @@ function logout() {
     <li><RouterLink class="active" :to="{name: 'filelist', params:{title: col.title}}">
         {{col.titleZh}}</RouterLink>
     </li>
-</ul>
-<ul class="login">
-    <li class="login"><RouterLink @click.prevent="logout" to="">{{txtLogin}}</RouterLink></li>
+    <li id="login"><RouterLink @click.prevent="logout" to="/">{{txtLogin}}</RouterLink></li>
 </ul>
 </template>
 

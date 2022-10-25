@@ -19,6 +19,7 @@
     <style>
 @charset "UTF-8";
 ul.naviBar {
+  display: table;
     list-style-type: none;
     background-color: antiquewhite;
     overflow: hidden;
@@ -28,7 +29,7 @@ ul.naviBar {
     top: 0;
     left: 0;
     width: 100%;
-    height: 32px;
+    min-height: 32px;
 }
 ul.naviBar li {
     display: inline-block;
@@ -37,39 +38,21 @@ ul.naviBar li {
     padding: 0px 5px;
     margin: 0px;
 }
+ul.naviBar li#login {
+    display: inline-block;
+    position: fixed;
+    right: 0;
+    color: rgb(132, 181, 32);
+    text-align: center;
+    padding: 0px 5px;
+    margin-right: 5px;
+    margin-top:6px;
+}
 ul.naviBar li a.active {
     display: block;
     background-color: #04aa6d;
     color:aliceblue;
-    padding: 5px
-}
-ul.login {
-    list-style-type: none;
-    background-color: antiquewhite;
-    overflow: hidden;
-    margin: 0px 0px 10px 0px;
-    padding: 0px 0px 0px 0px;
-    position: fixed;
-    top: 0;
-    right: 0;
-    height: 32px;
-    /* width: 10%; */
-}
-ul.login li {
-    display: inline-block;
-    color: rgb(132, 181, 32);
-    text-align: center;
-    padding: 0px 5px;
-    margin: 0px;
-    position: relative;
-    transform:translateY(-50%);
-    top: 50%;
-}
-ul.login li a:hover {
-    display: block;
-    background-color: #04aa6d;
-    color:rgb(240, 248, 255);
-    padding: 5px
+    padding: 5px;
 }
 .postbox_media_photo_wrapper {
     height: 170px;

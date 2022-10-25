@@ -78,7 +78,7 @@ watch(()=>route.params.filePath, (toParams, prevParams)=>{
 
 <template>
     <NaviBarVue :column="columnTitle"></NaviBarVue>
-    <hr style="margin-top:8px; margin-bottom: 4px;"/>
+    <!-- <hr style="margin-top:8px; margin-bottom: 4px;"/> -->
     <ShareVue v-if="userComponent != MyDir"></ShareVue>
     <KeepAlive>
         <component :is="userComponent" v-bind="currentProperty"></component>
