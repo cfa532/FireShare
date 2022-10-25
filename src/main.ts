@@ -9,10 +9,9 @@ const pinia = createPinia()
 app.use(pinia)
 app.config.unwrapInjectedRef=true       // temp setting until ver 3.3
 app.use(router)
-try {
-    await useMimei().init(useLeither())
+useMimei().init(useLeither()).then(()=>{
     console.warn("main.ts loaded....")
-    app.mount("#app")    
-} catch(e) {
-    console.error(e)
-}
+    app.mount("#app")
+}, (err)=>{
+    console.error(err)
+})
