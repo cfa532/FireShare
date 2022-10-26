@@ -6,8 +6,8 @@ import { router } from '../router'
 const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmLocal", "DhtGetAllKeys","MFOpenByPath",
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
     "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Hmget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile","MFStat",
-    "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan", "MMRelease",
-    "MFBackup"
+    "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan",
+    "MMRelease", "MMBackup",
 ];
 
 function getcurips() {
@@ -24,7 +24,7 @@ function getcurips() {
     { //for test
         ips = "192.168.1.101:4800"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        // ips = "1.172.98.151:4800"
+        // ips = "36.24.128.86:4800"
     }
     return ips
 };
@@ -104,7 +104,7 @@ export const useMimei = defineStore({
     state: ()=>({
         api: {} as any,      // leither api handler
         midNaviBar: "RyaWr1HkShxQvonM9aVqAb7ShXf",      // navigation bar' mid
-        mid: "u7Z_JaPAUdZQ0t7a6WQik5vd-bd",             // APP datbase mid
+        mid: "ilc_mDQ-vS9jRIRw2w70pyf8ASN",             // for testing
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
     }),
@@ -119,6 +119,7 @@ export const useMimei = defineStore({
                     //     return
                     // }
                     this.api.client.MMOpen(this.api.sid, this.midNaviBar, "last", (mmsid: string)=>{
+                        console.log("MMOPen mmsid=", mmsid)
                         this.api.client.MFGetObject(mmsid, (o:any)=>{
                             state._naviColumnTree = o
                             resolve(o)
@@ -132,16 +133,25 @@ export const useMimei = defineStore({
             })
         },    
         mmsid: function(state) {
-            return new Promise((resolve, reject)=>{
+            return new Promise<string>((resolve, reject)=>{
                 if (state._mmsid) resolve(state._mmsid);
                 else {
-                    this.api.client.MMOpen(this.api.sid, this.mid, "cur", (mmsid: string)=>{
+                    this.api.client.MMOpen(this.api.sid, this.mid, "last", (mmsid: string)=>{
                         state._mmsid = mmsid;
                         resolve(mmsid);
                     }, (err:Error)=>{
                         reject("useMimei MMOpen mmsid err="+err)
                     })
                 }
+            })
+        },
+        mmsidCur: function(state) {
+            return new Promise<string>((resolve, reject)=>{
+                this.api.client.MMOpen(this.api.sid, this.mid, "cur", (mmsid: string)=>{
+                    resolve(mmsid);
+                }, (err:Error)=>{
+                    reject("useMimei MMOpen mmsid err="+err)
+                })
             })
         },
     },
@@ -153,6 +163,22 @@ export const useMimei = defineStore({
                 window.mmInfo = this.$state;
                 return this;
             })
+        },
+        backup() {
+            return;
+            this.api.client.MMBackup(this.api.sid, this.mid, 'cur', (newVer:string)=>{
+                console.log("new ver=", newVer)
+            }, (err: Error) => {
+                console.error("MMBackup error="+err)
+            })
+            // return new Promise<string>((resolve, reject)=>{
+            //     this.api.client.MMBackup(this.api.sid, this.mid, 'cur', (newVer:string)=>{
+            //         console.log("new ver=", newVer)
+            //         resolve(newVer)
+            //     }, (err: Error) => {
+            //         reject("MMBackup error="+err)
+            //     })
+            // })
         },
         async getColumn(title: string) {
             // given title, return Column obj, and set Column at the same time

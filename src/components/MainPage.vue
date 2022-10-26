@@ -15,6 +15,8 @@ onMounted(async ()=>{
         contentColumn.value = await mmInfo.naviColumnTree
     } catch(e) {
         console.error(e)
+        // the error is often caused by expired sid, try logout
+        api.logout();
     }
 })
 

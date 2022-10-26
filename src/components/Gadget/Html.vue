@@ -19,15 +19,17 @@ onMounted(async () => {
     console.log("Page mounted:", props, mmInfo.$state)
     api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
         api.client.MFGetObject(fsid, (obj:FVPair)=>{
-            console.log(obj)
             const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
-            // textContent.value = str[0].trim()===""? "" : str[0];
+            textContent.value = str[0].trim()===""? "" : str[0];
             let macids = str.slice(1);
-            getComponents(macids).then(results => {
+            macids.length>0 && getComponents(macids).then(results => {
                 // get all the components required to show attached files on the html page
+                console.log(macids, results)
                 results.forEach((fi, i) => {
                     fileInfos.value.push({macid: macids[i], fileType: fi.type, name:fi.name, autoplay:false})
                 })
+            }, (err)=>{
+                console.error("GetComponents err", err)
             })
         }, (err: Error) => {
             console.error("MFGetObject error=", err)
@@ -41,7 +43,7 @@ function getComponents(macids:string[]) {
         api.client.Hmget(await mmInfo.mmsid, route.params.title, ...macids, (fis:any[])=>{
             resolve(fis)
         }, (err: Error)=>{
-            console.error("Hmget err=", err, macids)
+            reject("Hmget err="+err)
         })
     })
 }

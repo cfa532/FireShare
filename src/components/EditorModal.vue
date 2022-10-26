@@ -41,14 +41,12 @@ const classModal = computed(():CSSProperties=>{
     'background-color': "rgb(0,0,0,0.4)",
   }
 })
-
 onMounted(async () => {
   // await mmInfo.init(api)
   textValue.value = props.text? props.text : "";
   filesUpload.value = props.attachments? props.attachments.slice(0) : [];
   console.log("Editor mount", props)
 })
-
 function onSelect(e: Event) {
   let files = (e as HTMLInputEvent).target.files || (e as DragEvent).dataTransfer?.files;
   if (!files) return
@@ -69,7 +67,7 @@ function dragOver(evt: DragEvent) {
 function selectFile() {
   document.getElementById("selectFiles")?.click();
 }
-function uploadFile(files: File[]): Promise<string[]> {
+function uploadFile(files: File[], mmsid:string): Promise<string[]> {
   return Promise.all(files.map(file => {
     return new Promise<string>((resolve, reject) => {
       // read uploaded file
@@ -79,21 +77,18 @@ function uploadFile(files: File[]): Promise<string[]> {
       }
       file.arrayBuffer().then(arrBuf => {
         // arr: arrayBuffer of the file data
-        console.log(arrBuf, api.$state)
         api.client.MFOpenTempFile(api.sid, (fsid: string) => {
           // resolve to macid string
-          // resolve(readFileSlice(fsid, arrBuf, 0))
           readFileSlice(fsid, arrBuf, 0).then(async macid => {
             const fileInfo = new FVPair(file.name, file.lastModified, file.size, file.type)
-            console.log(fileInfo, macid, api.$state, props)
-            api.client.Hset(await mmInfo.mmsid, props.column, macid, fileInfo, (ret: number) => {
+            console.log(fileInfo, macid, "cur mmsid="+mmsid)
+            api.client.Hset(mmsid, props.column, macid, fileInfo, (ret: number) => {
               // set field 'macid's value to a 'fileInfo' in hashtable 'file_list'
               console.log("Hset ret=", ret)
+              resolve(macid);
             }, (err: Error) => {
               console.log("Hset error " + err)
             })
-            // resolve without waiting for HSet to finish
-            resolve(macid)
           })
         }, (err: Error) => {
           console.error("open temp file error ", err);
@@ -102,12 +97,15 @@ function uploadFile(files: File[]): Promise<string[]> {
     })
   }))
 }
-function onSubmit() {
+async function onSubmit() {
   // if one file uploaded, without content in textArea, upload single file
   // otherwise, upload a html file for iFrame
   if (filesUpload.value.length===0 && textValue.value.trim() === "") return
   
-  uploadFile(filesUpload.value).then(async macids => {
+  // reopen the DB mimei as cur version
+  let mmsidCur = await mmInfo.mmsidCur;
+
+  uploadFile(filesUpload.value, mmsidCur).then(macids => {
     if (macids.length === 1 && textValue.value.trim() === "") {
       // single file uploaded without text input
       const file = filesUpload.value[0];
@@ -116,8 +114,10 @@ function onSubmit() {
         score: Date.now(),  // index
         member: macids[0]       // Mac id for the uploaded file, which is converted to Mac file
       }
-      api.client.Zadd(await mmInfo.mmsid, props.column, sp, (ret: number) => {
-        console.log("Zadd ScorePair for the file, ret=", ret)
+      api.client.Zadd(mmsidCur, props.column, sp, (ret: number)=>{
+        console.log("Zadd ScorePair for the file, ret=", ret, mmInfo.mmsid)
+        // back mm data for publish
+        mmInfo.backup()
         let fi = new FVPair(file.name, file.lastModified, file.size, file.type)
         // emit an event with infor of newly uploaded file
         fi["macid"] = macids[0]
@@ -126,43 +126,37 @@ function onSubmit() {
         localStorage.setItem("tempTextValueUploader", "")
         filesUpload.value = [];   // clear file list of upload
         textValue.value = ""
-
-        // release mimei data
-        api.client.MMRelease(api.sid, mmInfo.mid, "cur", (newVer:string)=>{
-          console.log(newVer)
-        }, (err: Error) => {
-        console.error("MMRelease error=", err)
-      })
       }, (err: Error) => {
         console.error("Zadd error=", err)
       })
     } else {
-      // multiple files, or text import
-      // 1st is input of textarea, followed by mac ids of uploaded file
-      let s = JSON.stringify([textValue.value].concat(macids))
-      let fi = new FVPair(s, Date.now(), s.length, "page");
-
+      // upload a full webpage
       api.client.MFOpenTempFile(api.sid, (fsid: string) => {
-        api.client.MFSetObject(fsid, fi, () => {
-          api.client.MFTemp2MacFile(fsid, "", async (macid: string) => {
-            var sp: ScorePair = {
-              score: Date.now(),  // index
-              member: macid       // Mac id for the uploaded file, which is converted to Mac file
-            }
-            api.client.Zadd(await mmInfo.mmsid, props.column, sp, async (ret: number) => {
-              api.client.Hset(await mmInfo.mmsid, props.column, macid, fi, (ret: number) => {
-                // fi.macid = macid
-                (fi as any)["macid"] = macid;
-                console.log("Hset ret=", ret, fi)
+        // 1st item is input of textarea, followed by mac ids of uploaded file
+        let s = JSON.stringify([textValue.value].concat(macids))
+        let fi = new FVPair(s, Date.now(), s.length, "page");   // save it in name field
+        api.client.MFSetObject(fsid, fi, ()=>{
+          api.client.MFTemp2MacFile(fsid, mmInfo.mid, (macid: string) => {
+            api.client.Hset(mmsidCur, props.column, macid, fi, (ret: number) => {
+              var sp: ScorePair = {
+                score: Date.now(),  // index
+                member: macid       // Mac id for the uploaded file, which is converted to Mac file
+              }
+              api.client.Zadd(mmsidCur, props.column, sp, (ret: number) => {
+                fi.macid = macid
+                console.log("Zadd ret=", ret, fi, mmsidCur)
+                // back mm data for publish
+                mmInfo.backup()
+
                 emit('uploaded', fi)
                 localStorage.setItem("tempTextValueUploader", "")
                 filesUpload.value = [];   // clear file list of upload
                 textValue.value = "";
               }, (err: Error) => {
-                console.error("Hset error=", err)
+                console.error("Zadd error=", err)
               })
             }, (err: Error) => {
-              console.error("Zadd error=", err)
+              console.error("Hset error=", err)
             })
           }, (err: Error) => {
             console.error("MFTemp2MacFile error=", err)
@@ -183,7 +177,7 @@ function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Promise<s
     api.client.MFSetData(fsid, arr.slice(start, end), start, (count: number) => {
       if (end === arr.byteLength) {
         // last slice done. Convert temp to Mac file
-        api.client.MFTemp2MacFile(fsid, "", (macid: string) => {
+        api.client.MFTemp2MacFile(fsid, mmInfo.mid, (macid: string) => {
           console.log("Temp file to MacID=", macid);
           // now temp file is converted to Mac file, save file info
           resolve(macid)
