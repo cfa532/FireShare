@@ -70,7 +70,7 @@ function fileName(file: FVPair) {
     return file.name
 }
 async function getFileList() {
-    // get mm file list on current page
+    // get mm file list on current page, page number start at 1
     let start = (currentPage.value - 1) * pageSize.value
     console.log(mmInfo.$state, route.params, start)
     api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start + pageSize.value, (sps:[])=>{

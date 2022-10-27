@@ -23,9 +23,10 @@ end
 print('MMOpen mmsid=', mmsid);
 
 Fi = {}
-Fi.new = function()
+Fi.new = function(m)
     self = {}
-    self.name='ffhjhhhh'
+    self.score=213125252;
+	self.member=m
     return self
 end
 f=Fi.new()
