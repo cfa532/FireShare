@@ -165,7 +165,6 @@ export const useMimei = defineStore({
             })
         },
         backup() {
-            return;
             this.api.client.MMBackup(this.api.sid, this.mid, 'cur', (newVer:string)=>{
                 console.log("new ver=", newVer)
             }, (err: Error) => {
