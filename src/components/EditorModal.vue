@@ -92,7 +92,7 @@ function saveFVs(mmsid: string, fv: FVPair[]) {
   })
 }
 async function onSubmit() {
-  let mmsidCur:string, fvPairs: FVPair[], macids: string[]
+  let mmsidCur:string, macids: string[], fvPairs: FVPair[] = []
   // if one file uploaded, without content in textArea, upload single file
   // otherwise, upload a html file for iFrame
   if (filesUpload.value.length===0 && textValue.value.trim() === "") return
@@ -100,16 +100,16 @@ async function onSubmit() {
   // reopen the DB mimei as cur version, for writing
   try {
     mmsidCur = await mmInfo.mmsidCur;
-    fvPairs = []
-    macids = (await uploadFile(filesUpload.value))    // remove failed promises
+    macids = (await uploadFile(filesUpload.value))
                 .filter((v, i)=>{
-                  if (v.status==='fulfilled') {
+                  if (v.status==='fulfilled') {         // remove failed promises
                     const file = filesUpload.value[i];
+                    // return array of success MacIDs and FileInfos
                     fvPairs.push({field:v.value, value:new FileInfo(file.name, file.lastModified, file.size, file.type)})
                   };
                   return v.status==='fulfilled';
                 })
-                .map((v)=>{return v.value});    // return array of success MacIDs and FileInfos
+                .map((v)=>{return v.value});
     console.log(macids, fvPairs);
 
     // now save macid : fileInfo pair array in a hashtable, so FileInfo can be found by its MacId
