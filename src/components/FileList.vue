@@ -11,7 +11,7 @@ const mmInfo = useMimei()
 
 const route = useRoute()
 const router = useRouter()
-const fileList = ref<FVPair[]>([])
+const fileList = ref<FileInfo[]>([])
 const pageSize = ref(20)
 const itemNumber = ref(1)
 const showEditor =  ref("none")
@@ -32,7 +32,7 @@ onMounted(async ()=>{
     }
 })
 
-function uploaded(fi: FVPair) {
+function uploaded(fi: FileInfo) {
     fileList.value.unshift(fi)
     itemNumber.value += 1;
     showEditor.value = "none"
@@ -58,7 +58,7 @@ function fileDownload(e: MouseEvent, file: any){
 function pageChanged(n: number) {
     router.push({name: "filelist", params: {page: n}})
 }
-function fileName(file: FVPair) {
+function fileName(file: FileInfo) {
     if (file.type.includes("page")) {
         // show first 30 chars if the list item is a page
         const title = JSON.parse(file.name)[0]
@@ -77,7 +77,7 @@ async function getFileList() {
         fileList.value.length = 0
         console.log(sps)
         sps.forEach(async (element: ScorePair) => {
-            api.client.Hget(await mmInfo.mmsid, route.params.title, element.member, (fi: FVPair) => {
+            api.client.Hget(await mmInfo.mmsid, route.params.title, element.member, (fi: FileInfo) => {
                 if (!fi) {
                     console.warn("mac file without info", element)
                     return
@@ -86,7 +86,7 @@ async function getFileList() {
                 // temporarily use timestamp when the file is added to the SocrePairs, for sorting
                 fi.lastModified = element.score;
                 fileList.value.push(fi)
-                fileList.value.sort((a: FVPair, b: FVPair) => a.lastModified > b.lastModified ? -1 : 1)
+                fileList.value.sort((a: FileInfo, b: FileInfo) => a.lastModified > b.lastModified ? -1 : 1)
             }, (err: Error) => {
                 console.error("Hget error=", err, element)
             })

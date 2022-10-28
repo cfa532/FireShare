@@ -16,15 +16,15 @@ const props = defineProps({
 const textContent = ref("")
 onMounted(async () => {
     await mmInfo.init(api)
-    console.log("Page mounted:", props, mmInfo.$state)
+    console.log("Page mounted:", props)
     api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
-        api.client.MFGetObject(fsid, (obj:FVPair)=>{
+        api.client.MFGetObject(fsid, (obj:FileInfo)=>{
             const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
             textContent.value = str[0].trim()===""? "" : str[0];
             let macids = str.slice(1);
             macids.length>0 && getComponents(macids).then(results => {
                 // get all the components required to show attached files on the html page
-                console.log(macids, results)
+                console.log(textContent.value, macids, results)
                 results.forEach((fi, i) => {
                     fileInfos.value.push({macid: macids[i], fileType: fi.type, name:fi.name, autoplay:false})
                 })
@@ -39,8 +39,11 @@ onMounted(async () => {
     });
 })
 function getComponents(macids:string[]) {
-    return new Promise<FVPair[]>(async (resolve, reject)=>{
-        api.client.Hmget(await mmInfo.mmsid, route.params.title, ...macids, (fis:any[])=>{
+    console.log(macids);
+    return new Promise<FileInfo[]>( (resolve, reject)=>{
+        api.client.Hmget(mmInfo.mmsid, route.params.title, ...macids, (fis:any[])=>{
+        // api.client.Hget(await mmInfo.mmsid, route.params.title, macids[0], (fis:any)=>{
+            console.log(fis)
             resolve(fis)
         }, (err: Error)=>{
             reject("Hmget err="+err)

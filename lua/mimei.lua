@@ -35,15 +35,15 @@ print('MFTemp2MacFile macid=', macid);
 -- remember macid of the image file
 
 fsid, err = mm.MFOpenTempFile(sid);
-FV = {name='', lastModified=1666872786042, macid="", size=40, type="page"}
-function FV:new(o,macid)
+FileInfo = {name='', lastModified=1666872786042, macid="", size=40, type="page"}
+function FileInfo:new(o,macid)
    o = o or {}
    setmetatable(o, self)
    self.__index = self
    self.name = '["fwefqw","'..macid..'"]'
    return o
 end
-local fi = FV:new(nil,macid)            // 生成文件obj
+local fi = FileInfo.new(nil,macid)            // 生成文件obj
 print("FileInfo: ", fi["name"])
 err = mm.MFSetObject(fsid, fi);
 if (err ~= nil) then
