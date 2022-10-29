@@ -22,14 +22,21 @@ onMounted(async () => {
             const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
             textContent.value = str[0].trim()===""? "" : str[0];
             let macids = str.slice(1);
-            macids.length>0 && getComponents(macids).then(results => {
-                // get all the components required to show attached files on the html page
-                console.log(textContent.value, macids, results)
-                results.forEach((fi, i) => {
-                    fileInfos.value.push({macid: macids[i], fileType: fi.type, name:fi.name, autoplay:false})
+            // macids.length>0 && getComponents(macids).then(results => {
+            //     // get all the components required to show attached files on the html page
+            //     console.log(textContent.value, macids, results)
+            //     results.forEach((fi, i) => {
+            //         fileInfos.value.push({macid: macids[i], fileType: fi.type, name:fi.name, autoplay:false})
+            //     })
+            // }, (err)=>{
+            //     console.error("GetComponents err", err)
+            // })
+            macids.forEach((macid:string)=>{
+                api.client.Hget(mmInfo.mmsid, route.params.title, macid, (fi:FileInfo)=>{
+                    fileInfos.value.push({macid: macid, fileType: fi.type, name:fi.name, autoplay:false})
+                }, (err:Error)=>{
+                    console.error("Hget err=", err)
                 })
-            }, (err)=>{
-                console.error("GetComponents err", err)
             })
         }, (err: Error) => {
             console.error("MFGetObject error=", err)
