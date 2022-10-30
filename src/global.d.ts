@@ -8,17 +8,7 @@ type ContentColumn = {
 
 interface ScorePair { score: number; member: string };
 interface FVPair {field: string; value: any};
-interface FileInfo {name:string; lastModified:number; size:number; type:string; macid:string;};
-
-// class FileInfo {
-//   name; lastModified; size; type; macid;
-//   constructor(name: string, lastModified: number, size: number, type: string) {
-//     this.name = name;
-//     this.lastModified = lastModified;
-//     this.size = size;
-//     this.type = type;
-//   }
-// };
+interface FileInfo {name:string; lastModified:number; size:number; type:string; macid:string; caption:string};
 
 interface Window {
   mmInfo: any;       // add to window obj for testing convenience

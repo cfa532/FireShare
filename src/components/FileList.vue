@@ -59,6 +59,7 @@ function pageChanged(n: number) {
     router.push({name: "filelist", params: {page: n}})
 }
 function fileName(file: FileInfo) {
+    if (file.caption) return file.caption;
     if (file.type.includes("page")) {
         // show first 30 chars if the list item is a page
         const title = JSON.parse(file.name)[0]
@@ -67,7 +68,7 @@ function fileName(file: FileInfo) {
         }
         return JSON.parse(file.name)[0].substring(0, 30)
     }
-    return file.name
+    return file.name;
 }
 async function getFileList() {
     // get mm file list on current page, page number start at 1

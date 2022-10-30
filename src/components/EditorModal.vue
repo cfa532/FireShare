@@ -2,23 +2,25 @@
 import { CSSProperties, onMounted, ref, shallowRef, watch, computed, reactive } from "vue";
 import Preview from "./Gadget/Preview.vue";
 import { useLeither, useMimei } from '../stores/lapi'
-import Login from "./Login.vue";
 const api = useLeither();
 const mmInfo = useMimei();
-class FileInfo {
-  name; lastModified; size; type; macid;
-  constructor(name: string, lastModified: number, size: number, type: string) {
+class FileInfo{
+  name; lastModified; size; type; macid; caption;
+  constructor(name: string, lastModified: number, size: number, type: string, caption:string="") {
     this.name = name;
     this.lastModified = lastModified;
     this.size = size;
     this.type = type;
-    this.macid = ""
+    this.macid = "";
+    this.caption = caption;
   }
 }
 interface HTMLInputEvent extends Event { target: HTMLInputElement & EventTarget }
 const emit = defineEmits(["uploaded", "hide"])
-const textValue = ref("")
 const form = ref();
+const inpCaption = ref()
+const textValue = ref()
+const caption = ref<HTMLFormElement>();
 const divAttach = ref()
 const dropHere = ref()
 const textArea = ref()
@@ -92,6 +94,11 @@ function saveFVs(mmsid: string, fv: FVPair[]) {
   })
 }
 async function onSubmit() {
+  if (!inpCaption.value || inpCaption.value!.trim()==="") {
+    // remind user to input caption, autofocus
+    caption.value?.focus()
+    return;
+  }
   let mmsidCur:string, macids: string[], fvPairs: FVPair[] = []
   // if one file uploaded, without content in textArea, upload single file
   // otherwise, upload a html file for iFrame
@@ -105,7 +112,9 @@ async function onSubmit() {
                   if (v.status==='fulfilled') {         // remove failed promises
                     const file = filesUpload.value[i];
                     // return array of success MacIDs and FileInfos
-                    fvPairs.push({field:v.value, value:new FileInfo(file.name, file.lastModified, file.size, file.type)})
+                    fvPairs.push({
+                      field:v.value,
+                      value:new FileInfo(file.name, file.lastModified, file.size, file.type, inpCaption.value!.trim())})
                   };
                   return v.status==='fulfilled';
                 })
@@ -148,7 +157,7 @@ async function onSubmit() {
       // create a file type PAGE. use Name field to save a string as below
       // 1st item is input of textarea, followed by mac ids of uploaded file
       let s = JSON.stringify([textValue.value].concat(macids))
-      let fi = new FileInfo(s, Date.now(), s.length, "page");   // save it in name field
+      let fi = new FileInfo(s, Date.now(), s.length, "page", inpCaption.value!.trim());   // save it in name field
 
       api.client.MFSetObject(fsid, fi, ()=>{
         api.client.MFTemp2MacFile(fsid, mmInfo.mid, (macid: string) => {
@@ -225,14 +234,15 @@ watch(() => textValue.value, (newVal, oldVal) => {
 })
 </script>
 
-<template>
+<template> 
   <div ref="myModal" :style="classModal">
     <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect">
       <!-- <span class="close" @click="closeModal">&times;</span> -->
       <form @submit.prevent="onSubmit" enctype="multipart/form-data">
-        <div style="width:99%; height:110px; margin-bottom: 10px;">
-          <textarea autofocus ref="textArea" v-model="textValue" placeholder="Input......"
-            style="border:0px; width:100%; height:100%; border-radius: 3px;"></textarea>
+        <div style="width:99%; margin-bottom: 10px;">
+          <input autofocus type="text" placeholder="Caption...  required" v-model="inpCaption" ref="caption" style="border:0px; width:100%; height:22px; margin-bottom: 8px;">
+          <textarea ref="textArea" v-model="textValue" placeholder="Input......"
+            style="border:0px; width:100%; height: 110px; border-radius: 3px;"></textarea>
           <div ref="dropHere" hidden
             style="border: 1px solid lightgrey; text-align: center; width:100%; height:100%; margin: 0px;">
             <p style="font-size: 24px">DROP HERE</p>
