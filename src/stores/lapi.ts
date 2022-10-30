@@ -104,7 +104,8 @@ export const useMimei = defineStore({
     state: ()=>({
         api: {} as any,      // leither api handler
         midNaviBar: "RyaWr1HkShxQvonM9aVqAb7ShXf",      // navigation bar' mid
-        mid: "ilc_mDQ-vS9jRIRw2w70pyf8ASN",             // for testing
+        mid: "2-N5YudMrv962X1iafD1akgbtP7",
+        // mid: "ilc_mDQ-vS9jRIRw2w70pyf8ASN",             // for testing
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
     }),
