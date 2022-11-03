@@ -22,22 +22,21 @@ onMounted(async () => {
             const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
             textContent.value = str[0].trim()===""? "" : str[0];
             let macids = str.slice(1);
-            // macids.length>0 && getComponents(macids).then(results => {
-            //     // get all the components required to show attached files on the html page
-            //     console.log(textContent.value, macids, results)
-            //     results.forEach((fi, i) => {
-            //         fileInfos.value.push({macid: macids[i], fileType: fi.type, name:fi.name, autoplay:false})
-            //     })
-            // }, (err)=>{
-            //     console.error("GetComponents err", err)
-            // })
-            macids.forEach((macid:string)=>{
-                api.client.Hget(mmInfo.mmsid, route.params.title, macid, (fi:FileInfo)=>{
-                    fileInfos.value.push({macid: macid, fileType: fi.type, name:fi.name, autoplay:false})
-                }, (err:Error)=>{
-                    console.error("Hget err=", err)
-                })
+            api.client.Hmget(mmInfo.mmsid, route.params.title, ...macids, (fis:any[])=>{
+                console.log(fis)
+                macids.forEach((macid:string, i:number) => {
+                    fileInfos.value.push({macid: macid, fileType: fis[i].type, name:fis[i].name, autoplay:false})
+                });
+            }, (err: Error)=>{
+                console.error("Hmget err="+err)
             })
+            // macids.forEach((macid:string)=>{
+            //     api.client.Hget(mmInfo.mmsid, route.params.title, macid, (fi:FileInfo)=>{
+            //         fileInfos.value.push({macid: macid, fileType: fi.type, name:fi.name, autoplay:false})
+            //     }, (err:Error)=>{
+            //         console.error("Hget err=", err)
+            //     })
+            // })
         }, (err: Error) => {
             console.error("MFGetObject error=", err)
         })
@@ -45,18 +44,6 @@ onMounted(async () => {
         console.error("MFOpenMacFile error=", err)
     });
 })
-function getComponents(macids:string[]) {
-    console.log(macids);
-    return new Promise<FileInfo[]>( (resolve, reject)=>{
-        api.client.Hmget(mmInfo.mmsid, route.params.title, ...macids, (fis:any[])=>{
-        // api.client.Hget(await mmInfo.mmsid, route.params.title, macids[0], (fis:any)=>{
-            console.log(fis)
-            resolve(fis)
-        }, (err: Error)=>{
-            reject("Hmget err="+err)
-        })
-    })
-}
 function fileDownload(fi: any) {
     api.client.MFOpenMacFile(api.sid, mmInfo.mid, fi.macid, (fsid: string) => {
         api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{

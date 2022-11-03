@@ -11,6 +11,7 @@ async function login() {
         await api.login(usr.value, psd.value);
     } catch(err) {
         console.error(err)
+        alert("Login failed.")
     }
 }
 onMounted(()=>{

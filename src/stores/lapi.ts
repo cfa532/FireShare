@@ -49,7 +49,7 @@ export const useLeither = defineStore({
         }
     },
     actions: {
-        async login(user="", pswd="") {
+        login(user="", pswd="") {
             return new Promise((resolve, reject)=>{
                 // if (user=="") {
                 //     // guest user
