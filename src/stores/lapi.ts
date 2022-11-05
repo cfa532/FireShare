@@ -112,6 +112,16 @@ export const useMimei = defineStore({
     getters: {
         naviColumnTree: function(state) {
             return new Promise<ContentColumn[]>((resolve, reject)=>{
+                // state._naviColumnTree = [
+                //     {"title":"News", "titleZh":"最新文档"}, 
+                //     {"title":"Pictures", "titleZh":"图片专区", "subColumn": [
+                //         {"title":"Western", "titleZh":"洋画"},
+                //         {"title":"Japan", "titleZh":"邦画"},
+                //         {"title":"Test", "titleZh":"TCL"}
+                //     ]},
+                //     {"title":"Webdav", "titleZh":"本地文档"}
+                // ];
+                // resolve(state._naviColumnTree);
                 if (state._naviColumnTree.length>0) resolve(state._naviColumnTree);
                 else {
                     // if (localStorage.getItem("navibarcolumns")) {
