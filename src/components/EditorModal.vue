@@ -136,8 +136,8 @@ async function onSubmit() {
       member: macids[0]       // Mac id for the uploaded file, which is converted to Mac file
     }
     // add new itme to index table of ScorePair
-    api.client.Zadd(mmsidCur, props.column, sp, (ret: number)=>{
-      console.log("Zadd ScorePair for the file, ret=", ret, mmInfo.mmsid)
+    api.client.Zadd(mmsidCur, props.column, sp, async (ret: number)=>{
+      console.log("Zadd ScorePair for the file, ret=", ret, await mmInfo.mmsid)
       // back mm data for publish
       mmInfo.backup()
 
