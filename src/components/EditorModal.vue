@@ -77,8 +77,13 @@ function uploadFile(files: File[]) {
         reject("Max file size exceeded");
       };
       api.client.MFOpenTempFile(api.sid, async (fsid: string) => {
-        let macid = await readFileSlice(fsid, await file.arrayBuffer(), 0);
-        resolve(macid)
+        // resolve(readFileSlice(fsid, await file.arrayBuffer(), 0));
+        try {
+         let macid = await readFileSlice(fsid, await file.arrayBuffer(), 0);
+          resolve(macid)
+        } catch(err) {
+          reject("ReadFileSlice err="+err)
+        }
       })
     })
   }))
@@ -201,14 +206,14 @@ function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Promise<s
       if (end === arr.byteLength) {
         // last slice done. Convert temp to Mac file
         api.client.MFTemp2MacFile(fsid, mmInfo.mid, (macid: string) => {
-          console.log("Temp file to MacID=", macid, "to mid=", mmInfo.mid);
+          console.log("Temp file to MacID=", macid, "to len=", arr.byteLength);
           // now temp file is converted to Mac file, save file info
           resolve(macid)
         }, (err: Error) => {
           reject("Failed to create Mac file")
         })
       } else {
-        readFileSlice(fsid, arr, start + count)
+        resolve(readFileSlice(fsid, arr, start + count))
       }
     }, (err: Error) => {
       reject("Set temp file data error ");

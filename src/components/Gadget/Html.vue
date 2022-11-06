@@ -64,7 +64,7 @@ function fileDownload(fi: any) {
                 <Image v-bind=fi></Image>
                 <p style="margin-top: 5px; font-size: small; color:darkslategray; width: 100%; left: 40%; position:relative;">{{fi.name}}</p>
             </div>
-            <div v-else-if="fi.fileType.includes('video')">
+            <div v-else-if="fi.fileType.includes('video') || fi.fileType.includes('audio')">
                 <VideoJS v-bind=fi></VideoJS>
                 <p>{{fi.name}}</p>
             </div>

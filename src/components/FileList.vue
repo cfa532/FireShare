@@ -114,7 +114,7 @@ watch(currentPage, (newVal)=>{
         </div>
         <ul style="padding: 0px; margin: 0 0 0 5px;">
             <li class="fileList" v-for="(file, index) in fileList" :key="index">
-                <RouterLink v-if="file.type.includes('image') || file.type.includes('video')
+                <RouterLink v-if="file.type.includes('image') || file.type.includes('video') || file.type.includes('audio')
                 || file.type.includes('page') || file.type.includes('pdf')"
                     :to="{ name: 'fileview', params: { title: columnTitle, macid: file.macid, fileType: file.type } }">
                     {{ fileName(file) }}

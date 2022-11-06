@@ -16,7 +16,7 @@ const userComponent = computed(() => {
         return MyImg
     } else if (fileType.includes("pdf")) {
         return MyPdf
-    } else if (fileType.includes("video")) {
+    } else if (fileType.includes("video") || fileType.includes("audio") ) {
         return VideoPlayer
     } else if (fileType.includes("page")) {
         // webpage that includes text and files
