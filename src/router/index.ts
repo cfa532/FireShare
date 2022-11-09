@@ -4,6 +4,7 @@ import FileListVue from '../components/FileList.vue';
 import MainPageVue from '../components/MainPage.vue';
 import FileViewVue from '../components/FileView.vue';        // Mac files within a MM
 import FileView2Vue from '../components/FileView2.vue';      // view files in webdav under Leither
+import Login from '../components/Login.vue';
 
 export const router = createRouter({
     // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
@@ -11,6 +12,7 @@ export const router = createRouter({
     linkActiveClass: 'active',
     routes: [
         { path: '/', name:"main", component: MainPageVue},
+        { path: '/login', name:"login", component: Login},
         { path: '/filelist/:title/:page?', name:"filelist", component: FileListVue},
         { path: '/fileview/:title/:macid/:fileType', name:"fileview", component: FileViewVue},
         { path: '/fileview2/:title/:filePath', name:"fileview2", component: FileView2Vue},

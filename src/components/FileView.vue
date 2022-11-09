@@ -8,20 +8,15 @@ import VideoPlayer from './Gadget/VideoJS.vue';
 import Page from './Gadget/Html.vue';
 import ShareVue from './Gadget/Share.vue';
 import { computed, onMounted } from "vue";
-// const VideoPlayer = defineAsyncComponent(()=>
-//     import('./VideoJS.vue')
-// )
-const route = useRoute()
-const mmInfo = useMimei();
-mmInfo.getColumn(route.params.title as string);     // make sure mmInfo valid upon refresh
 
+const route = useRoute()
 const fileType = route.params.fileType as string;
 const userComponent = computed(() => {
     if (fileType.includes("image")) {
         return MyImg
     } else if (fileType.includes("pdf")) {
         return MyPdf
-    } else if (fileType.includes("video")) {
+    } else if (fileType.includes("video") || fileType.includes("audio") ) {
         return VideoPlayer
     } else if (fileType.includes("page")) {
         // webpage that includes text and files
@@ -31,15 +26,15 @@ const userComponent = computed(() => {
     }
 })
 const currentProperty = route.params    // params: {macid:file.macid, fileType:file.type}}
-onMounted(async ()=>{
+onMounted(()=>{
     // await mmInfo.init(useLeither())
-    console.log("FileView mounted,", mmInfo.$state)
+    console.log("FileView mounted,", route.params)
 })
 </script>
 
 <template>
-    <NaviBarVue :column=mmInfo.column!></NaviBarVue>
-    <hr/>
+    <NaviBarVue :column="(route.params.title as string)"></NaviBarVue>
+    <!-- <hr/> -->
     <ShareVue ref="shareMenu" v-bind="currentProperty"></ShareVue>
     <KeepAlive>
         <component :is="userComponent" v-bind="currentProperty"></component>

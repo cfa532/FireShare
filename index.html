@@ -18,6 +18,42 @@
     
     <style>
 @charset "UTF-8";
+ul.naviBar {
+  display: table;
+    list-style-type: none;
+    background-color: antiquewhite;
+    overflow: hidden;
+    margin: 0px 0px 10px 0px;
+    padding: 0px 0px 0px 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 32px;
+}
+ul.naviBar li {
+    display: inline-block;
+    color: rgb(132, 181, 32);
+    text-align: center;
+    padding: 0px 5px;
+    margin: 0px;
+}
+ul.naviBar li#login {
+    display: inline-block;
+    position: fixed;
+    right: 0;
+    color: rgb(132, 181, 32);
+    text-align: center;
+    padding: 0px 5px;
+    margin-right: 5px;
+    margin-top:6px;
+}
+ul.naviBar li a.active {
+    display: block;
+    background-color: #04aa6d;
+    color:aliceblue;
+    padding: 5px;
+}
 .postbox_media_photo_wrapper {
     height: 170px;
     width: 120px;
@@ -59,7 +95,6 @@
     outline: none;
     cursor: pointer;
 }
-
 a:link {
   color:#2B333F;
   text-decoration: none;
@@ -72,30 +107,6 @@ a:visited {
 }
 a:active {
   color:#fc6;
-}
-ul.naviBar {
-    list-style-type: none;
-    background-color: antiquewhite;
-    overflow: hidden;
-    margin: 0px 0px 10px 0px;
-    padding: 0px 0px 0px 20px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-}
-ul.naviBar li {
-    display: inline-block;
-    color: rgb(132, 181, 32);
-    text-align: center;
-    padding: 0px 5px;
-    margin: 0px;
-}
-ul.naviBar li a.active {
-    display: block;
-    background-color: #04aa6d;
-    color:aliceblue;
-    padding: 5px
 }
 li.fileList {
     list-style-type: none;
@@ -142,6 +153,7 @@ p.postbox {
   font-style: italic;
   opacity: 0.3;
   margin: 10px 0px 0px 20px;
+  width: 100%;
 }
 p.postbox:hover {
   opacity: 0.6;

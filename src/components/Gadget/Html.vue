@@ -3,31 +3,40 @@ import Image from './Image.vue';
 import VideoJS from './VideoJS.vue'
 import { onMounted, inject, ref, shallowRef } from 'vue';
 import { useLeither, useMimei } from '../../stores/lapi';
+import { useRoute } from 'vue-router';
 const fileInfos = ref<any[]>([])
+const route = useRoute()
 const api = useLeither();    // Leither api handler
 const mmInfo = useMimei()
 const props = defineProps({
     macid : {type: String, required: false},
     fileType: {type: String, required: false},
-    filePath: {type: String, required: false},
-    mmfsid: {type: String, required: false},
+    column: {type: String, required: false},
 });
 const textContent = ref("")
 onMounted(async () => {
     await mmInfo.init(api)
-    console.log("Page mounted:", props, mmInfo.$state)
+    console.log("Page mounted:", props)
     api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
-        api.client.MFGetObject(fsid, (obj:FVPair)=>{
-            console.log(obj)
+        api.client.MFGetObject(fsid, (obj:FileInfo)=>{
             const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
-            textContent.value = str[0].trim()===""? "Page inside" : str[0];
+            textContent.value = str[0].trim()===""? "" : str[0];
             let macids = str.slice(1);
-            getComponents(macids).then(results => {
-                // get all the components required to show attached files on the html page
-                results.forEach((fi, i) => {
-                    fileInfos.value.push({macid: macids[i], fileType: fi.type, name:fi.name, autoplay:false})
-                })
+            api.client.Hmget(mmInfo.mmsid, route.params.title, ...macids, (fis:any[])=>{
+                console.log(fis)
+                macids.forEach((macid:string, i:number) => {
+                    fileInfos.value.push({macid: macid, fileType: fis[i].type, name:fis[i].name, autoplay:false})
+                });
+            }, (err: Error)=>{
+                console.error("Hmget err="+err)
             })
+            // macids.forEach((macid:string)=>{
+            //     api.client.Hget(mmInfo.mmsid, route.params.title, macid, (fi:FileInfo)=>{
+            //         fileInfos.value.push({macid: macid, fileType: fi.type, name:fi.name, autoplay:false})
+            //     }, (err:Error)=>{
+            //         console.error("Hget err=", err)
+            //     })
+            // })
         }, (err: Error) => {
             console.error("MFGetObject error=", err)
         })
@@ -35,15 +44,6 @@ onMounted(async () => {
         console.error("MFOpenMacFile error=", err)
     });
 })
-function getComponents(macids:string[]) {
-    return new Promise<FVPair[]>((resolve, reject)=>{
-        api.client.Hmget(mmInfo.mmsid, mmInfo.fileName, ...macids, (fis:any[])=>{
-            resolve(fis)
-        }, (err: Error)=>{
-            console.error("Hmget err=", err, macids)
-        })
-    })
-}
 function fileDownload(fi: any) {
     api.client.MFOpenMacFile(api.sid, mmInfo.mid, fi.macid, (fsid: string) => {
         api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
@@ -64,7 +64,7 @@ function fileDownload(fi: any) {
                 <Image v-bind=fi></Image>
                 <p style="margin-top: 5px; font-size: small; color:darkslategray; width: 100%; left: 40%; position:relative;">{{fi.name}}</p>
             </div>
-            <div v-else-if="fi.fileType.includes('video')">
+            <div v-else-if="fi.fileType.includes('video') || fi.fileType.includes('audio')">
                 <VideoJS v-bind=fi></VideoJS>
                 <p>{{fi.name}}</p>
             </div>

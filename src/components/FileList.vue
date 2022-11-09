@@ -1,170 +1,133 @@
-<script lang="ts">
-import { defineComponent, computed, ref } from "vue";
+<script setup lang="ts">
+import { computed, onBeforeMount, onMounted, ref, watch } from "vue";
 import { useLeither, useMimei } from '../stores/lapi';
 import { useRoute, useRouter } from "vue-router";
-import Uploader from "./Uploader.vue";
-import NaviBar from "./NaviBar.vue";
 import MyDir from './Gadget/Dir.vue';
 import Pager from "./Gadget/Pager.vue";
 import EditorModal from "./EditorModal.vue";
+import NaviBar from "./NaviBar.vue";
+const api = useLeither()
+const mmInfo = useMimei()
 
-// interface FVPair {name:string, lastModified:number, size:number, type:string, macid:string}
-let api: any = null;
+const route = useRoute()
+const router = useRouter()
+const fileList = ref<FileInfo[]>([])
+const pageSize = ref(20)
+const itemNumber = ref(1)
+const showEditor =  ref("none")
+const currentPage = computed(() => route.params.page? parseInt(route.params.page as string) : 1)
+const localRoot = '/'
+const columnTitle = computed(() => route.params.title)
 
-export default defineComponent({
-    name: "FileList",
-    components: { EditorModal, NaviBar, MyDir, Pager},
-    // props: ["page"],    // current page number for paging throgh file list
-    data() {
-        return {
-            fileList: [] as FVPair[],
-            localFiles: [] as any[],
-            localRoot: '/',             // root directory to local files in webdav
-            pageSize: ref(20),
-            itemNumber: ref(1),
-            route: useRoute(),
-            router: useRouter(),
-            mmInfo: useMimei(),     // Important: define the Mimei that handles all data in this App
-            showEditor: "none",
+onMounted(async ()=>{
+    await mmInfo.init(api)
+    console.log("FileList mounted:", route.params)
+    if (route.params.title !== "Webdav") {
+        api.client.Zcount(mmInfo.mmsid, route.params.title, 0, Date.now(), (count: number)=>{     // -1 does not work for stop
+            itemNumber.value = count;    // total num of items in the list as a Mimei
+            getFileList();
+        }, (err: Error) => {
+            console.error("Zcount error=", err)
+        })
+    }
+})
+
+function uploaded(fi: FileInfo) {
+    fileList.value.unshift(fi)
+    itemNumber.value += 1;
+    showEditor.value = "none"
+}
+function showModal(e: MouseEvent) {
+    // show modal box
+    showEditor.value = "block"
+}
+function hide() {
+    showEditor.value = "none"
+}
+function fileDownload(e: MouseEvent, file: any){
+    api.client.MFOpenMacFile(api.sid, mmInfo.mid, file.macid, (fsid: string) => {
+        api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
+            mmInfo.downLoadByFileData(fileData, file.name, "")
+        }, (err: Error) => {
+            console.error("Getdata error=", err)
+        })
+    }, (err: Error) => {
+        console.error("Open file error=", err)
+    })
+}
+function pageChanged(n: number) {
+    router.push({name: "filelist", params: {page: n}})
+}
+function fileName(file: FileInfo) {
+    if (file.caption) return file.caption;
+    if (file.type.includes("page")) {
+        // show first 30 chars if the list item is a page
+        const title = JSON.parse(file.name)[0]
+        if (title.trim()==="") {
+            return "Page without text"
         }
-    },
-    computed: {
-        currentPage() {     // do not use ()=>{}
-            return this.route.params.page? parseInt(this.route.params.page as string) : 1
-        },
-        currentColumn() {
-            let c = this.mmInfo.getColumn(this.route.params.title as string)
-            if (!c) c=this.mmInfo.naviColumnTree[0]
-            return c
-        }
-    },
-    provide() {
-        return {
-            // inject a whole array
-            fileList: computed(()=> this.fileList)
-        }
-    },
-    methods: {
-        uploaded(fi: FVPair) {
-            // add newly uploaded file to display list
-            this.fileList.unshift(fi)
-            this.itemNumber += 1;
-            this.showEditor = "none"
-            // location.reload()
-        },
-        showModal(e: MouseEvent) {
-            // show modal box
-            this.showEditor = "block"
-        },
-        hide() {
-            this.showEditor = "none"
-        },
-        fileDownload(e: MouseEvent, file: any){
-            api.client.MFOpenMacFile(api.sid, this.mmInfo.mid, file.macid, (fsid: string) => {
-                api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
-                    useMimei().downLoadByFileData(fileData, file.name, "")
-                }, (err: Error) => {
-                    console.error("Getdata error=", err)
-                })
-            }, (err: Error) => {
-                console.error("Open file error=", err)
-            })
-        },
-        pageChanged(n: number) {
-            this.router.push({name: "filelist", params:{page:n}})
-        },
-        fileName(file: FVPair) {
-            if (file.type.includes("page")) {
-                // show first 30 chars if the list item is a page
-                const title = JSON.parse(file.name)[0]
-                if (title.trim()==="") {
-                    return "Page without text"
+        return JSON.parse(file.name)[0].substring(0, 30)
+    }
+    return file.name;
+}
+async function getFileList() {
+    // get mm file list on current page, page number start at 1
+    let start = (currentPage.value - 1) * pageSize.value
+    console.log(mmInfo.$state, route.params, start)
+    api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start + pageSize.value, (sps:[])=>{
+        fileList.value.length = 0
+        console.log(sps)
+        sps.forEach(async (element: ScorePair) => {
+            api.client.Hget(await mmInfo.mmsid, route.params.title, element.member, (fi: FileInfo) => {
+                if (!fi) {
+                    console.warn("mac file without info", element)
+                    return
                 }
-                return JSON.parse(file.name)[0].substring(0, 30)
-            }
-            return file.name
-        },
-        getFileList() {
-            // get mm file list on current page
-            let start = (this.currentPage - 1) * this.pageSize
-            api.client.Zrevrange(this.mmInfo.mmsid, this.mmInfo.fileName, start, start + this.pageSize, (sps:[])=>{
-                this.fileList.length = 0
-                sps.forEach((element: ScorePair) => {
-                    api.client.Hget(this.mmInfo.mmsid, this.mmInfo.fileName, element.member, (fi: FVPair) => {
-                        if (!fi) {
-                            console.warn("mac file without info", element)
-                            return
-                        }
-                        fi.macid = element.member
-                        // temporarily use timestamp when the file is added to the SocrePairs, for sorting
-                        fi.lastModified = element.score;
-                        this.fileList.push(fi)
-                        this.fileList.sort((a: FVPair, b: FVPair) => a.lastModified > b.lastModified ? -1 : 1)
-                    }, (err: Error) => {
-                        console.error("Hget error=", err, element, this.mmInfo)
-                    })
-                });
+                fi.macid = element.member
+                // temporarily use timestamp when the file is added to the SocrePairs, for sorting
+                fi.lastModified = element.score;
+                fileList.value.push(fi)
+                fileList.value.sort((a: FileInfo, b: FileInfo) => a.lastModified > b.lastModified ? -1 : 1)
             }, (err: Error) => {
-                console.error("Zrevrange error=", err)
+                console.error("Hget error=", err, element)
             })
-        }
-    },
-    async mounted() {
-        console.log("FileList mounted:", this.currentColumn)
-        api = useLeither();
-        if (this.currentColumn!.title === "Webdav") {
-            // load files in webdav folder
-            api.client.MFOpenByPath(api.sid, "mmroot", '/', 0, (mmfsid: string) => {
-                api.client.MFReaddir(mmfsid, (files: any[]) => {
-                    this.localFiles = files
-                })
-            }, (err: Error) => {
-                console.error("Open path err=", err)
-            })
-            return
-        } else {
-            await this.mmInfo.init(api);        // init mimei id, mimei sid, etc...
-            console.log(this.mmInfo.$state)
-            api.client.Zcount(this.mmInfo.mmsid, this.mmInfo.fileName, 0, Date.now(), (count: number)=>{     // -1 does not work for stop
-                this.itemNumber = count;    // total num of items in the list as a Mimei
-                this.getFileList();
-            }, (err: Error) => {
-                console.error("Zcount error=", err)
-            })
-        }
-    },
-    watch: {
-        'currentPage'(newVal) {
-            this.getFileList();
-        }
-    },
+        });
+    }, (err: Error) => {
+        console.error("Zrevrange error=", err)
+    })
+}
+watch(currentPage, (newVal)=>{
+    getFileList()
 })
 </script>
 
 <template>
-<NaviBar :column=currentColumn></NaviBar>
-    <hr/>
-<div v-if="currentColumn!.title !== 'Webdav'">
-    <div class="postbox">
-        <p @click="showModal" class="postbox">Tell us what is happening....</p>
+    <NaviBar :column="(columnTitle as string)"></NaviBar>
+    <!-- <hr/> -->
+    <div v-if="columnTitle !== 'Webdav'">
+        <div v-show="api.sid">
+            <div class="postbox">
+                <p @click="showModal" class="postbox">Tell us what is happening....</p>
+            </div>
+            <EditorModal v-if="api.sid" @uploaded="uploaded" @hide="hide" :display="showEditor"
+                :column="(columnTitle as string)"></EditorModal>
+        </div>
+        <ul style="padding: 0px; margin: 0 0 0 5px;">
+            <li class="fileList" v-for="(file, index) in fileList" :key="index">
+                <RouterLink v-if="file.type.includes('image') || file.type.includes('video') || file.type.includes('audio')
+                || file.type.includes('page') || file.type.includes('pdf')"
+                    :to="{ name: 'fileview', params: { title: columnTitle, macid: file.macid, fileType: file.type } }">
+                    {{ fileName(file) }}
+                </RouterLink>
+                <a v-else href="" @click.prevent="(e) => fileDownload(e, file)" download>{{ file.name }} &dArr;
+                </a>
+            </li>
+        </ul>
+        <Pager v-if="itemNumber / pageSize > 1" @page-changed="pageChanged" :current-page="currentPage"
+            :page-size="pageSize" :item-number="itemNumber"></Pager>
     </div>
-    <EditorModal @uploaded="uploaded" @hide="hide" :display="showEditor"></EditorModal>
-    <ul style="padding: 0px; margin: 0 0 0 5px;">
-    <li class="fileList" v-for="(file, index) in fileList" :key="index">
-        <RouterLink v-if="file.type.includes('image') || file.type.includes('video') 
-                    || file.type.includes('page') || file.type.includes('pdf')"
-            :to="{ name:'fileview', params:{title:currentColumn.title, macid:file.macid, fileType:file.type}}">{{fileName(file)}}
-        </RouterLink>
-        <a v-else
-            href="" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.name}} &dArr;
-        </a>
-    </li>
-    </ul>
-    <Pager v-if="itemNumber/pageSize>1" @page-changed="pageChanged"
-        :current-page="currentPage" :page-size="pageSize" :item-number="itemNumber"></Pager>
-</div>
-<div v-else>
-    <MyDir :filePath="localRoot"></MyDir>
-</div>
+    <div v-else>
+        <MyDir :filePath="localRoot"></MyDir>
+    </div>
 </template>
 
