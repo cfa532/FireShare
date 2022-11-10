@@ -113,20 +113,21 @@ async function onSubmit() {
   try {
     mmsidCur = await mmInfo.mmsidCur;
     macids = (await uploadFile(filesUpload.value))
-                .filter((v, i)=>{
-                  if (v.status==='fulfilled') {         // remove failed promises
-                    const file = filesUpload.value[i];
-                    // return array of success MacIDs and FileInfos
-                    fvPairs.push({
-                      field:v.value,
-                      value:new FileInfo(file.name, file.lastModified, file.size, file.type, inpCaption.value!.trim())})
-                  };
-                  return v.status==='fulfilled';
-                })
-                .map((v)=>{return v.value});
+      .filter((v, i)=>{
+        if (v.status==='fulfilled') {         // remove failed promises
+          const file = filesUpload.value[i];
+          // return array of success MacIDs and FileInfos
+          fvPairs.push({
+            field:v.value,    // macid
+            value:new FileInfo(file.name, file.lastModified, file.size, file.type, inpCaption.value!.trim())})
+        };
+        return v.status==='fulfilled';
+      })
+      .map((v:any)=>{return v.value});
     console.log(macids, fvPairs);
 
-    // now save macid : fileInfo pair array in a hashtable, so FileInfo can be found by its MacId
+    // now save macid : fileInfo pair array in a hashtable and bakcup mm DB
+    // so FileInfo can be found by its MacId.
     await saveFVs(mmsidCur, fvPairs);
   } catch(err) {
     console.error(err);
