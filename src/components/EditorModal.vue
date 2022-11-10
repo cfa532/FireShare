@@ -154,6 +154,7 @@ async function onSubmit() {
       localStorage.setItem("tempTextValueUploader", "")
       filesUpload.value = [];   // clear file list of upload
       textValue.value = ""
+      inpCaption.value = ""
     }, (err: Error) => {
       console.error("Zadd error=", err)
     })
@@ -182,6 +183,7 @@ async function onSubmit() {
               localStorage.setItem("tempTextValueUploader", "")
               filesUpload.value = [];   // clear file list of upload
               textValue.value = "";
+              inpCaption.value = ""
             }, (err: Error) => {
               console.error("Zadd error=", err)
             })

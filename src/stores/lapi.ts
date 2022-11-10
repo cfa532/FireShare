@@ -24,7 +24,7 @@ function getcurips() {
     { //for test
         ips = "192.168.1.101:4800"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        // ips = "36.24.128.86:4800"
+        ips = "125.120.36.137:4800"
     }
     return ips
 };
@@ -103,6 +103,7 @@ export const useMimei = defineStore({
     id: 'MMInfo',
     state: ()=>({
         api: {} as any,      // leither api handler
+        // aid: "RwoFTmQKk3RJfLSY7RZv-33dCNc",
         midNaviBar: "RyaWr1HkShxQvonM9aVqAb7ShXf",      // navigation bar' mid
         // mid: "2-N5YudMrv962X1iafD1akgbtP7",
         mid: "ilc_mDQ-vS9jRIRw2w70pyf8ASN",             // for testing
@@ -169,8 +170,8 @@ export const useMimei = defineStore({
     actions: {
         async init(api: any) {        // leither api object
             this.$state.api = api;
-            return Promise.allSettled([this.mmsid, this.naviColumnTree]).then((res)=>{
-                localStorage.setItem("navibarcolumns", JSON.stringify(res[1].value))        // do it once during initiation  
+            return Promise.all([this.mmsid, this.naviColumnTree]).then((res)=>{
+                localStorage.setItem("navibarcolumns", JSON.stringify(res[1]))        // do it once during initiation  
                 window.mmInfo = this.$state;
                 return this;
             })

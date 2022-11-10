@@ -1,21 +1,24 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import ColumnVue from "./Column.vue";
+import MsgVue from "./Msg.vue";
 import { useMimei, useLeither } from "../stores/lapi"
-import { onMounted } from "vue";
 
 const api = useLeither();
 const mmInfo = useMimei();
 const contentColumn = ref()
-
+const msg = ref();
 onMounted(async ()=>{
-    console.log("main page mounted", mmInfo.$state)
     try {
         await mmInfo.init(api)
         contentColumn.value = await mmInfo.naviColumnTree
+        console.log("main page mounted", mmInfo.$state)
+        msg.value = JSON.stringify(mmInfo.$state)
     } catch(e) {
         console.error(e)
         // the error is often caused by expired sid, try logout
+        msg.value = e
+        nextTick(()=>{msg.value = JSON.stringify(mmInfo.$state)})
         api.logout();
     }
 })
@@ -33,4 +36,5 @@ onMounted(async ()=>{
             <column-vue :column=c></column-vue>
         </li>
     </ul>
+    <MsgVue :msg="msg"></MsgVue>
 </template>
