@@ -10,7 +10,7 @@ app.use(pinia)
 app.config.unwrapInjectedRef=true       // temp setting until ver 3.3
 app.use(router)
 useMimei().init(useLeither()).then(()=>{
-    console.warn("main.ts loaded....on Nov 4.")
+    console.warn("main.ts loaded....on Nov 19")
     app.mount("#app")
 }, (err)=>{
     console.error(err)

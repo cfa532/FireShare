@@ -22,9 +22,10 @@ function getcurips() {
         console.log("window.location", ips)
     }
     { //for test
-        ips = "192.168.1.101:4800"
+        ips = "192.168.1.3:4800"
+        ips = "192.168.1.4:8000"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        ips = "125.120.36.137:4800"
+        // ips = "125.120.36.137:4800"
     }
     return ips
 };
@@ -104,9 +105,9 @@ export const useMimei = defineStore({
     state: ()=>({
         api: {} as any,      // leither api handler
         // aid: "RwoFTmQKk3RJfLSY7RZv-33dCNc",
-        midNaviBar: "RyaWr1HkShxQvonM9aVqAb7ShXf",      // navigation bar' mid
-        // mid: "2-N5YudMrv962X1iafD1akgbtP7",
-        mid: "ilc_mDQ-vS9jRIRw2w70pyf8ASN",             // for testing
+        midNaviBar: "9qZihc7c-xtFMW7DTgYefnrW8Do",      // navigation bar' mid
+        mid: "-obr-sMLkKH0hikOLXGOB4_fXtv",
+        // mid: "ilc_mDQ-vS9jRIRw2w70pyf8ASN",             // for testing
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
     }),
@@ -198,7 +199,7 @@ export const useMimei = defineStore({
         downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {
             var a = document.createElement("a");
             a.href = window.URL.createObjectURL(new Blob([content], {type: mimeType}));
-            a.download = fileName.substring(fileName.lastIndexOf('/')+1);
+            a.download = fileName.substring(fileName.lastIndexOf('/')+1);   // get the file name to be downloaded
             a.type =  mimeType;
             a.click();
             window.URL.revokeObjectURL(a.href);

@@ -17,6 +17,6 @@ watch(()=>props.msg, (nv)=>{
 })
 </script>
 <template>
-    <textarea hidden ref="msgBox" v-model="msg" readonly 
-    style="margin-left:0px; width:98%; height:15%; position: absolute; bottom:0"></textarea>
+    <p hidden ref="msgBox" 
+    style="margin-left:0px; width:98%; padding: 5px; position: absolute; bottom:0; border-top: 1px solid gainsboro; color: gainsboro">{{msg}}</p>
 </template>

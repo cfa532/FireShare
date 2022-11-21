@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useLeither, useMimei } from '../stores/lapi';
 import { useRoute, useRouter } from "vue-router";
 import MyDir from './Gadget/Dir.vue';
