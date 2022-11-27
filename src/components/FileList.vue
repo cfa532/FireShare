@@ -79,8 +79,9 @@ async function getFileList() {
         console.log(sps)
         sps.forEach(async (element: ScorePair) => {
             api.client.Hget(await mmInfo.mmsid, route.params.title, element.member, (fi: FileInfo) => {
-                if (!fi) {
-                    console.warn("mac file without info", element)
+                console.log(fi)
+                if (!fi || !fi.type || fi.size==0) {
+                    console.warn("FileInfo Error", element)
                     return
                 }
                 fi.macid = element.member
