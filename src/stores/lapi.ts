@@ -22,7 +22,7 @@ function getcurips() {
         console.log("window.location", ips)
     }
     { //for test
-        ips = "192.168.1.3:4800"
+        // ips = "192.168.1.3:4800"
         ips = "192.168.1.4:8000"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
         // ips = "125.120.36.137:4800"
@@ -105,8 +105,9 @@ export const useMimei = defineStore({
     state: ()=>({
         api: {} as any,      // leither api handler
         // appid: "BM5UwSlQKiYbySrC5VLBYwFHY3s",
-        midNaviBar: "9qZihc7c-xtFMW7DTgYefnrW8Do",      // navigation bar' mid
-        mid: "O7Sp3IMWijCb9_i2oF3f8DsOXl2",
+        // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",
+        midNaviBar: "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid
+        mid: "u_iKj5EchsWqL2JQFgLOKSgSArq",
         // mid: "ilc_mDQ-vS9jRIRw2w70pyf8ASN",             // for testing
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.

@@ -4,8 +4,10 @@ import { useLeither, useMimei } from '../stores/lapi';
 import { useRoute, useRouter } from "vue-router";
 import MyDir from './Gadget/Dir.vue';
 import Pager from "./Gadget/Pager.vue";
-import EditorModal from "./EditorModal.vue";
 import NaviBar from "./NaviBar.vue";
+import EditorModal from "./EditorModal.vue";
+// import { defineAsyncComponent } from 'vue'
+// const EditorModal = defineAsyncComponent(()=>import("./EditorModal.vue"));
 const api = useLeither()
 const mmInfo = useMimei()
 
