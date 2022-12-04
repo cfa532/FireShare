@@ -15,7 +15,6 @@ class FileInfo{
     this.caption = caption;   // Displayed in File List view
   }
 }
-// function ScorePair() { };
 class ScorePair {
   score: number;
   member: any;
@@ -146,15 +145,8 @@ async function onSubmit() {
   if (macids.length === 1 && textValue.value.trim() === "") {
     // single file uploaded without text input
     // create MM database for the column, new item is added to this MM.
-    // let sp: ScorePair = {
-      // score: Date.now(),  // index
-      // member: macids[0]       // Mac id for the uploaded file, which is converted to Mac file
-    // }
-    let sp = new ScorePair( Date.now(), macids[0]);
-    // sp.score = Date.now();
-    // sp.member = macids[0];
     // add new itme to index table of ScorePair
-    api.client.Zadd(mmsidCur, props.column, sp, async (ret: number)=>{
+    api.client.Zadd(mmsidCur, props.column, new ScorePair( Date.now(), macids[0]), async (ret: number)=>{
       console.log("Zadd ScorePair for the file, ret=", ret, await mmInfo.mmsid)
       // back mm data for publish
       mmInfo.backup()
@@ -181,14 +173,7 @@ async function onSubmit() {
       api.client.MFSetObject(fsid, fi, ()=>{
         api.client.MFTemp2MacFile(fsid, mmInfo.mid, (macid: string) => {
           api.client.Hset(mmsidCur, props.column, macid, fi, (ret: number) => {
-            // var sp: ScorePair = {
-            //   score: Date.now(),  // index
-            //   member: macid       // Mac id for the uploaded file, which is converted to Mac file
-            // }
-            let sp = new ScorePair(Date.now(), macid)
-            // sp.score = Date.now();
-            // sp.member = macid
-            api.client.Zadd(mmsidCur, props.column, sp, (ret: number) => {
+            api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), macid), (ret: number) => {
               fi.macid = macid
               console.log("Zadd ret=", ret, fi)
               // back mm data for publish
