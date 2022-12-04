@@ -18,5 +18,5 @@ watch(()=>props.msg, (nv)=>{
 </script>
 <template>
     <p hidden ref="msgBox" 
-    style="margin-left:0px; width:98%; padding: 5px; position: absolute; bottom:0; border-top: 1px solid gainsboro; color: gainsboro">{{msg}}</p>
+    style="margin-left:0px; width:98%; padding: 5px; position: absolute; bottom:0; border-top: 1px solid gainsboro; color:lightgray">{{msg}}</p>
 </template>

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 // share menu or other right click items
+import { useLeither} from '../../stores/lapi';
 import { ref } from 'vue'
+const api = useLeither()
 const shareMenu = ref()
 const props = defineProps({
     macid : {type: String, required: false},
@@ -8,6 +10,7 @@ const props = defineProps({
     filePath: {type: String, required: false},
     mmfsid: {type: String, required: false},
 });
+const emit = defineEmits(["deleteFile"])
 
 function showShareMenu() {
     shareMenu.value.hidden = false
@@ -18,10 +21,10 @@ function showShareMenu() {
                 shareMenu.value.hidden = true
                 setTimeout(()=>{
                     window.onclick = null
-                }, 50)
+                }, 100)
             }
         }
-    }, 50)
+    }, 100)
 }
 function copyLink() {
     console.log(window.location.href);
@@ -34,8 +37,9 @@ function copyLink() {
     // if (window.isSecureContext && navigator.clipboard)
     // navigator.clipboard.writeText(window.location.href)
 }
-function editPage() {
+async function editPage() {
     console.log(props);
+    emit("deleteFile")
 }
 </script>
 
@@ -47,8 +51,8 @@ function editPage() {
         <div style="border-bottom: 1px dotted; padding: 10px; text-align: center;">
             <a href="#" @click.prevent="copyLink">Copy &#128279; to clipboard</a>
         </div>
-        <div style="border-bottom: 1px dotted; padding: 10px; text-align: center;">
-            <a href="#" @click.prevent="editPage">Edit...</a>
+        <div v-if="api.sid" style="border-bottom: 1px dotted; padding: 10px; text-align: center;">
+            <a href="#" @click.prevent="editPage">Delete</a>
         </div>
     </div>
 </div>

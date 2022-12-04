@@ -2,7 +2,6 @@
 --读取sid
 sid =request['sid']
 print("sid=", sid)
-
 local mm = require('mimei');
 
 --创建弥媒

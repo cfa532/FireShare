@@ -12,9 +12,18 @@ class FileInfo{
     this.size = size;
     this.type = type;
     this.macid = "";
-    this.caption = caption;
+    this.caption = caption;   // Displayed in File List view
   }
 }
+// function ScorePair() { };
+class ScorePair {
+  score: number;
+  member: any;
+  constructor(score: number, member: any) {
+    this.score = score;
+    this.member = member;
+  }
+};
 interface HTMLInputEvent extends Event { target: HTMLInputElement & EventTarget }
 const emit = defineEmits(["uploaded", "hide"])
 const form = ref();
@@ -116,7 +125,7 @@ async function onSubmit() {
       .filter((v, i)=>{
         if (v.status==='fulfilled') {         // remove failed promises
           const file = filesUpload.value[i];
-          // return array of success MacIDs and FileInfos
+          // return array of successfully resolved MacIDs and FileInfos
           fvPairs.push({
             field:v.value,    // macid
             value:new FileInfo(file.name, file.lastModified, file.size, file.type, inpCaption.value!.trim())})
@@ -137,10 +146,13 @@ async function onSubmit() {
   if (macids.length === 1 && textValue.value.trim() === "") {
     // single file uploaded without text input
     // create MM database for the column, new item is added to this MM.
-    let sp: ScorePair = {
-      score: Date.now(),  // index
-      member: macids[0]       // Mac id for the uploaded file, which is converted to Mac file
-    }
+    // let sp: ScorePair = {
+      // score: Date.now(),  // index
+      // member: macids[0]       // Mac id for the uploaded file, which is converted to Mac file
+    // }
+    let sp = new ScorePair( Date.now(), macids[0]);
+    // sp.score = Date.now();
+    // sp.member = macids[0];
     // add new itme to index table of ScorePair
     api.client.Zadd(mmsidCur, props.column, sp, async (ret: number)=>{
       console.log("Zadd ScorePair for the file, ret=", ret, await mmInfo.mmsid)
@@ -161,7 +173,7 @@ async function onSubmit() {
   } else {
     // upload a full webpage with attachments or content text
     api.client.MFOpenTempFile(api.sid, (fsid: string) => {
-      // create a file type PAGE. use Name field to save a string as below
+      // create a file type PAGE. use Name field to save a string defined as:
       // 1st item is input of textarea, followed by mac ids of uploaded file
       let s = JSON.stringify([textValue.value].concat(macids))
       let fi = new FileInfo(s, Date.now(), s.length, "page", inpCaption.value!.trim());   // save it in name field
@@ -169,10 +181,13 @@ async function onSubmit() {
       api.client.MFSetObject(fsid, fi, ()=>{
         api.client.MFTemp2MacFile(fsid, mmInfo.mid, (macid: string) => {
           api.client.Hset(mmsidCur, props.column, macid, fi, (ret: number) => {
-            var sp: ScorePair = {
-              score: Date.now(),  // index
-              member: macid       // Mac id for the uploaded file, which is converted to Mac file
-            }
+            // var sp: ScorePair = {
+            //   score: Date.now(),  // index
+            //   member: macid       // Mac id for the uploaded file, which is converted to Mac file
+            // }
+            let sp = new ScorePair(Date.now(), macid)
+            // sp.score = Date.now();
+            // sp.member = macid
             api.client.Zadd(mmsidCur, props.column, sp, (ret: number) => {
               fi.macid = macid
               console.log("Zadd ret=", ret, fi)
@@ -209,7 +224,7 @@ function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Promise<s
       if (end === arr.byteLength) {
         // last slice done. Convert temp to Mac file
         api.client.MFTemp2MacFile(fsid, mmInfo.mid, (macid: string) => {
-          console.log("Temp file to MacID=", macid, "to len=", arr.byteLength);
+          console.log("Temp file to MacID=", macid, ", len=", arr.byteLength);
           // now temp file is converted to Mac file, save file info
           resolve(macid)
         }, (err: Error) => {

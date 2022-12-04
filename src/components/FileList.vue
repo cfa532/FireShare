@@ -86,6 +86,7 @@ async function getFileList() {
                     console.warn("FileInfo Error", element)
                     return
                 }
+                
                 fi.macid = element.member
                 // temporarily use timestamp when the file is added to the SocrePairs, for sorting
                 fi.lastModified = element.score;
