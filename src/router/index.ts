@@ -6,6 +6,7 @@ import FileViewVue from '../components/FileView.vue';        // Mac files within
 import FileView2Vue from '../components/FileView2.vue';      // view files in webdav under Leither
 import Login from '../components/Login.vue';
 
+// const MainPageVue = ()=>import('../components/MainPage.vue')
 export const router = createRouter({
     // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
     history: createWebHashHistory(),
