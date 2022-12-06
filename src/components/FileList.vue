@@ -27,7 +27,7 @@ onMounted(async ()=>{
     if (route.params.title !== "Webdav") {
         api.client.Zcount(mmInfo.mmsid, route.params.title, 0, Date.now(), (count: number)=>{     // -1 does not work for stop
             itemNumber.value = count;    // total num of items in the list as a Mimei
-            getFileList();
+            getFileList(currentPage.value);
         }, (err: Error) => {
             console.error("Zcount error=", err)
         })
@@ -38,6 +38,8 @@ function uploaded(fi: FileInfo) {
     fileList.value.unshift(fi)
     itemNumber.value += 1;
     showEditor.value = "none"
+    // route.params.page = "1"
+    // router.go(0);
 }
 function showModal(e: MouseEvent) {
     // show modal box
@@ -58,6 +60,7 @@ function fileDownload(e: MouseEvent, file: any){
     })
 }
 function pageChanged(n: number) {
+    getFileList(n)
     router.push({name: "filelist", params: {page: n}})
 }
 function fileName(file: FileInfo) {
@@ -72,11 +75,11 @@ function fileName(file: FileInfo) {
     }
     return file.name;
 }
-async function getFileList() {
+async function getFileList(pn: number) {
     // get mm file list on current page, page number start at 1
-    let start = (currentPage.value - 1) * pageSize.value
+    let start = (pn - 1) * pageSize.value
     console.log(mmInfo.$state, route.params, start)
-    api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start + pageSize.value, (sps:[])=>{
+    api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start+pageSize.value-1, (sps:[])=>{
         fileList.value.length = 0
         console.log(sps)
         sps.forEach(async (element: ScorePair) => {
@@ -100,9 +103,10 @@ async function getFileList() {
         console.error("Zrevrange error=", err)
     })
 }
-watch(currentPage, (newVal)=>{
-    getFileList()
-})
+// watch(currentPage, (oldVal, newVal)=>{
+//     // console.log(oldVal, newVal, route.params.page)
+//     if (oldVal != newVal) getFileList()
+// })
 </script>
 
 <template>

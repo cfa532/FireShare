@@ -29,22 +29,18 @@ const userComponent = computed(() => {
     }
 })
 const currentProperty = route.params    // params: {macid:file.macid, fileType:file.type}}
+
 onMounted(async ()=>{
     await mmInfo.init(api)
-    console.log("FileView mounted,", route.params, await mmInfo.mmsid)
+    console.log("FileView mounted,", route.params, "mmsid=", await mmInfo.mmsid)
 })
 async function deleteFile() {
     try {
-        let mmsidCur = await mmInfo.mmsidCur;
-        console.trace("b3gin")
-        api.client.Zrem(mmsidCur, route.params.title, route.params.macid, (ret:number)=>{
-            console.trace()
-            console.log("Zrem ret=", ret, mmsidCur, route.params)
+        api.client.Zrem(await mmInfo.mmsidCur, route.params.title, route.params.macid, async (ret:number)=>{
+            console.log("Zrem ret=", ret)
             mmInfo.backup()
             // redirect to parent FileList
-            router.push({
-                name: "filelist", params:{page:1, title: route.params.title}
-            });
+            router.push({name: "filelist", params:{page:1, title: route.params.title}});
         }, (err: Error) => {
             console.error("Zrem error=", err)
         })

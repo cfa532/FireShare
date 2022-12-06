@@ -7,7 +7,7 @@ const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmL
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
     "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Hmset", "Hmget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile",
     "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan",
-    "MMRelease", "MMBackup", "MFStat", "Zrem"
+    "MMRelease", "MMBackup", "MFStat", "Zrem", "Zremrangebyscore"
 ];
 
 function getcurips() {
@@ -23,7 +23,7 @@ function getcurips() {
     }
     { //for test
         // ips = "192.168.1.3:4800"
-        // ips = "192.168.1.4:8000"
+        ips = "192.168.1.4:8000"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
         // ips = "125.120.36.137:4800"
     }
@@ -107,7 +107,7 @@ export const useMimei = defineStore({
         // appid: "BM5UwSlQKiYbySrC5VLBYwFHY3s",
         // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",
         midNaviBar: "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid
-        mid: "u_iKj5EchsWqL2JQFgLOKSgSArq",
+        mid: "aWrd8Pne7tT2FUWM3pkfxdRkGeB",
         // mid: "ilc_mDQ-vS9jRIRw2w70pyf8ASN",             // for testing
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
