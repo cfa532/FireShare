@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { DhtReply } from '../global';
 // import { useRouter} from 'vue-router';
 import { router } from '../router'
 // const router = useRouter();
@@ -23,7 +24,7 @@ function getcurips() {
     }
     { //for test
         // ips = "192.168.1.3:4800"
-        ips = "192.168.1.4:8000"
+        // ips = "192.168.1.4:8000"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
         // ips = "125.120.36.137:4800"
     }
@@ -178,20 +179,39 @@ export const useMimei = defineStore({
                 return this;
             })
         },
-        backup() {
-            this.api.client.MMBackup(this.api.sid, this.mid, 'cur', (newVer:string)=>{
-                console.log("new ver=", newVer)
-            }, (err: Error) => {
-                console.error("MMBackup error="+err)
-            })
-            // return new Promise<string>((resolve, reject)=>{
-            //     this.api.client.MMBackup(this.api.sid, this.mid, 'cur', (newVer:string)=>{
-            //         console.log("new ver=", newVer)
-            //         resolve(newVer)
-            //     }, (err: Error) => {
-            //         reject("MMBackup error="+err)
-            //     })
+        async backup() {
+            // this.api.client.MMBackup(this.api.sid, this.mid, 'cur', (newVer:string)=>{
+            //     console.log("new ver=", newVer)
+            // }, (err: Error) => {
+            //     console.error("MMBackup error="+err)
             // })
+            return new Promise<string>((resolve, reject)=>{
+                this.api.client.MMBackup(this.api.sid, this.mid, 'cur', async (newVer:string)=>{
+                    do {
+                        await this.api.client.PullMsg(this.api.sid, 3, (msg:PulledMessage)=>{
+                            if (msg) {
+                                let arr = msg.msg.match(/ver=(.*)/i)
+                                // ['ver=248', '248', index: 0, input: 'ver=248', groups: undefined]
+                                if (arr) {
+                                    newVer = arr[1];
+                                    console.log("newVer=", arr[1], msg)
+                                    // now publish a new version of database Mimei
+                                    this.api.client.MiMeiPublish(this.api.sid, "", this.mid, (ret:DhtReply)=>{
+                                        console.log("Mimei publish []DhtReply=", ret)
+                                    }, (err:Error)=>{
+                                        console.error("MiMeiPublish err=", err)
+                                    })
+                                }
+                            }
+                        }, (err:Error)=>{
+                            console.error("PullMsg err=", err)
+                        })
+                    } while(!newVer)
+                    resolve(newVer)
+                }, (err: Error) => {
+                    reject("MMBackup error="+err)
+                })
+            })
         },
         async getColumn(title: string) {
             // given title, return Column obj, and set Column at the same time
