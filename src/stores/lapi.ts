@@ -106,7 +106,8 @@ export const useMimei = defineStore({
     state: ()=>({
         api: {} as any,      // leither api handler
         // appid: "BM5UwSlQKiYbySrC5VLBYwFHY3s",
-        // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",
+        // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",   // 1.4
+        // webdav: tA_66BjRts-xDEwlEb5STOZs4I5,     // 1.3
         midNaviBar: "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid
         mid: "aWrd8Pne7tT2FUWM3pkfxdRkGeB",
         // mid: "ilc_mDQ-vS9jRIRw2w70pyf8ASN",             // for testing
@@ -179,7 +180,7 @@ export const useMimei = defineStore({
                 return this;
             })
         },
-        async backup() {
+        backup() {
             // this.api.client.MMBackup(this.api.sid, this.mid, 'cur', (newVer:string)=>{
             //     console.log("new ver=", newVer)
             // }, (err: Error) => {
