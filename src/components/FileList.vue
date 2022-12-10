@@ -78,18 +78,16 @@ function fileName(file: FileInfo) {
 async function getFileList(pn: number) {
     // get mm file list on current page, page number start at 1
     let start = (pn - 1) * pageSize.value
-    console.log(mmInfo.$state, route.params, start)
+    console.log(route.params, start)
     api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start+pageSize.value-1, (sps:[])=>{
         fileList.value.length = 0
         console.log(sps)
         sps.forEach(async (element: ScorePair) => {
             api.client.Hget(await mmInfo.mmsid, route.params.title, element.member, (fi: FileInfo) => {
-                console.log(fi)
                 if (!fi || !fi.type || fi.size==0) {
                     console.warn("FileInfo Error", element)
                     return
                 }
-                
                 fi.macid = element.member
                 // temporarily use timestamp when the file is added to the SocrePairs, for sorting
                 fi.lastModified = element.score;
