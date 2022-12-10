@@ -1,4 +1,4 @@
-import { initCustomFormatter } from "vue"
+// import { initCustomFormatter } from "vue"
 
 interface Window {
   mmInfo: any       // add to window obj for testing convenience
@@ -28,7 +28,6 @@ type DhtReply = {
   dhtName: string
   info: string
 }
-
 interface ScorePair { 
   score: number
   member: string 

@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { DhtReply } from '../global';
 // import { useRouter} from 'vue-router';
 import { router } from '../router'
 // const router = useRouter();
@@ -23,7 +22,7 @@ function getcurips() {
         console.log("window.location", ips)
     }
     { //for test
-        // ips = "192.168.1.3:4800"
+        ips = "192.168.1.3:4800"
         // ips = "192.168.1.4:8000"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
         // ips = "125.120.36.137:4800"
@@ -117,35 +116,35 @@ export const useMimei = defineStore({
     getters: {
         naviColumnTree: function(state) {
             return new Promise<ContentColumn[]>((resolve, reject)=>{
-                // state._naviColumnTree = [
-                //     {"title":"News", "titleZh":"最新文档"}, 
-                //     {"title":"Pictures", "titleZh":"图片专区", "subColumn": [
-                //         {"title":"Western", "titleZh":"洋画"},
-                //         {"title":"Japan", "titleZh":"邦画"},
-                //         {"title":"Test", "titleZh":"TCL"}
-                //     ]},
-                //     {"title":"Webdav", "titleZh":"本地文档"}
-                // ];
-                // resolve(state._naviColumnTree);
-                if (state._naviColumnTree.length>0) resolve(state._naviColumnTree);
-                else {
-                    // if (localStorage.getItem("navibarcolumns")) {
-                    //     state._naviColumnTree = JSON.parse(localStorage.getItem("navibarcolumns")!)
-                    //     resolve(state._naviColumnTree)
-                    //     return
-                    // }
-                    this.api.client.MMOpen(this.api.sid, this.midNaviBar, "last", (mmsid: string)=>{
-                        console.log("MMOPen mmsid=", mmsid)
-                        this.api.client.MFGetObject(mmsid, (o:any)=>{
-                            state._naviColumnTree = o
-                            resolve(o)
-                        }, (err:Error)=>{
-                            reject("useMimei MFGetObject err="+err)
-                        })
-                    }, (err:Error)=>{
-                        reject("useMimei MMOpen err="+err)
-                    })
-                }
+                state._naviColumnTree = [
+                    {"title":"News", "titleZh":"最新文档"}, 
+                    {"title":"Pictures", "titleZh":"图片专区", "subColumn": [
+                        {"title":"Western", "titleZh":"洋画"},
+                        {"title":"Japan", "titleZh":"邦画"},
+                        {"title":"Test", "titleZh":"TCL"}
+                    ]},
+                    {"title":"Webdav", "titleZh":"本地文档"}
+                ];
+                resolve(state._naviColumnTree);
+                // if (state._naviColumnTree.length>0) resolve(state._naviColumnTree);
+                // else {
+                //     // if (localStorage.getItem("navibarcolumns")) {
+                //     //     state._naviColumnTree = JSON.parse(localStorage.getItem("navibarcolumns")!)
+                //     //     resolve(state._naviColumnTree)
+                //     //     return
+                //     // }
+                //     this.api.client.MMOpen(this.api.sid, this.midNaviBar, "last", (mmsid: string)=>{
+                //         console.log("MMOPen mmsid=", mmsid)
+                //         this.api.client.MFGetObject(mmsid, (o:any)=>{
+                //             state._naviColumnTree = o
+                //             resolve(o)
+                //         }, (err:Error)=>{
+                //             reject("useMimei MFGetObject err="+err)
+                //         })
+                //     }, (err:Error)=>{
+                //         reject("useMimei MMOpen err="+err)
+                //     })
+                // }
             })
         },    
         mmsid: function(state) {
