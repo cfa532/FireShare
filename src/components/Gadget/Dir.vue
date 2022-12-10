@@ -35,7 +35,7 @@ onMounted(()=>{
 watch(()=>props.filePath, (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {
         // console.log(toParams, prevParams)
-        // currentPage.value = 1       // to reload dir data when backWard key is clicked
+        currentPage.value = 1       // to reload dir data when <- or .. is clicked
         showDir(props.filePath)
     }
 })
