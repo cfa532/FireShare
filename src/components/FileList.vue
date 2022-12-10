@@ -132,7 +132,7 @@ async function getFileList(pn: number) {
         <Pager v-if="itemNumber / pageSize > 1" @page-changed="pageChanged" :current-page="currentPage"
             :page-size="pageSize" :item-number="itemNumber"></Pager>
     </div>
-    <div v-else-if="api.sid">
+    <div v-else>
         <MyDir :filePath="localRoot"></MyDir>
     </div>
 </template>

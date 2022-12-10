@@ -41,13 +41,19 @@ watch(()=>props.filePath, (toParams, prevParams)=>{
 })
 function showDir(filePath: string) {
     api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid: string) => {
-        api.client.MFReaddir(mmfsid, (files: any[]) => {
-            itemNumber.value = files.length
-            var st = (currentPage.value - 1) * pageSize.value
-            console.log("total items=", itemNumber.value, st, pageSize.value)
-            localFiles.value = files.slice(st, st + pageSize.value)
+        api.client.MFStat(mmfsid, (fi: any) => {
+            if (fi.fIsDir) {
+                api.client.MFReaddir(mmfsid, (files: any[]) => {
+                    itemNumber.value = files.length
+                    var st = (currentPage.value - 1) * pageSize.value
+                    console.log("total items=", itemNumber.value, st, pageSize.value)
+                    localFiles.value = files.slice(st, st + pageSize.value)
+                }, (err: Error) => {
+                    console.error("Readdir err=", err)
+                })
+            }
         }, (err: Error) => {
-            console.error("Readdir err=", err)
+            console.error("MFStat err=", err)
         })
     }, (err: Error) => {
         console.error("Open path err=", err)
