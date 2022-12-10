@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { PropType } from 'vue';
 import { useRouter } from 'vue-router'
-// import { useMimei } from '../stores/lapi';
+// import { useLeither } from '../stores/lapi';
+// const api = useLeither();
 const props = defineProps({
     column: {type: Object as PropType<ContentColumn>, required: true },
 })
 const router = useRouter();
+
 function goFilelist() {
     console.log(props.column)
     router.push({
-        name: "filelist", params:{page:1, title:props.column.title}
+        name: "filelist", params:{page: 1, title: props.column.title}
     });
 };
 </script>

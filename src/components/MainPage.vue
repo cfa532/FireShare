@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, nextTick, computed } from "vue";
 import ColumnVue from "./Column.vue";
 import MsgVue from "./Msg.vue";
 import { useMimei, useLeither } from "../stores/lapi"
 
 const api = useLeither();
 const mmInfo = useMimei();
-const contentColumn = ref()
+const contentColumn = ref<ContentColumn[]>([])
 const msg = ref();
 onMounted(async ()=>{
     try {
@@ -26,8 +26,13 @@ onMounted(async ()=>{
         api.logout();
     }
 })
-
-
+function showWebdav() {
+    // hide local Webdav if not login
+    return contentColumn.value!.filter((e)=>{
+        let l =  e.title==="Webdav";
+        return l? l && api.sid : true;
+    })
+}
 </script>
 
 <template>
@@ -36,7 +41,7 @@ onMounted(async ()=>{
         <li><RouterLink active-class="active" :to="{name: 'main'}">众众</RouterLink></li>
     </ul>
     <ul>
-        <li v-for="(c, i) in contentColumn" :key="i">
+        <li v-for="(c, i) in showWebdav()" :key="i">
             <column-vue :column=c></column-vue>
         </li>
     </ul>
