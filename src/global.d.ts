@@ -1,5 +1,3 @@
-import { initCustomFormatter } from "vue"
-
 interface Window {
   mmInfo: any       // add to window obj for testing convenience
   getParam: any
