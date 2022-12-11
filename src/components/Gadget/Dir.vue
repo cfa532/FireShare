@@ -6,7 +6,7 @@ const api = useLeither();
 const mmInfo = useMimei();
 const localFiles = ref<any[]>();
 const currentPage = ref(1)
-const pageSize  = ref(20)
+const pageSize  = ref(30)       // number of items displayed per page
 const itemNumber = ref(1)
 const props = defineProps({
     filePath: {type: String, required: true},
@@ -44,6 +44,8 @@ function showDir(filePath: string) {
         api.client.MFStat(mmfsid, (fi: any) => {
             if (fi.fIsDir) {
                 api.client.MFReaddir(mmfsid, (files: any[]) => {
+                    // sort according to file name
+                    files.sort((a, b)=> a.fName < b.fName ? -1 : 1)
                     itemNumber.value = files.length
                     var st = (currentPage.value - 1) * pageSize.value
                     console.log("total items=", itemNumber.value, st, pageSize.value)
