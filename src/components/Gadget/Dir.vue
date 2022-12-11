@@ -6,7 +6,7 @@ const api = useLeither();
 const mmInfo = useMimei();
 const localFiles = ref<any[]>();
 const currentPage = ref(1)
-const pageSize  = ref(20)
+const pageSize  = ref(30)       // number of items displayed per page
 const itemNumber = ref(1)
 const props = defineProps({
     filePath: {type: String, required: true},
@@ -44,6 +44,8 @@ function showDir(filePath: string) {
         api.client.MFStat(mmfsid, (fi: any) => {
             if (fi.fIsDir) {
                 api.client.MFReaddir(mmfsid, (files: any[]) => {
+                    // sort according to file name
+                    files.sort((a, b)=> a.fName < b.fName ? -1 : 1)
                     itemNumber.value = files.length
                     var st = (currentPage.value - 1) * pageSize.value
                     console.log("total items=", itemNumber.value, st, pageSize.value)
@@ -59,6 +61,18 @@ function showDir(filePath: string) {
         console.error("Open path err=", err)
     })
 }
+async function showMMDir(mmPath: string) {
+    try {
+        let mmsid = await api.client.MMOpenUrl();
+        let files = api.client.MFReaddir(mmsid);
+        itemNumber.value = files.length
+        var st = (currentPage.value - 1) * pageSize.value
+        localFiles.value = files.slice(st, st + pageSize.value)
+    } catch(err) {
+        console.error("showMMDir err=", err)
+    }
+}
+
 function fileDownload(e: MouseEvent, file: any){
     api.client.MFOpenByPath(api.sid, "mmroot", filePath.value+file.fName, 0, (mmfsid:string)=>{
         api.client.MFGetData(mmfsid, 0, -1, (fileData:Uint8Array)=>{
