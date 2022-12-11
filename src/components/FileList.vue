@@ -79,24 +79,25 @@ async function getFileList(pn: number) {
     // get mm file list on current page, page number start at 1
     let start = (pn - 1) * pageSize.value
     console.log(route.params, start)
-    api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start+pageSize.value-1, (sps:[])=>{
-        fileList.value.length = 0
+    api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start+pageSize.value-1, async (sps:ScorePair[])=>{
+        fileList.value.length = 0       // clear fileList array
         console.log(sps)
-        sps.forEach(async (element: ScorePair) => {
-            api.client.Hget(await mmInfo.mmsid, route.params.title, element.member, (fi: FileInfo) => {
+        let mbs = sps.map((sp:ScorePair)=> sp.member)
+        api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mbs, (fis: FileInfo[]) => {
+            fis.forEach((fi, idx)=>{
                 if (!fi || !fi.type || fi.size==0) {
-                    console.warn("FileInfo Error", element)
+                    console.warn("FileInfo Error", sps[idx], fi)
                     return
                 }
-                fi.macid = element.member
+                fi.macid = sps[idx].member
                 // temporarily use timestamp when the file is added to the SocrePairs, for sorting
-                fi.lastModified = element.score;
+                fi.lastModified = sps[idx].score;
                 fileList.value.push(fi)
-                fileList.value.sort((a: FileInfo, b: FileInfo) => a.lastModified > b.lastModified ? -1 : 1)
-            }, (err: Error) => {
-                console.error("Hget error=", err, element)
             })
-        });
+            // fileList.value.sort((a: FileInfo, b: FileInfo) => a.lastModified > b.lastModified ? -1 : 1)
+        }, (err: Error) => {
+            console.error("Hget error=", err)
+        })
     }, (err: Error) => {
         console.error("Zrevrange error=", err)
     })
@@ -129,7 +130,7 @@ async function getFileList(pn: number) {
                 </a>
             </li>
         </ul>
-        <Pager v-if="itemNumber / pageSize > 1" @page-changed="pageChanged" :current-page="currentPage"
+        <Pager v-if="itemNumber/pageSize>1" @page-changed="pageChanged" :current-page="currentPage"
             :page-size="pageSize" :item-number="itemNumber"></Pager>
     </div>
     <div v-else>

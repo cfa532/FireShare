@@ -21,13 +21,15 @@ const lastPage = computed(():number=>{
 onMounted(()=>{
     console.log("Pager mounted", props)
 })
+const emit = defineEmits(["pageChanged"])
 function naviPage(n: number) {
     if (n===props.currentPage) return
     if (n<1) n=1
     else if (n>Math.ceil(props.itemNumber/props.pageSize))
         n=Math.ceil(props.itemNumber/props.pageSize)
         
-    self.dispatchEvent(new CustomEvent('pageChanged', {detail:{'page':n}, bubbles:true, composed:true}))
+    // self.dispatchEvent(new CustomEvent('pageChanged', {detail:{'page':n}, bubbles:true, composed:true}))
+    emit("pageChanged", n)
 }
 </script>
 

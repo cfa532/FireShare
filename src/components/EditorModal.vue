@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CSSProperties, onMounted, ref, shallowRef, watch, computed, reactive } from "vue";
+import { CSSProperties, onMounted, ref, watch, computed } from "vue";
 import Preview from "./Gadget/Preview.vue";
 import { useLeither, useMimei } from '../stores/lapi'
 const api = useLeither();
