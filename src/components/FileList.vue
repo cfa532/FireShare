@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
-import { useLeither, useMimei } from '../stores/lapi';
+import { computed, onMounted, ref } from "vue";
+import { useLeither, useMimei, useSpinner } from '../stores/lapi';
 import { useRoute, useRouter } from "vue-router";
 import MyDir from './Gadget/Dir.vue';
 import Pager from "./Gadget/Pager.vue";
 import NaviBar from "./NaviBar.vue";
 import EditorModal from "./EditorModal.vue";
+import SpinnerVue from "./Gadget/Spinner.vue";
 // import { defineAsyncComponent } from 'vue'
 // const EditorModal = defineAsyncComponent(()=>import("./EditorModal.vue"));
 const api = useLeither()
 const mmInfo = useMimei()
-
 const route = useRoute()
 const router = useRouter()
 const fileList = ref<FileInfo[]>([])
@@ -25,9 +25,10 @@ onMounted(async ()=>{
     await mmInfo.init(api)
     console.log("FileList mounted:", route.params)
     if (route.params.title !== "Webdav") {
-        api.client.Zcount(mmInfo.mmsid, route.params.title, 0, Date.now(), (count: number)=>{     // -1 does not work for stop
+        api.client.Zcount(mmInfo.mmsid, route.params.title, 0, Date.now(), async (count: number)=>{     // -1 does not work for stop
             itemNumber.value = count;    // total num of items in the list as a Mimei
-            getFileList(currentPage.value);
+            await getFileList(currentPage.value);
+            useSpinner().setLoadingState(false)
         }, (err: Error) => {
             console.error("Zcount error=", err)
         })
@@ -110,6 +111,7 @@ async function getFileList(pn: number) {
 
 <template>
     <NaviBar :column="(columnTitle as string)"></NaviBar>
+    <SpinnerVue :active="useSpinner().loading" message="Please wait......"/>
     <!-- <hr/> -->
     <div v-if="columnTitle !== 'Webdav'">
         <div v-show="api.sid">

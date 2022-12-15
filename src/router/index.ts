@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import { useLeither } from "../stores/lapi";
+import { useLeither, useSpinner } from "../stores/lapi";
 import FileListVue from '../components/FileList.vue';
 import MainPageVue from '../components/MainPage.vue';
 import FileViewVue from '../components/FileView.vue';        // Mac files within a MM
@@ -14,7 +14,11 @@ export const router = createRouter({
     routes: [
         { path: '/', name:"main", component: MainPageVue},
         { path: '/login', name:"login", component: Login},
-        { path: '/filelist/:title/:page?', name:"filelist", component: FileListVue},
+        { path: '/filelist/:title/:page?', name:"filelist", component: FileListVue,
+            beforeEnter: (to, from)=>{
+                const s = useSpinner().setLoadingState(true);
+                console.log("Before entering filelist", to.path)
+            }},
         { path: '/fileview/:title/:macid/:fileType', name:"fileview", component: FileViewVue},
         { path: '/fileview2/:title/:filePath', name:"fileview2", component: FileView2Vue},
         // catch all redirect to home page
@@ -23,6 +27,5 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to) => {
-    const authLeither = useLeither();
     // before each route change, check use authority
 })

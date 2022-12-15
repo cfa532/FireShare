@@ -23,13 +23,25 @@ function getcurips() {
     }
     { //for test
         // ips = "192.168.1.3:4800"
-        ips = "192.168.1.4:8000"
+        // ips = "192.168.1.4:8000"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        // ips = "125.120.36.137:4800"
+        // ips = "122.231.244.132:8000"
     }
     return ips
 };
 const ips = getcurips();
+
+export const useSpinner = defineStore({
+    id: "loadSpinner",
+    state: ()=>({
+        loading: true
+    }),
+    actions: {
+        setLoadingState(s: boolean) {
+            this.loading = s;
+        }
+    }
+});
 
 export const useLeither = defineStore({
     id: 'LeitherApiHandler', 
