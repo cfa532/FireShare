@@ -11,7 +11,7 @@ const mmInfo = useMimei()
 const props = defineProps({
     macid : {type: String, required: false},
     fileType: {type: String, required: false},
-    column: {type: String, required: false},
+    title: {type: String, required: false},
 });
 const textContent = ref("")
 onMounted(async () => {

@@ -29,11 +29,11 @@ const userComponent = computed(() => {
         console.warn("Unknown file type:", fileType)
     }
 })
-const currentProperty = route.params    // params: {macid:file.macid, fileType:file.type}}
+const currentProperty = computed(()=>route.params)    // params: {macid:file.macid, fileType:file.type}}
 
 onMounted(async ()=>{
     await mmInfo.init(api)
-    console.log("FileView mounted,", route.params, "mmsid=", await mmInfo.mmsid)
+    console.log("FileView mounted,", route.params)
     useSpinner().setLoadingState(false)
 })
 async function deleteFile() {
