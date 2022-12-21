@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
-import { useLeither, useMimei } from "../../stores/lapi";
+import { useLeither, useMimei, useSpinner } from "../../stores/lapi";
 import Pager from "./Pager.vue"
 const api = useLeither();
 const mmInfo = useMimei();
@@ -26,6 +26,7 @@ const filePath = computed(()=>{
 onMounted(()=>{
     console.log("Dir mounted:", props)
     showDir(props.filePath)
+    useSpinner().setLoadingState(false)
 })
 watch(()=>props.filePath, (toParams, prevParams)=>{
     if (toParams as string !== prevParams as string) {
