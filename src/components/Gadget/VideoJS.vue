@@ -30,7 +30,7 @@ onMounted(()=>{
         }]
         loadPlayer(options)
     } else {
-        // play mimei file
+        // play mac file
         api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
             options.sources = [{
                 src: api.baseUrl + "mf" + "?mmsid=" + fsid,
