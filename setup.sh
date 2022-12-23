@@ -29,20 +29,23 @@ readInput MYDOMAIN "user domain"
 #./Leither lpki genkey -o $KEYFILE.key
 #./Leither lpki genca -k $KEYFILE.key -m "name=$KEYFILE" -o $KEYFILE.ca
 #./Leither lpki gencert -k $KEYFILE.key -m "name=forapp" -o $KEYFILE.cert
-./Leither lpki signppt -c $KEYFILE.cert -m "CertFor=Self" -o ${KEYFILE}login.ppt
 echo ./Leither lpki signppt -c $KEYFILE.cert -m "CertFor=Self" -o ${KEYFILE}login.ppt
-echo "Credential files created"
+./Leither lpki signppt -c $KEYFILE.cert -m "CertFor=Self" -o ${KEYFILE}login.ppt
+echo "PPT files created"
 
 URL=http://$URL/
 #URL=h4V196PipVUv8gf-Zwj9HQLWfV-
 #URL=http://[2001:b011:e608:383d:afa3:1537:65bd:9984]:4800/
+echo -e "\n./Leither lpki reqservice -c $KEYFILE.cert -m RequestService=mimei -n $URL"
 ./Leither lpki reqservice -c $KEYFILE.cert -m RequestService=mimei -n $URL
-echo "./Leither lpki reqservice -c $KEYFILE.cert -m RequestService=mimei -n $URL"
 
-echo "APP uploaded to service node"
-./Leither lapp uploadapp -p ${KEYFILE}login.ppt -i ./$MYAPP -n $URL
+echo -e "\nupload APP to service node"
 echo ./Leither lapp uploadapp -p ${KEYFILE}login.ppt -i ./$MYAPP -n $URL
+./Leither lapp uploadapp -p ${KEYFILE}login.ppt -i ./$MYAPP -n $URL
 
+#echo ./Leither lapp setdomain -d $MYDOMAIN.$GWADDR -n $URL -a $MYAPP -p ${KEYFILE}login.ppt -m gwaddr=$GWADDR
 #./Leither lapp setdomain -d $MYDOMAIN.$GWADDR -n $URL -a $MYAPP -p ${KEYFILE}login.ppt -m gwaddr=$GWADDR
+echo -e "\n Backup App"
+echo ./Leither lapp backup -a $MYAPP -p ${KEYFILE}login.ppt -n $URL
 ./Leither lapp backup -a $MYAPP -p ${KEYFILE}login.ppt -n $URL
 echo "APP published successfully"

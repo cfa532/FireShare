@@ -12,7 +12,6 @@ if (err ~= nil) then
 end
 print("MMCreate mid=", mid)
 
-
 --打开弥媒
 mmsid, err = mm.MMOpen(sid, mid, 'cur');
 if (err ~= nil) then
@@ -45,7 +44,6 @@ if (err ~= nil) then
 	return err
 end
 print('guest MMOpen mmsid1=', mmsid1);
-
 
 value, err = mm.HGet(mmsid1, 'key0', 'field0');
 if (err ~= nil) then

@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
-import { useLeither, useMimei } from '../stores/lapi';
+import { computed, onMounted, ref } from "vue";
+import { useLeither, useMimei, useSpinner } from '../stores/lapi';
 import { useRoute, useRouter } from "vue-router";
 import MyDir from './Gadget/Dir.vue';
 import Pager from "./Gadget/Pager.vue";
 import NaviBar from "./NaviBar.vue";
 import EditorModal from "./EditorModal.vue";
+import SpinnerVue from "./Gadget/Spinner.vue";
 // import { defineAsyncComponent } from 'vue'
 // const EditorModal = defineAsyncComponent(()=>import("./EditorModal.vue"));
 const api = useLeither()
 const mmInfo = useMimei()
-
 const route = useRoute()
 const router = useRouter()
 const fileList = ref<FileInfo[]>([])
@@ -25,9 +25,10 @@ onMounted(async ()=>{
     await mmInfo.init(api)
     console.log("FileList mounted:", route.params)
     if (route.params.title !== "Webdav") {
-        api.client.Zcount(mmInfo.mmsid, route.params.title, 0, Date.now(), (count: number)=>{     // -1 does not work for stop
+        api.client.Zcount(mmInfo.mmsid, route.params.title, 0, Date.now(), async (count: number)=>{     // -1 does not work for stop
             itemNumber.value = count;    // total num of items in the list as a Mimei
-            getFileList(currentPage.value);
+            await getFileList(currentPage.value);
+            useSpinner().setLoadingState(false)
         }, (err: Error) => {
             console.error("Zcount error=", err)
         })
@@ -79,24 +80,25 @@ async function getFileList(pn: number) {
     // get mm file list on current page, page number start at 1
     let start = (pn - 1) * pageSize.value
     console.log(route.params, start)
-    api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start+pageSize.value-1, (sps:[])=>{
-        fileList.value.length = 0
+    api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start+pageSize.value-1, async (sps:ScorePair[])=>{
+        fileList.value.length = 0       // clear fileList array
         console.log(sps)
-        sps.forEach(async (element: ScorePair) => {
-            api.client.Hget(await mmInfo.mmsid, route.params.title, element.member, (fi: FileInfo) => {
+        let mbs = sps.map((sp:ScorePair)=> sp.member)
+        api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mbs, (fis: FileInfo[]) => {
+            fis.forEach((fi, idx)=>{
                 if (!fi || !fi.type || fi.size==0) {
-                    console.warn("FileInfo Error", element)
+                    console.warn("FileInfo Error", sps[idx], fi)
                     return
                 }
-                fi.macid = element.member
+                fi.macid = sps[idx].member
                 // temporarily use timestamp when the file is added to the SocrePairs, for sorting
-                fi.lastModified = element.score;
+                fi.lastModified = sps[idx].score;
                 fileList.value.push(fi)
-                fileList.value.sort((a: FileInfo, b: FileInfo) => a.lastModified > b.lastModified ? -1 : 1)
-            }, (err: Error) => {
-                console.error("Hget error=", err, element)
             })
-        });
+            // fileList.value.sort((a: FileInfo, b: FileInfo) => a.lastModified > b.lastModified ? -1 : 1)
+        }, (err: Error) => {
+            console.error("Hget error=", err)
+        })
     }, (err: Error) => {
         console.error("Zrevrange error=", err)
     })
@@ -109,6 +111,7 @@ async function getFileList(pn: number) {
 
 <template>
     <NaviBar :column="(columnTitle as string)"></NaviBar>
+    <SpinnerVue :active="useSpinner().loading" message="Please wait......"/>
     <!-- <hr/> -->
     <div v-if="columnTitle !== 'Webdav'">
         <div v-show="api.sid">
@@ -129,7 +132,7 @@ async function getFileList(pn: number) {
                 </a>
             </li>
         </ul>
-        <Pager v-if="itemNumber / pageSize > 1" @page-changed="pageChanged" :current-page="currentPage"
+        <Pager v-if="itemNumber/pageSize>1" @page-changed="pageChanged" :current-page="currentPage"
             :page-size="pageSize" :item-number="itemNumber"></Pager>
     </div>
     <div v-else>

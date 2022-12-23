@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CSSProperties, onMounted, ref, shallowRef, watch, computed, reactive } from "vue";
+import { CSSProperties, onMounted, ref, watch, computed } from "vue";
 import Preview from "./Gadget/Preview.vue";
 import { useLeither, useMimei } from '../stores/lapi'
 const api = useLeither();
@@ -27,17 +27,17 @@ interface HTMLInputEvent extends Event { target: HTMLInputElement & EventTarget 
 const emit = defineEmits(["uploaded", "hide"])
 const form = ref();
 const inpCaption = ref()
-const textValue = ref()
+const textValue = ref("")
 const caption = ref<HTMLFormElement>();
 const divAttach = ref()
 const dropHere = ref()
 const textArea = ref()
 const myModal = ref()
 const sliceSize = 1024 * 1024 * 10    // 10MB per slice of file
-const filesUpload = ref();
+const filesUpload = ref<File[]>([]);
 const props = defineProps({
-    text : {type: String, required: false},       // text input from editor
-    attachments: {type: [File], required: false},
+    // text : {type: String, required: false},       // text input from editor
+    // attachments: {type: [File], required: false},
     display: {type: String, required: false, default:"none"},
     column: {type: String, required: true}
 })
@@ -52,9 +52,9 @@ const classModal = computed(():CSSProperties=>{
   }
 })
 onMounted(async () => {
-  // await mmInfo.init(api)
-  textValue.value = props.text? props.text : "";
-  filesUpload.value = props.attachments? props.attachments.slice(0) : [];
+  await mmInfo.init(api)
+  // textValue.value = props.text? props.text : "";
+  // filesUpload.value = props.attachments? props.attachments.slice(0) : [];
   console.log("Editor mount", props)
 })
 function onSelect(e: Event) {
@@ -147,7 +147,7 @@ async function onSubmit() {
     // create MM database for the column, new item is added to this MM.
     // add new itme to index table of ScorePair
     api.client.Zadd(mmsidCur, props.column, new ScorePair( Date.now(), macids[0]), async (ret: number)=>{
-      console.log("Zadd ScorePair for the file, ret=", ret, await mmInfo.mmsid)
+      console.log("Zadd ScorePair for the file, ret=", ret, props.column)
       // back mm data for publish
       mmInfo.backup()
 
@@ -175,7 +175,7 @@ async function onSubmit() {
           api.client.Hset(mmsidCur, props.column, macid, fi, (ret: number) => {
             api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), macid), (ret: number) => {
               fi.macid = macid
-              console.log("Zadd ret=", ret, fi)
+              console.log("Zadd ret=", ret, fi, props)
               // back mm data for publish
               mmInfo.backup()
 

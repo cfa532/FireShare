@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import { computed, onMounted } from "vue";
+import { router } from '../router';
 import { useRoute } from 'vue-router';
-import { useLeither, useMimei } from '../stores/lapi';
+import { useLeither, useMimei, useSpinner } from '../stores/lapi';
 import NaviBarVue from './NaviBar.vue';
 import MyImg from './Gadget/Image.vue';
 import MyPdf from './Gadget/pdf.vue';
 import VideoPlayer from './Gadget/VideoJS.vue';
 import Page from './Gadget/Html.vue';
 import ShareVue from './Gadget/Share.vue';
-import { computed, onMounted } from "vue";
-import { router } from '../router';
+import SpinnerVue from "./Gadget/Spinner.vue";
 
 const api = useLeither()
 const mmInfo = useMimei()
@@ -28,11 +29,12 @@ const userComponent = computed(() => {
         console.warn("Unknown file type:", fileType)
     }
 })
-const currentProperty = route.params    // params: {macid:file.macid, fileType:file.type}}
+const currentProperty = computed(()=>route.params)    // params: {macid:file.macid, fileType:file.type}}
 
 onMounted(async ()=>{
     await mmInfo.init(api)
-    console.log("FileView mounted,", route.params, "mmsid=", await mmInfo.mmsid)
+    console.log("FileView mounted,", route.params)
+    useSpinner().setLoadingState(false)
 })
 async function deleteFile() {
     try {
@@ -52,6 +54,7 @@ async function deleteFile() {
 
 <template>
     <NaviBarVue :column="(route.params.title as string)"></NaviBarVue>
+    <SpinnerVue :active="useSpinner().loading" message="Please wait......"/>
     <!-- <hr/> -->
     <ShareVue @delete-file="deleteFile"  ref="shareMenu" v-bind="currentProperty"></ShareVue>
     <KeepAlive>

@@ -25,11 +25,24 @@ function getcurips() {
         // ips = "192.168.1.3:4800"
         // ips = "192.168.1.4:8000"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        // ips = "125.120.36.137:4800"
+        // ips = "125.120.218.249:8000"
+        // ips = "127.0.0.1:8000"
     }
     return ips
 };
 const ips = getcurips();
+
+export const useSpinner = defineStore({
+    id: "loadSpinner",
+    state: ()=>({
+        loading: true
+    }),
+    actions: {
+        setLoadingState(s: boolean) {
+            this.loading = s;
+        }
+    }
+});
 
 export const useLeither = defineStore({
     id: 'LeitherApiHandler', 
@@ -108,7 +121,7 @@ export const useMimei = defineStore({
         // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",   // 1.4
         // webdav: tA_66BjRts-xDEwlEb5STOZs4I5,     // 1.3
         midNaviBar: "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid
-        mid: "aWrd8Pne7tT2FUWM3pkfxdRkGeB",
+        mid: "CNyB67yd4h9Gt-wJRep2aRgZyAD",
         // mid: "ilc_mDQ-vS9jRIRw2w70pyf8ASN",             // for testing
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
@@ -151,7 +164,7 @@ export const useMimei = defineStore({
             return new Promise<string>((resolve, reject)=>{
                 if (state._mmsid) resolve(state._mmsid);
                 else {
-                    this.api.client.MMOpen(this.api.sid, this.mid, "last", (mmsid: string)=>{
+                    this.api.client.MMOpen(this.api.sid, this.mid, "cur", (mmsid: string)=>{
                         state._mmsid = mmsid;
                         resolve(mmsid);
                     }, (err:Error)=>{
@@ -204,6 +217,7 @@ export const useMimei = defineStore({
                                 }
                             }
                         }, (err:Error)=>{
+                            newVer = "error";
                             console.error("PullMsg err=", err)
                         })
                     } while(!newVer)
