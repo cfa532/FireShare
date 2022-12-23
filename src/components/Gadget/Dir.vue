@@ -23,9 +23,9 @@ const filePath = computed(()=>{
     return props.filePath==='/' ? '/' : props.filePath+'/';
 })
 
-onMounted(()=>{
+onMounted(async ()=>{
     console.log("Dir mounted:", props)
-    showDir(props.filePath)
+    await showDir(props.filePath)
     useSpinner().setLoadingState(false)
 })
 watch(()=>props.filePath, (toParams, prevParams)=>{
@@ -39,37 +39,21 @@ function pageChanged(n: number) {
     currentPage.value = n
     showDir(props.filePath)
 }
-function showDir(filePath: string) {
-    api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid: string) => {
-        api.client.MFStat(mmfsid, (fi: any) => {
-            if (fi.fIsDir) {
-                api.client.MFReaddir(mmfsid, (files: any[]) => {
-                    // sort according to file name
-                    files.sort((a, b)=> a.fName < b.fName ? -1 : 1)
-                    itemNumber.value = files.length
-                    var st = (currentPage.value - 1) * pageSize.value
-                    console.log("total items=", itemNumber.value, st, pageSize.value)
-                    localFiles.value = files.slice(st, st + pageSize.value)
-                }, (err: Error) => {
-                    console.error("Readdir err=", err)
-                })
-            }
-        }, (err: Error) => {
-            console.error("MFStat err=", err)
-        })
-    }, (err: Error) => {
-        console.error("Open path err=", err)
-    })
-}
-async function showMMDir(mmPath: string) {
+async function showDir(filePath: string) {
     try {
-        let mmsid = await api.client.MMOpenUrl();
-        let files = api.client.MFReaddir(mmsid);
-        itemNumber.value = files.length
-        var st = (currentPage.value - 1) * pageSize.value
-        localFiles.value = files.slice(st, st + pageSize.value)
+        let mmfsid = await api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0);
+        let fi = await api.client.MFStat(mmfsid);
+        if (fi.fIsDir) {
+            let files: any[] = await api.client.MFReaddir(mmfsid)
+            // sort according to file name
+            files.sort((a, b)=> a.fName < b.fName ? -1 : 1)
+            itemNumber.value = files.length
+            var st = (currentPage.value - 1) * pageSize.value
+            console.log("total items=", itemNumber.value, st, pageSize.value)
+            localFiles.value = files.slice(st, st + pageSize.value)
+        }
     } catch(err) {
-        console.error("showMMDir err=", err)
+        console.error(err)
     }
 }
 

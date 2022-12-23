@@ -111,7 +111,7 @@ async function getFileList(pn: number) {
 
 <template>
     <NaviBar :column="(columnTitle as string)"></NaviBar>
-    <SpinnerVue :active="useSpinner().loading" message="Please wait......"/>
+    <SpinnerVue :active="useSpinner().loading" text="Please wait......"/>
     <!-- <hr/> -->
     <div v-if="columnTitle !== 'Webdav'">
         <div v-show="api.sid">

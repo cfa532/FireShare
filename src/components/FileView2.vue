@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { useLeither, useMimei } from '../stores/lapi';
+import { useLeither, useMimei, useSpinner } from '../stores/lapi';
 import NaviBarVue from './NaviBar.vue';
 import MyImg from './Gadget/Image.vue';
 import MyPdf from './Gadget/pdf.vue';
@@ -78,6 +78,7 @@ watch(()=>route.params.filePath, (toParams, prevParams)=>{
 
 <template>
     <NaviBarVue :column="columnTitle"></NaviBarVue>
+    <SpinnerVue :active="useSpinner().loading" text="Please wait......"/>
     <!-- show Share menu if not Dir view -->
     <ShareVue v-if="userComponent != MyDir"></ShareVue>
     <KeepAlive>
