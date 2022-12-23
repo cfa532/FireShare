@@ -15,7 +15,9 @@
     name: 'Loader',
     props: {
       active: Boolean,
-      text: String
+      text: {
+        type: String, required: false, default: "Please wait....."
+      }
     }
   }
   </script>

@@ -59,7 +59,8 @@ async function showDir(filePath: string) {
 // }
 // async function showMMDir(mmPath: string) {
     const files = [
-        {fName: "Burnt, 2015.mp4", cid: "QmP8i1tEnV8WwCmUbzpkkT1epJFiNaZiuiGR6kNKqhfgLf"}
+        {fName: "Burnt 2015.mp4", template:"ipfs", id: "QmP8i1tEnV8WwCmUbzpkkT1epJFiNaZiuiGR6kNKqhfgLf"},
+        {fName: "Matrix 1999.mp4", template:"tpt", id: "dJM6X7OTmJXbGqPQaFdAZ3kGpBl"},
     ];
     try {
         itemNumber.value = files.length
@@ -84,12 +85,16 @@ function fileDownload(e: MouseEvent, file: any){
         console.error("Open by path err=", err)
     })
 }
-function showVideo(cid: string) {
-    console.log(cid);
-    let objUrl = api.baseUrl + "ipfs/" + cid
-    let strVideo = '<video controls autoplay style="width:100%" id= "media" name="media"><source src="' + objUrl+ '" type="video/mp4"> </video>'
-    document.getElementById('dirBody')!.innerHTML = strVideo
-    history.pushState({key: Date.now()}, "", location.href)
+function showVideo(file: any) {
+    console.log(file);
+    let objUrl = api.baseUrl + file.template + "/" + file.id
+    if (file.template == "tpt") {
+        window.open(objUrl, '_blank');
+    } else {
+        let strVideo = '<video controls autoplay style="width:100%" id= "media" name="media"><source src="' + objUrl+ '" type="video/mp4"> </video>'
+        document.getElementById('dirBody')!.innerHTML = strVideo
+    }
+    // history.pushState({key: Date.now()}, "", location.href)
 }
 </script>
 
@@ -104,7 +109,7 @@ function showVideo(cid: string) {
             href="#" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.fName}} &dArr;
         </a>
         <a v-else 
-            href="#" @click.prevent="showVideo(file.cid)">{{file.fName}}
+            href="#" @click.prevent="showVideo(file)">{{file.fName}}
         </a>
         <span v-if="file.fIsDir"> ...&gt;</span>
     </li>
