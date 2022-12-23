@@ -26,7 +26,6 @@ type DhtReply = {
   dhtName: string
   info: string
 }
-
 interface ScorePair { 
   score: number
   member: string 

@@ -139,4 +139,3 @@ async function getFileList(pn: number) {
         <MyDir :filePath="localRoot"></MyDir>
     </div>
 </template>
-
