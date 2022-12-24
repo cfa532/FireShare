@@ -108,9 +108,9 @@ function showVideo(file: any) {
         <a v-if="['docx', 'doc'].includes(file.fName.substring(file.fName.length-3).toLowerCase())"
             href="#" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.fName}} &dArr;
         </a>
-        <a v-else 
-            href="#" @click.prevent="showVideo(file)">{{file.fName}}
-        </a>
+        <RouterLink v-else
+            :to="{ name:'fileview3', params:{tpt:file.template, id:file.id}}">{{file.fName}}
+        </RouterLink>
         <span v-if="file.fIsDir"> ...&gt;</span>
     </li>
     </ul>

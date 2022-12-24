@@ -1,9 +1,10 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import { useLeither, useSpinner } from "../stores/lapi";
+import { useSpinner } from "../stores/lapi";
 import FileListVue from '../components/FileList.vue';
 import MainPageVue from '../components/MainPage.vue';
-import FileViewVue from '../components/FileView.vue';        // Mac files within a MM
-import FileView2Vue from '../components/FileView2.vue';      // view files in webdav under Leither
+import FileViewVue from '../components/FileView.vue';        // Mac files within a MM database
+import FileView2Vue from '../components/FileView2.vue';      // view files in /webdav under Leither
+import FileView3Vue from '../components/FileView3.vue';      // view mm files
 import Login from '../components/Login.vue';
 
 // const MainPageVue = ()=>import('../components/MainPage.vue')
@@ -21,6 +22,7 @@ export const router = createRouter({
             }},
         { path: '/fileview/:title/:macid/:fileType', name:"fileview", component: FileViewVue},
         { path: '/fileview2/:title/:filePath', name:"fileview2", component: FileView2Vue},
+        { path: '/fileview3/:tpt/:id', name:"fileview3", component: FileView3Vue},
         // catch all redirect to home page
         { path: '/:pathMatch(.*)*', redirect: '/' }
     ],

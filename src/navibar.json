@@ -1,11 +1,12 @@
 [
     {"title":"News", "titleZh":"最新文档", "subColumn": [
-        {"title": "covid101", "titleZh":"Beijing Covid"},
-        {"title": "world", "titleZh":"World"}
+        {"title": "Covid101", "titleZh":"Beijing Covid"},
+        {"title": "World", "titleZh":"World"}
     ]}, 
     {"title":"Twitter", "titleZh":"推特", "subColumn": [
         {"title":"Funny", "titleZh":"搞笑"},
-        {"title":"pets", "titleZh":"萌宠"}
+        {"title":"Pets", "titleZh":"萌宠"},
+        {"title":"XinhuaNews", "titleZh":"新华News"}
     ]},
     {"title":"Youtube", "titleZh":"油管", "subColumn": [
         {"title":"Workout", "titleZh":"运动"}
