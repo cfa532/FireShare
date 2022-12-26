@@ -164,7 +164,7 @@ export const useMimei = defineStore({
             return new Promise<string>((resolve, reject)=>{
                 if (state._mmsid) resolve(state._mmsid);
                 else {
-                    this.api.client.MMOpen(this.api.sid, this.mid, "cur", (mmsid: string)=>{
+                    this.api.client.MMOpen(this.api.sid, this.mid, "last", (mmsid: string)=>{
                         state._mmsid = mmsid;
                         resolve(mmsid);
                     }, (err:Error)=>{

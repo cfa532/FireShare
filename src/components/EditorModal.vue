@@ -96,16 +96,6 @@ function uploadFile(files: File[]) {
     })
   }))
 }
-function saveFVs(mmsid: string, fv: FVPair[]) {
-  return new Promise((resolve, reject) => {
-    api.client.Hmset(mmsid, props.column, ...fv, (ret: number) => {
-      // set field 'macid's value to a 'fileInfo' in hashtable
-      resolve(true);
-    }, (err: Error) => {
-      reject("Hmset error " + err)
-    })
-  })
-}
 async function onSubmit() {
   if (!inpCaption.value || inpCaption.value!.trim()==="") {
     // remind user to input caption, autofocus
@@ -136,17 +126,13 @@ async function onSubmit() {
 
     // now save macid : fileInfo pair array in a hashtable and bakcup mm DB
     // so FileInfo can be found by its MacId.
-    await saveFVs(mmsidCur, fvPairs);
-  } catch(err) {
-    console.error(err);
-    return
-  }
+    await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
   
-  if (macids.length === 1 && textValue.value.trim() === "") {
-    // single file uploaded without text input
-    // create MM database for the column, new item is added to this MM.
-    // add new itme to index table of ScorePair
-    api.client.Zadd(mmsidCur, props.column, new ScorePair( Date.now(), macids[0]), async (ret: number)=>{
+    if (macids.length === 1 && textValue.value.trim() === "") {
+      // single file uploaded without text input
+      // create MM database for the column, new item is added to this MM.
+      // add new itme to index table of ScorePair
+      let ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair( Date.now(), macids[0]))
       console.log("Zadd ScorePair for the file, ret=", ret, props.column)
       // back mm data for publish
       mmInfo.backup()
@@ -159,46 +145,39 @@ async function onSubmit() {
       filesUpload.value = [];   // clear file list of upload
       textValue.value = ""
       inpCaption.value = ""
-    }, (err: Error) => {
-      console.error("Zadd error=", err)
-    })
-  } else {
-    // upload a full webpage with attachments or content text
-    api.client.MFOpenTempFile(api.sid, (fsid: string) => {
+    } else {
+      // upload a full webpage with attachments or content text
+      let fsid = await api.client.MFOpenTempFile(api.sid)
       // create a file type PAGE. use Name field to save a string defined as:
       // 1st item is input of textarea, followed by mac ids of uploaded file
       let s = JSON.stringify([textValue.value].concat(macids))
       let fi = new FileInfo(s, Date.now(), s.length, "page", inpCaption.value!.trim());   // save it in name field
+      // console.log("FileInfo=", fi)
+      // fi = {} as any;
+      // fi["name"] = s;
+      // fi["caption"] = inpCaption.value!.trim();
+      // fi["lastModified"] = Date.now();
+      // fi["size"] = s.length;
+      // fi["type"] = "page";
+      // console.log("FileInfo=", fi)
+      await api.client.MFSetObject(fsid, fi)
+      let macid = await api.client.MFTemp2MacFile(fsid, mmInfo.mid)
+      let ret = await api.client.Hset(mmsidCur, props.column, macid, fi)
+      ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), macid))
+      fi.macid = macid
+      console.log("Zadd ret=", ret, fi, props)
+      // back mm data for publish
+      mmInfo.backup()
 
-      api.client.MFSetObject(fsid, fi, ()=>{
-        api.client.MFTemp2MacFile(fsid, mmInfo.mid, (macid: string) => {
-          api.client.Hset(mmsidCur, props.column, macid, fi, (ret: number) => {
-            api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), macid), (ret: number) => {
-              fi.macid = macid
-              console.log("Zadd ret=", ret, fi, props)
-              // back mm data for publish
-              mmInfo.backup()
-
-              emit('uploaded', fi)
-              localStorage.setItem("tempTextValueUploader", "")
-              filesUpload.value = [];   // clear file list of upload
-              textValue.value = "";
-              inpCaption.value = ""
-            }, (err: Error) => {
-              console.error("Zadd error=", err)
-            })
-          }, (err: Error) => {
-            console.error("Hset error=", err)
-          })
-        }, (err: Error) => {
-          console.error("MFTemp2MacFile error=", err)
-        })
-      }, (err: Error) => {
-        console.error("MFSetData error=", err)
-      })
-    }, (err: Error) => {
-      console.error("MFOpenTempFile error=", err)
-    })
+      emit('uploaded', fi)
+      localStorage.setItem("tempTextValueUploader", "")
+      filesUpload.value = [];   // clear file list of upload
+      textValue.value = "";
+      inpCaption.value = ""
+    }
+  } catch(err) {
+    console.error("Onsubmit err=", err);
+    return
   }
 }
 function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Promise<string> {
