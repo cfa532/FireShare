@@ -1,11 +1,16 @@
 [
-    {"title":"News", "titleZh":"最新文档"}, 
-    {"title":"Pictures", "titleZh":"图片专区", "subColumn": [
-        {"title":"Western", "titleZh":"洋画"},
-        {"title":"Japan", "titleZh":"邦画"},
-        {"title":"Test", "titleZh":"TCL"},
-        {"title":"Test2", "titleZh":"Test2"}
-    ]}
+    {"title":"News", "titleZh":"最新文档", "subColumn": [
+        {"title": "Covid101", "titleZh":"Beijing Covid"},
+        {"title": "World", "titleZh":"World"}
+    ]}, 
+    {"title":"Twitter", "titleZh":"推特", "subColumn": [
+        {"title":"Funny", "titleZh":"搞笑"},
+        {"title":"Pets", "titleZh":"萌宠"},
+        {"title":"XinhuaNews", "titleZh":"新华News"}
+    ]},
+    {"title":"Youtube", "titleZh":"油管", "subColumn": [
+        {"title":"Workout", "titleZh":"运动"}
+    ]},
+    {"title":"Test", "titleZh":"TCL"},
+    {"title":"Webdav", "titleZh":"Webdav"}
 ]
-
-// {"title":"Webdav", "titleZh":"本地文档"}

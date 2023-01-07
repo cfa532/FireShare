@@ -54,7 +54,7 @@ async function deleteFile() {
 
 <template>
     <NaviBarVue :column="(route.params.title as string)"></NaviBarVue>
-    <SpinnerVue :active="useSpinner().loading" message="Please wait......"/>
+    <SpinnerVue :active="useSpinner().loading" text="Please wait......"/>
     <!-- <hr/> -->
     <ShareVue @delete-file="deleteFile"  ref="shareMenu" v-bind="currentProperty"></ShareVue>
     <KeepAlive>

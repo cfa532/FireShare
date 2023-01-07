@@ -24,6 +24,24 @@ f["3"] = 3;			--检查数据类型
 f["4"] = "lua4";
 f["6"] = "lua6";
 
+local fsid, err = mm.MFOpenTempFile(sid)
+if (err ~= nil) then
+	print('err',  err);
+	return err
+end
+print("fsid=",fsid)
+err = mm.MFSetObject(fsid, f)
+if (err ~= nil) then
+	print('err',  err);
+	return err
+end
+local macid, err = mm.MFTemp2MacFile(fsid, mid)
+if (err ~= nil) then
+	print('err',  err);
+	return err
+end
+print("macid=", macid)
+
 print("f[4]", f[4])
 print("f[5]", f[5])
 print("f[6]", f["6"])
