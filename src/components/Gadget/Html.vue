@@ -57,7 +57,7 @@ function fileDownload(fi: any) {
 
 <template>
     <div style="width: 100%;">
-        <p style="margin-top: 5px; margin-bottom: 10px;">{{textContent}}</p>
+        <p style="white-space: pre-wrap; margin-top: 5px; margin-bottom: 10px;">{{textContent}}</p>
         <br>
         <div v-for="(fi, index) in fileInfos" :key="index">
             <div v-if="fi.fileType.includes('image')">
