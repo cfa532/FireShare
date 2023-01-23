@@ -166,9 +166,10 @@ async function onSubmit() {
       ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), macid))
       fi.macid = macid
       console.log("Zadd ret=", ret, fi, props)
+      
       // back mm data for publish
       mmInfo.backup()
-
+      console.log(fi)
       emit('uploaded', fi)
       localStorage.setItem("tempTextValueUploader", "")
       filesUpload.value = [];   // clear file list of upload

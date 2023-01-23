@@ -23,7 +23,7 @@ function getcurips() {
     }
     { //for test
         // ips = "192.168.1.3:4800"
-        // ips = "192.168.1.4:8000"
+        ips = "192.168.1.4:8000"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
         // ips = "125.120.218.249:8000"
         // ips = "127.0.0.1:8000"
@@ -209,8 +209,10 @@ export const useMimei = defineStore({
                                     newVer = arr[1];
                                     console.log("newVer=", arr[1], msg)
                                     // now publish a new version of database Mimei
-                                    this.api.client.MiMeiPublish(this.api.sid, "", this.mid, (ret:DhtReply)=>{
-                                        console.log("Mimei publish []DhtReply=", ret)
+                                    this.api.client.MiMeiPublish(this.api.sid, "", this.mid, async (ret:DhtReply)=>{
+                                        console.log("Old sid=", this._mmsid)
+                                        this._mmsid = await this.api.client.MMOpen(this.api.sid, this.mid, "last");
+                                        console.log("Mimei publish []DhtReply=", ret, this._mmsid)
                                     }, (err:Error)=>{
                                         console.error("MiMeiPublish err=", err)
                                     })
@@ -230,6 +232,10 @@ export const useMimei = defineStore({
         async getColumn(title: string) {
             // given title, return Column obj, and set Column at the same time
             return findColumn(await this.naviColumnTree, title);
+        },
+        async renewMMSid() {
+            this._mmsid = await this.api.client.MMOPen(this.api.sid, this.mid, "last");
+            return this._mmsid;
         },
         downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {
             var a = document.createElement("a");

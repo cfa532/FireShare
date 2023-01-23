@@ -1,6 +1,7 @@
 [
     {"title":"News", "titleZh":"最新文档", "subColumn": [
-        {"title": "Covid101", "titleZh":"Beijing Covid"},
+        {"title": "Pic230113", "titleZh":"美图秀"},
+        {"title": "Vid230113", "titleZh":"小视频"},
         {"title": "World", "titleZh":"World"}
     ]}, 
     {"title":"Twitter", "titleZh":"推特", "subColumn": [

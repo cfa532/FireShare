@@ -18,14 +18,16 @@ onMounted(async () => {
     await mmInfo.init(api)
     console.log("Page mounted:", props)
     api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
-        api.client.MFGetObject(fsid, (obj:FileInfo)=>{
+        api.client.MFGetObject(fsid, async (obj:FileInfo)=>{
             const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
             textContent.value = str[0].trim()===""? "" : str[0];
             let macids = str.slice(1);
-            api.client.Hmget(mmInfo.mmsid, route.params.title, ...macids, (fis:any[])=>{
-                console.log(fis)
+            console.log(route.params.title, macids)
+            let msid = await mmInfo.mmsid;
+            api.client.Hmget(await mmInfo.mmsid, route.params.title, ...macids, (fis:any[])=>{
+                console.log(msid, fis)
                 macids.forEach((macid:string, i:number) => {
-                    fileInfos.value.push({macid: macid, fileType: fis[i].type, name:fis[i].name, autoplay:false})
+                    fileInfos.value.push({macid:macid, fileType:fis[i].type, name:fis[i].name, autoplay:false})
                 });
             }, (err: Error)=>{
                 console.error("Hmget err="+err)
