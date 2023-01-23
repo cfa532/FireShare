@@ -169,7 +169,6 @@ async function onSubmit() {
       
       // back mm data for publish
       mmInfo.backup()
-      console.log(fi)
       emit('uploaded', fi)
       localStorage.setItem("tempTextValueUploader", "")
       filesUpload.value = [];   // clear file list of upload

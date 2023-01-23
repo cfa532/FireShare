@@ -23,9 +23,8 @@ onMounted(async () => {
             textContent.value = str[0].trim()===""? "" : str[0];
             let macids = str.slice(1);
             console.log(route.params.title, macids)
-            let msid = await mmInfo.mmsid;
             api.client.Hmget(await mmInfo.mmsid, route.params.title, ...macids, (fis:any[])=>{
-                console.log(msid, fis)
+                console.log(fis)
                 macids.forEach((macid:string, i:number) => {
                     fileInfos.value.push({macid:macid, fileType:fis[i].type, name:fis[i].name, autoplay:false})
                 });
