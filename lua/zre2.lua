@@ -11,26 +11,14 @@ if (err ~= nil) then
 end
 print('MMOpen mmsid=', mmsid);
 
-local o = scorepair.new(212315, "3rd")
-local o = scorepair.new(212316, "4th")
-local ret, err = mm.Zadd(mmsid, "Test", o)
+ret, err = mm.Zrange(mmsid, "Test", 0, -1)
 if (err ~= nil) then
-        print("Zadd err=", err)
+        print("Zrange err", err)
         return err
 end
+print("ret len=", table.getn(ret))
 
-local ret, err = mm.Zrange(mmsid, "Test", 0, -1)
-if (err ~= nil) then
-        print("ZRange err=", err)
-        return err
-end
-print("Loop value", table.getn(ret))
-for k,v in pairs(ret)
-do
-        print(k, v)
-end
-
-ret, err = mm.Zrem(mmsid, "Test", "1st")
+ret, err = mm.Zrem(mmsid, "Test", "8DnWRHiDx1zcyGtzmgyCEPpno_U")
 if (err ~= nil) then
         print("Zrem err", err);
         return err
