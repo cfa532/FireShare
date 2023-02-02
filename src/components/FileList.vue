@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useLeither, useMimei, useSpinner } from '../stores/lapi';
 import { useRoute, useRouter } from "vue-router";
 import MyDir from './Gadget/Dir.vue';
@@ -104,8 +104,8 @@ async function getFileList(pn: number) {
     })
 }
 // watch(currentPage, (oldVal, newVal)=>{
-//     // console.log(oldVal, newVal, route.params.page)
-//     if (oldVal != newVal) getFileList()
+//     console.log(oldVal, newVal, route.params.page)
+//     if (newVal===0 || typeof newVal==="undefined") getFileList(1)
 // })
 </script>
 

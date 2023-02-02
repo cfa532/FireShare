@@ -40,7 +40,7 @@ async function deleteFile() {
     try {
         api.client.Zrem(await mmInfo.mmsidCur, route.params.title, route.params.macid, async (ret:number)=>{
             console.log("Zrem ret=", ret)
-            mmInfo.backup()
+            await mmInfo.backup()
             // redirect to parent FileList
             router.push({name: "filelist", params:{page:1, title: route.params.title}});
         }, (err: Error) => {

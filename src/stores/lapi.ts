@@ -25,7 +25,7 @@ function getcurips() {
         // ips = "192.168.1.3:4800"
         ips = "192.168.1.4:8000"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        ips = "115.199.114.147:8000"
+        // ips = "115.199.114.147:8000"
         // ips = "127.0.0.1:8000"
     }
     return ips
@@ -207,7 +207,7 @@ export const useMimei = defineStore({
                             // ['ver=248', '248', index: 0, input: 'ver=248', groups: undefined]
                             if (arr) {
                                 newVer = arr[1];
-                                console.log("newVer=", arr[1], msg)
+                                console.log("newVer=", arr[1], msg, this._mmsid)
                                 this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, this.mid, "last");
                                 // now publish a new version of database Mimei
                                 this.api.client.MiMeiPublish(this.api.sid, "", this.mid, async (ret:DhtReply)=>{
