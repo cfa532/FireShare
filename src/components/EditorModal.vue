@@ -63,6 +63,7 @@ function onSelect(e: Event) {
   Array.from(files).forEach(f => {
     if (filesUpload.value.findIndex((e:File) => { return e.name === f.name && e.size === f.size && e.lastModified === f.lastModified }) === -1) {
       // filter duplication
+      console.log(f)
       filesUpload.value.push(f);
     }
   })
