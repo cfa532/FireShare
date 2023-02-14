@@ -89,8 +89,8 @@ function uploadFile(files: File[]) {
         try {
           let fsid = await api.client.MFOpenTempFile(api.sid);
           let ipfs = await readFileSlice(fsid, await file.arrayBuffer(), 0);
-          
-          resolve(macid)
+          let mid = await api.client.MM
+          resolve(ipfs)
         } catch(err) {
           reject("ReadFileSlice err="+err)
         }
@@ -188,20 +188,23 @@ async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number) {
   let count = await api.client.MFSetData(fsid, arr.slice(start, end), start);
   if (end === arr.byteLength) {
     // last slice done. Convert temp to Mac file
-    let ipfs = await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
+    api.client.MFTemp2IpfsA(fsid, mmInfo.mid)   // no await, otherwise no return
     do {
       let msg:PulledMessage = await api.client.PullMsg(api.sid, 3)      // wait 3 sec
-      if (msg) {
-        // "cid=/ipfs/QmeLNAsehacdXgp88ZjNZbq4fWTkv3LBJzwZeKZs5DzRvy"
-        let arr = msg.msg.match(/cid=\/ipfs\/(.*)/i)
-        // ['ver=248', '248', index: 0, input: 'ver=248', groups: undefined]
+      if (msg && msg.msg) {
+        // "result=/ipfs/QmeLNAsehacdXgp88ZjNZbq4fWTkv3LBJzwZeKZs5DzRvy"
+        let arr = msg.msg.match(/result=\/ipfs\/(.*)/i)
         if (arr) {
-            ipfs = arr[1];
             console.log("new ipfs id=", arr[1], msg)
+            return arr[1];  // ipfs id
+        }
+        arr = msg.msg.match(/error=(.*)/i)
+        if (arr) {
+          console.error(arr[0]);    // the whole matched string
+          throw new Error(arr[0])
         }
       }
-    } while(!ipfs)
-    return ipfs;
+    } while(true)
   } else {
     await readFileSlice(fsid, arr, start + count)
   }
