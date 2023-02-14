@@ -19,7 +19,7 @@ const options = reactive({
     autoplay: props.autoplay,
     sources: [{src:"", type :"" as string | undefined}]
 });
-onMounted(()=>{
+onMounted(async ()=>{
     console.log("Videoplayer mounted", props)
     vdiv.value.hidden = false
     if (typeof props.filePath !== "undefined") {
@@ -31,15 +31,15 @@ onMounted(()=>{
         loadPlayer(options)
     } else {
         // play mac file
-        api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
-            options.sources = [{
-                src: api.baseUrl + "mf" + "?mmsid=" + fsid,
-                type: props.fileType
-            }]
-            loadPlayer(options)
-        }, (err: Error) => {
-            console.error("Open file error=", err)
-        })
+        options.sources = [{
+            src: api.baseUrl + "mf" + "?mmsid=" + await api.client.MMOpen(api.sid, props.macid, "last"),
+            type: props.fileType
+        }]
+        loadPlayer(options)
+        // api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
+        // }, (err: Error) => {
+        //     console.error("Open file error=", err)
+        // })
     }
 });
 function loadPlayer(options:any, fn:()=>void = null as any) {

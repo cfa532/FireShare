@@ -193,17 +193,12 @@ export const useMimei = defineStore({
             })
         },
         backup() {
-            // this.api.client.MMBackup(this.api.sid, this.mid, 'cur', (newVer:string)=>{
-            //     console.log("new ver=", newVer)
-            // }, (err: Error) => {
-            //     console.error("MMBackup error="+err)
-            // })
             return new Promise<string>((resolve, reject)=>{
                 this.api.client.MMBackupA(this.api.sid, this.mid, 'cur', async (newVer:string)=>{
                     do {
                         let msg:PulledMessage = await this.api.client.PullMsg(this.api.sid, 3)      // wait 3 sec
                         if (msg) {
-                            let arr = msg.msg.match(/ver=(.*)/i)
+                            let arr = msg.msg.match(/result=(.*)/i)
                             // ['ver=248', '248', index: 0, input: 'ver=248', groups: undefined]
                             if (arr) {
                                 newVer = arr[1];

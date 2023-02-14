@@ -15,19 +15,18 @@ onMounted(async () => {
     imageUrl.value = await getLink()
     // imageUrl.value = api.baseUrl + "mf/" + encodeURI(props.macid!) + "?mmsid="+ api.mmsid
 });
-async function getLink():Promise<string> {
-    return new Promise((resolve, reject)=>{
-        if (typeof props.filePath !== "undefined") {
-            // filePath not null, showing a local file
-            resolve(api.baseUrl + "mf" + "?mmsid="+ props.mmfsid)
-        } else {
-            api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
-                resolve(api.baseUrl + "mf" + "?mmsid="+ fsid)
-            }, (err: Error) => {
-                reject("Open mac file error="+err)
-            })
-        }
-    })
+async function getLink() {
+    if (typeof props.filePath !== "undefined") {
+        // filePath not null, showing a local file
+        return (api.baseUrl + "mf" + "?mmsid="+ props.mmfsid)
+    } else {
+        return api.baseUrl + "mf" + "?mmsid="+ await api.client.MMOpen(api.sid, props.macid, "last");
+        // api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
+        //     resolve(api.baseUrl + "mf" + "?mmsid="+ fsid)
+        // }, (err: Error) => {
+        //     reject("Open mac file error="+err)
+        // })
+    }
 }
 watch(()=>props.filePath, async (cv, pv)=>{
     if (cv !== pv) {
