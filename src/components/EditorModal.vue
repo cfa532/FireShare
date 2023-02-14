@@ -165,11 +165,14 @@ async function onSubmit() {
       // fi["type"] = "page";
       // console.log("FileInfo=", fi)
       await api.client.MFSetObject(fsid, fi)
-      let macid = await api.client.MFTemp2MacFile(fsid, mmInfo.mid)
-      let ret = await api.client.Hset(mmsidCur, props.column, macid, fi)
-      ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), macid))
-      fi.macid = macid
-      console.log("Zadd ret=", ret, fi, props)
+      // let macid = await api.client.MFTemp2MacFile(fsid, mmInfo.mid)f
+      let ipfs = await temp2Ipfs(fsid);
+      let mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)
+      let ver = await api.client.MFSetCid(api.sid, mid, ipfs)
+      let ret = await api.client.Hset(mmsidCur, props.column, mid, fi)
+      ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), mid))
+      fi.macid = mid
+      console.log("Zadd ver=", ver, fi, mid, ret)
       
       // back mm data for publish
       mmInfo.backup()
@@ -190,26 +193,29 @@ async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number) {
   let count = await api.client.MFSetData(fsid, arr.slice(start, end), start);
   if (end === arr.byteLength) {
     // last slice done. Convert temp to Mac file
-    api.client.MFTemp2IpfsA(fsid, mmInfo.mid)   // no await, otherwise no return
-    do {
-      let msg:PulledMessage = await api.client.PullMsg(api.sid, 3)      // wait 3 sec
-      if (msg && msg.msg) {
-        // "result=/ipfs/QmeLNAsehacdXgp88ZjNZbq4fWTkv3LBJzwZeKZs5DzRvy"
-        let arr = msg.msg.match(/result=\/ipfs\/(.*)/i)
-        if (arr) {
-            console.log("new ipfs id=", arr[1], fsid)
-            return arr[1];  // ipfs id
-        }
-        arr = msg.msg.match(/error=(.*)/i)
-        if (arr) {
-          console.error(arr[0], msg);    // the whole matched string
-          throw new Error(arr[0])
-        }
-      }
-    } while(true)
+    return temp2Ipfs(fsid);   // return a Promise, no await here
   } else {
     await readFileSlice(fsid, arr, start + count)
   }
+}
+async function temp2Ipfs(fsid:string):Promise<string> {
+  api.client.MFTemp2IpfsA(fsid, mmInfo.mid)   // no await, otherwise no return
+  do {
+    let msg:PulledMessage = await api.client.PullMsg(api.sid, 3)      // wait 3 sec
+    if (msg && msg.msg) {
+      // "result=/ipfs/QmeLNAsehacdXgp88ZjNZbq4fWTkv3LBJzwZeKZs5DzRvy"
+      let arr = msg.msg.match(/result=\/ipfs\/(.*)/i)
+      if (arr) {
+          console.log("new ipfs id=", arr[1], fsid)
+          return arr[1];  // ipfs id
+      }
+      arr = msg.msg.match(/error=(.*)/i)
+      if (arr) {
+        console.error(arr[0], msg);    // the whole matched string
+        throw new Error(arr[0])
+      }
+    }
+  } while(true)
 }
 function removeFile(f: File) {
   // removed file from preview list

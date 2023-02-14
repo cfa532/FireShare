@@ -25,8 +25,7 @@ function getcurips() {
         // ips = "192.168.1.3:4800"
         ips = "192.168.1.4:8000"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        // ips = "115.199.114.147:8000"
-        // ips = "127.0.0.1:8000"
+        ips = "125.121.63.198:8000"
     }
     return ips
 };
@@ -209,7 +208,15 @@ export const useMimei = defineStore({
                                     console.log("Mimei publish []DhtReply=", ret, this._mmsid)
                                 }, (err:Error)=>{
                                     console.error("MiMeiPublish err=", err)
+                                    reject("Backup error")
                                 })
+                            } else {
+                                // check for error
+                                arr = msg.msg.match(/error=(.*)/i)
+                                if (arr) {
+                                    console.error("Backup error");
+                                    reject("Backup error")
+                                }
                             }
                         }
                     } while(!newVer)

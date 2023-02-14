@@ -17,7 +17,8 @@ const textContent = ref("")
 onMounted(async () => {
     await mmInfo.init(api)
     console.log("Page mounted:", props)
-    api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
+    api.client.MMOpen(api.sid, props.macid, "last", (fsid: string) => {
+        console.log("fsid="+fsid)
         api.client.MFGetObject(fsid, async (obj:FileInfo)=>{
             const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
             textContent.value = str[0].trim()===""? "" : str[0];
