@@ -12,8 +12,8 @@ class FileInfo{
     this.lastModified = lastModified;
     this.size = size;
     this.type = type;
-    this.macid = "";
     this.caption = caption;   // Displayed in File List view
+    this.macid = "";
   }
 }
 class ScorePair {
@@ -92,6 +92,7 @@ function uploadFile(files: File[]) {
           let mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)
           let ver = await api.client.MFSetCid(api.sid, mid, ipfs)
           console.log("ipfs ver=", ver, mid)
+            // value:new FileInfo(file.name, file.lastModified, file.size, file.type, inpCaption.value!.trim())})
           resolve(mid)
         } catch(err) {
           reject("ReadFileSlice err="+err)

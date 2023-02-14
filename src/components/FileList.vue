@@ -51,9 +51,6 @@ function hide() {
 }
 function fileDownload(e: MouseEvent, file: any){
     api.client.MMOpen(api.sid, file.macid, "last", (fsid: string)=> {
-
-    // })
-    // api.client.MFOpenMacFile(api.sid, mmInfo.mid, file.macid, (fsid: string) => {
         api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
             mmInfo.downLoadByFileData(fileData, file.name, "")
         }, (err: Error) => {
