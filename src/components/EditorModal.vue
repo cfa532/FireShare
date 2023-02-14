@@ -2,6 +2,7 @@
 import { CSSProperties, onMounted, ref, watch, computed } from "vue";
 import Preview from "./Gadget/Preview.vue";
 import { useLeither, useMimei } from '../stores/lapi'
+import { exit } from "process";
 const api = useLeither();
 const mmInfo = useMimei();
 class FileInfo{
@@ -84,16 +85,16 @@ function uploadFile(files: File[]) {
       if (file.size > sliceSize * 5) {
         alert("Max file size 50MB");
         reject("Max file size exceeded");
-      };
-      api.client.MFOpenTempFile(api.sid, async (fsid: string) => {
-        // resolve(readFileSlice(fsid, await file.arrayBuffer(), 0));
+      } else {
         try {
-         let macid = await readFileSlice(fsid, await file.arrayBuffer(), 0);
+          let fsid = await api.client.MFOpenTempFile(api.sid);
+          let ipfs = await readFileSlice(fsid, await file.arrayBuffer(), 0);
+          
           resolve(macid)
         } catch(err) {
           reject("ReadFileSlice err="+err)
         }
-      })
+      }
     })
   }))
 }
@@ -181,28 +182,29 @@ async function onSubmit() {
     return
   }
 }
-function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Promise<string> {
+async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number) {
   // reading file slice by slice, start at given position
   var end = Math.min(start + sliceSize, arr.byteLength);
-  return new Promise((resolve, reject) => {
-    api.client.MFSetData(fsid, arr.slice(start, end), start, (count: number) => {
-      if (end === arr.byteLength) {
-        // last slice done. Convert temp to Mac file
-        api.client.MFTemp2Ipfs(fsid, "", (ipfs: string) => {
-          console.log("Temp file to IPFS=", ipfs, ", len=", arr.byteLength);
-          // now temp file is converted to Mac file, save file info
-          resolve(ipfs)
-        }, (err: Error) => {
-          console.error("Failed to create Mac file")
-          reject("Failed to create Mac file")
-        })
-      } else {
-        resolve(readFileSlice(fsid, arr, start + count))
+  let count = await api.client.MFSetData(fsid, arr.slice(start, end), start);
+  if (end === arr.byteLength) {
+    // last slice done. Convert temp to Mac file
+    let ipfs = await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
+    do {
+      let msg:PulledMessage = await api.client.PullMsg(api.sid, 3)      // wait 3 sec
+      if (msg) {
+        // "cid=/ipfs/QmeLNAsehacdXgp88ZjNZbq4fWTkv3LBJzwZeKZs5DzRvy"
+        let arr = msg.msg.match(/cid=\/ipfs\/(.*)/i)
+        // ['ver=248', '248', index: 0, input: 'ver=248', groups: undefined]
+        if (arr) {
+            ipfs = arr[1];
+            console.log("new ipfs id=", arr[1], msg)
+        }
       }
-    }, (err: Error) => {
-      reject("Set temp file data error ");
-    })
-  })
+    } while(!ipfs)
+    return ipfs;
+  } else {
+    await readFileSlice(fsid, arr, start + count)
+  }
 }
 function removeFile(f: File) {
   // removed file from preview list
