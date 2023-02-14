@@ -7,7 +7,7 @@ const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmL
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
     "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Hmset", "Hmget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile",
     "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan",
-    "MMRelease", "MMBackup", "MFStat", "Zrem", "Zremrangebyscore", "MiMeiPublish", "PullMsg", "MFTemp2IpfsA", "MFSetCid"
+    "MMRelease", "MMBackupA", "MFStat", "Zrem", "Zremrangebyscore", "MiMeiPublish", "PullMsg", "MFTemp2IpfsA", "MFSetCid"
 ];
 
 function getcurips() {
@@ -199,7 +199,7 @@ export const useMimei = defineStore({
             //     console.error("MMBackup error="+err)
             // })
             return new Promise<string>((resolve, reject)=>{
-                this.api.client.MMBackup(this.api.sid, this.mid, 'cur', async (newVer:string)=>{
+                this.api.client.MMBackupA(this.api.sid, this.mid, 'cur', async (newVer:string)=>{
                     do {
                         let msg:PulledMessage = await this.api.client.PullMsg(this.api.sid, 3)      // wait 3 sec
                         if (msg) {

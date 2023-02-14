@@ -89,8 +89,10 @@ function uploadFile(files: File[]) {
         try {
           let fsid = await api.client.MFOpenTempFile(api.sid);
           let ipfs = await readFileSlice(fsid, await file.arrayBuffer(), 0);
-          let mid = await api.client.MM
-          resolve(ipfs)
+          let mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)
+          let ver = await api.client.MFSetCid(api.sid, mid, ipfs)
+          console.log("ipfs ver=", ver, mid)
+          resolve(mid)
         } catch(err) {
           reject("ReadFileSlice err="+err)
         }
@@ -124,7 +126,7 @@ async function onSubmit() {
         return v.status==='fulfilled';
       })
       .map((v:any)=>{return v.value});
-    console.log(macids, fvPairs);
+    console.log("uploaded files", macids, fvPairs);
 
     // now save macid : fileInfo pair array in a hashtable and bakcup mm DB
     // so FileInfo can be found by its MacId.
@@ -195,12 +197,12 @@ async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number) {
         // "result=/ipfs/QmeLNAsehacdXgp88ZjNZbq4fWTkv3LBJzwZeKZs5DzRvy"
         let arr = msg.msg.match(/result=\/ipfs\/(.*)/i)
         if (arr) {
-            console.log("new ipfs id=", arr[1], msg)
+            console.log("new ipfs id=", arr[1], fsid)
             return arr[1];  // ipfs id
         }
         arr = msg.msg.match(/error=(.*)/i)
         if (arr) {
-          console.error(arr[0]);    // the whole matched string
+          console.error(arr[0], msg);    // the whole matched string
           throw new Error(arr[0])
         }
       }
