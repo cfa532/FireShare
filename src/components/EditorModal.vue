@@ -188,11 +188,12 @@ function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Promise<s
     api.client.MFSetData(fsid, arr.slice(start, end), start, (count: number) => {
       if (end === arr.byteLength) {
         // last slice done. Convert temp to Mac file
-        api.client.MFTemp2MacFile(fsid, mmInfo.mid, (macid: string) => {
-          console.log("Temp file to MacID=", macid, ", len=", arr.byteLength);
+        api.client.MFTemp2Ipfs(fsid, "", (ipfs: string) => {
+          console.log("Temp file to IPFS=", ipfs, ", len=", arr.byteLength);
           // now temp file is converted to Mac file, save file info
-          resolve(macid)
+          resolve(ipfs)
         }, (err: Error) => {
+          console.error("Failed to create Mac file")
           reject("Failed to create Mac file")
         })
       } else {
