@@ -47,7 +47,7 @@ onMounted(async () => {
     });
 })
 function fileDownload(fi: any) {
-    api.client.MFOpenMacFile(api.sid, mmInfo.mid, fi.macid, (fsid: string) => {
+    api.client.MMOpen(api.sid, fi.macid, "last", (fsid: string) => {
         api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
             mmInfo.downLoadByFileData(fileData, fi.name, "")
         })
