@@ -91,7 +91,7 @@ function uploadFile(files: File[]) {
           let fi = new FileInfo(file.name, file.lastModified, file.size, file.type);
           fi.mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)
           let ver = await api.client.MFSetCid(api.sid, fi.mid, ipfs)
-          console.log("ipfs ver=", ver, fi.mid)
+          console.log("ipfs ver=", ver, fi)
           resolve(fi)
         } catch(err) {
           reject("ReadFileSlice err="+err)
@@ -101,30 +101,26 @@ function uploadFile(files: File[]) {
   }))
 }
 async function onSubmit() {
-  if (!inpCaption.value || inpCaption.value!.trim()==="") {
+  if (!inpCaption.value || inpCaption.value!.trim()==="" || (filesUpload.value.length===0 && textValue.value.trim() === "")) {
     // remind user to input caption, autofocus
     caption.value?.focus()
     return;
   }
-  let mmsidCur:string, fvPairs: FVPair[];
   // if one file uploaded, without content in textArea, upload single file
   // otherwise, upload a html file for iFrame
-  if (filesUpload.value.length===0 && textValue.value.trim() === "") return
-  
   try {
-  // reopen the DB mimei as cur version, for writing
-  mmsidCur = await mmInfo.mmsidCur;
-  fvPairs = (await uploadFile(filesUpload.value))
-    .filter( v=> {return v.status==='fulfilled';})
-    .map((v:any)=>{return {field: v.value.mid, value: v.value}});
-  console.log("uploaded files", fvPairs);
+    // reopen the DB mimei as cur version, for writing
+    let mmsidCur = await mmInfo.mmsidCur;
+    let fvPairs = (await uploadFile(filesUpload.value))
+      .filter( v=> {return v.status==='fulfilled';})
+      .map((v:any)=>{return {field: v.value.mid, value: v.value}});
+    console.log("uploaded files", fvPairs);
   
     if (fvPairs.length === 1 && textValue.value.trim() === "") {
       // single file uploaded without text input
       // now save {mid, fileInfo} pair array in a hashtable and bakcup mm DB
       // so FileInfo can be found by its mid.
       fvPairs[0].value["caption"] = inpCaption.value!.trim();
-      console.log(fvPairs[0])
       await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
 
       // create MM database for the column, new item is added to this MM.
@@ -179,7 +175,7 @@ async function onSubmit() {
     return
   }
 }
-async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number) {
+async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number):Promise<string> {
   // reading file slice by slice, start at given position
   var end = Math.min(start + sliceSize, arr.byteLength);
   let count = await api.client.MFSetData(fsid, arr.slice(start, end), start);
@@ -187,14 +183,14 @@ async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number) {
     // last slice done. Convert temp to Mac file
     return temp2Ipfs(fsid);   // return a Promise, no await here
   } else {
-    await readFileSlice(fsid, arr, start + count)
+    return readFileSlice(fsid, arr, start + count)
   }
 }
 async function temp2Ipfs(fsid:string):Promise<string> {
   api.client.MFTemp2IpfsA(fsid, mmInfo.mid)   // no await, otherwise no return
   do {
     let msg:PulledMessage = await api.client.PullMsg(api.sid, 3)      // wait 3 sec
-    if (msg && msg.msg) {
+    if (msg) {
       // "result=/ipfs/QmeLNAsehacdXgp88ZjNZbq4fWTkv3LBJzwZeKZs5DzRvy"
       let arr = msg.msg.match(/result=\/ipfs\/(.*)/i)
       if (arr) {
