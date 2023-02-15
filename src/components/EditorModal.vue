@@ -2,11 +2,10 @@
 import { CSSProperties, onMounted, ref, watch, computed } from "vue";
 import Preview from "./Gadget/Preview.vue";
 import { useLeither, useMimei } from '../stores/lapi'
-import { exit } from "process";
 const api = useLeither();
 const mmInfo = useMimei();
 class FileInfo{
-  name; lastModified; size; type; macid; caption;
+  name; lastModified; size; type; macid; caption; mid;
   constructor(name: string, lastModified: number, size: number, type: string, caption:string="") {
     this.name = name;
     this.lastModified = lastModified;
@@ -14,6 +13,7 @@ class FileInfo{
     this.type = type;
     this.caption = caption;   // Displayed in File List view
     this.macid = "";
+    this.mid = "";
   }
 }
 class ScorePair {
@@ -81,7 +81,7 @@ function selectFile() {
 }
 function uploadFile(files: File[]) {
   return Promise.allSettled(files.map(file => {
-    return new Promise<string>(async (resolve, reject) => {
+    return new Promise<FileInfo>(async (resolve, reject) => {
       if (file.size > sliceSize * 5) {
         alert("Max file size 50MB");
         reject("Max file size exceeded");
@@ -89,11 +89,11 @@ function uploadFile(files: File[]) {
         try {
           let fsid = await api.client.MFOpenTempFile(api.sid);
           let ipfs = await readFileSlice(fsid, await file.arrayBuffer(), 0);
-          let mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)
-          let ver = await api.client.MFSetCid(api.sid, mid, ipfs)
-          console.log("ipfs ver=", ver, mid)
-            // value:new FileInfo(file.name, file.lastModified, file.size, file.type, inpCaption.value!.trim())})
-          resolve(mid)
+          let fi = new FileInfo(file.name, file.lastModified, file.size, file.type);
+          fi.mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)
+          let ver = await api.client.MFSetCid(api.sid, fi.mid, ipfs)
+          console.log("ipfs ver=", ver, fi.mid)
+          resolve(fi)
         } catch(err) {
           reject("ReadFileSlice err="+err)
         }
@@ -107,7 +107,7 @@ async function onSubmit() {
     caption.value?.focus()
     return;
   }
-  let mmsidCur:string, macids: string[], fvPairs: FVPair[] = []
+  let mmsidCur:string, mids: string[], fvPairs: FVPair[] = []
   // if one file uploaded, without content in textArea, upload single file
   // otherwise, upload a html file for iFrame
   if (filesUpload.value.length===0 && textValue.value.trim() === "") return
@@ -115,35 +115,34 @@ async function onSubmit() {
   // reopen the DB mimei as cur version, for writing
   try {
     mmsidCur = await mmInfo.mmsidCur;
-    macids = (await uploadFile(filesUpload.value))
+    mids = (await uploadFile(filesUpload.value))
       .filter((v, i)=>{
         if (v.status==='fulfilled') {         // remove failed promises
-          const file = filesUpload.value[i];
-          // return array of successfully resolved MacIDs and FileInfos
+          // return array of successfully resolved mids and FileInfos
           fvPairs.push({
-            field:v.value,    // macid
-            value:new FileInfo(file.name, file.lastModified, file.size, file.type, inpCaption.value!.trim())})
+            field: v.value.mid,
+            value: v.value})
         };
         return v.status==='fulfilled';
       })
-      .map((v:any)=>{return v.value});
-    console.log("uploaded files", macids, fvPairs);
+      .map((v:any)=>{return v.value.mid});
+    console.log("uploaded files", mids, fvPairs);
 
     // now save macid : fileInfo pair array in a hashtable and bakcup mm DB
     // so FileInfo can be found by its MacId.
     await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
   
-    if (macids.length === 1 && textValue.value.trim() === "") {
+    if (mids.length === 1 && textValue.value.trim() === "") {
       // single file uploaded without text input
       // create MM database for the column, new item is added to this MM.
       // add new itme to index table of ScorePair
-      let ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair( Date.now(), macids[0]))
+      let ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair( Date.now(), mids[0]))
       console.log("Zadd ScorePair for the file, ret=", ret, props.column)
       // back mm data for publish
       mmInfo.backup()
 
       // emit an event with infor of newly uploaded file
-      fvPairs[0].value["macid"] = macids[0]
+      fvPairs[0].value["macid"] = mids[0]
       emit('uploaded', fvPairs[0].value)
       // clear up
       localStorage.setItem("tempTextValueUploader", "")
@@ -155,7 +154,7 @@ async function onSubmit() {
       let fsid = await api.client.MFOpenTempFile(api.sid)
       // create a file type PAGE. use Name field to save a string defined as:
       // 1st item is input of textarea, followed by mac ids of uploaded file
-      let s = JSON.stringify([textValue.value].concat(macids))
+      let s = JSON.stringify([textValue.value].concat(mids))
       let fi = new FileInfo(s, Date.now(), s.length, "page", inpCaption.value!.trim());   // save it in name field
       // console.log("FileInfo=", fi)
       // fi = {} as any;

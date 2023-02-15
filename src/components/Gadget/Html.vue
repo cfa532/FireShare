@@ -18,27 +18,19 @@ onMounted(async () => {
     await mmInfo.init(api)
     console.log("Page mounted:", props)
     api.client.MMOpen(api.sid, props.macid, "last", (fsid: string) => {
-        console.log("fsid="+fsid)
         api.client.MFGetObject(fsid, async (obj:FileInfo)=>{
-            const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
-            textContent.value = str[0].trim()===""? "" : str[0];
-            let macids = str.slice(1);
-            console.log(route.params.title, macids)
-            api.client.Hmget(await mmInfo.mmsid, route.params.title, ...macids, (fis:any[])=>{
+            const arr = JSON.parse(obj.name)    // get a string[], [0] is the text content
+            textContent.value = arr[0].trim()===""? "" : arr[0];
+            let mids = arr.slice(1);
+            console.log(route.params.title, mids)
+            api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mids, (fis:any[])=>{
                 console.log(fis)
-                macids.forEach((macid:string, i:number) => {
+                mids.forEach((macid:string, i:number) => {
                     fileInfos.value.push({macid:macid, fileType:fis[i].type, name:fis[i].name, autoplay:false})
                 });
             }, (err: Error)=>{
                 console.error("Hmget err="+err)
             })
-            // macids.forEach((macid:string)=>{
-            //     api.client.Hget(mmInfo.mmsid, route.params.title, macid, (fi:FileInfo)=>{
-            //         fileInfos.value.push({macid: macid, fileType: fi.type, name:fi.name, autoplay:false})
-            //     }, (err:Error)=>{
-            //         console.error("Hget err=", err)
-            //     })
-            // })
         }, (err: Error) => {
             console.error("MFGetObject error=", err)
         })
@@ -52,7 +44,7 @@ function fileDownload(fi: any) {
             mmInfo.downLoadByFileData(fileData, fi.name, "")
         })
     }, (err: Error) => {
-        console.error("Open file error", err)
+        console.error("Open file error", err, fi)
     })
 }
 </script>
