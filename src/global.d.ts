@@ -40,7 +40,7 @@ interface FileInfo {
   lastModified:number
   size:number
   type:string
-  macid:string
-  // mid:string      // mimei ID associated with the File
+  // macid:string
+  mid:string      // mimei ID associated with the File
   caption:string   // Displayed in File List view
 }

@@ -3,9 +3,8 @@ import { ref, onMounted, onBeforeUnmount, watch, reactive } from 'vue';
 import videojs from 'video.js';
 import { useLeither, useMimei } from '../../stores/lapi'
 const api = useLeither();
-const mmInfo = useMimei();
 const props = defineProps({
-        macid: {type:String, required: false},
+        mid: {type:String, required: false},
         fileType: {type:String, required: false},
         filePath: {type: String, required: false},
         mmfsid: {type: String, required: false},
@@ -32,14 +31,10 @@ onMounted(async ()=>{
     } else {
         // play mac file
         options.sources = [{
-            src: api.baseUrl + "mf" + "?mmsid=" + await api.client.MMOpen(api.sid, props.macid, "last"),
+            src: api.baseUrl + "mf" + "?mmsid=" + await api.client.MMOpen(api.sid, props.mid, "last"),
             type: props.fileType
         }]
         loadPlayer(options)
-        // api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
-        // }, (err: Error) => {
-        //     console.error("Open file error=", err)
-        // })
     }
 });
 function loadPlayer(options:any, fn:()=>void = null as any) {

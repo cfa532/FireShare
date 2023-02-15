@@ -5,14 +5,13 @@ import { useLeither, useMimei } from '../stores/lapi'
 const api = useLeither();
 const mmInfo = useMimei();
 class FileInfo{
-  name; lastModified; size; type; macid; caption; mid;
+  name; lastModified; size; type; caption; mid;
   constructor(name: string, lastModified: number, size: number, type: string, caption:string="") {
     this.name = name;
     this.lastModified = lastModified;
     this.size = size;
     this.type = type;
     this.caption = caption;   // Displayed in File List view
-    this.macid = "";
     this.mid = "";
   }
 }
@@ -107,42 +106,35 @@ async function onSubmit() {
     caption.value?.focus()
     return;
   }
-  let mmsidCur:string, mids: string[], fvPairs: FVPair[] = []
+  let mmsidCur:string, fvPairs: FVPair[];
   // if one file uploaded, without content in textArea, upload single file
   // otherwise, upload a html file for iFrame
   if (filesUpload.value.length===0 && textValue.value.trim() === "") return
   
-  // reopen the DB mimei as cur version, for writing
   try {
-    mmsidCur = await mmInfo.mmsidCur;
-    mids = (await uploadFile(filesUpload.value))
-      .filter((v, i)=>{
-        if (v.status==='fulfilled') {         // remove failed promises
-          // return array of successfully resolved mids and FileInfos
-          fvPairs.push({
-            field: v.value.mid,
-            value: v.value})
-        };
-        return v.status==='fulfilled';
-      })
-      .map((v:any)=>{return v.value.mid});
-    console.log("uploaded files", mids, fvPairs);
-
-    // now save macid : fileInfo pair array in a hashtable and bakcup mm DB
-    // so FileInfo can be found by its MacId.
-    await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
+  // reopen the DB mimei as cur version, for writing
+  mmsidCur = await mmInfo.mmsidCur;
+  fvPairs = (await uploadFile(filesUpload.value))
+    .filter( v=> {return v.status==='fulfilled';})
+    .map((v:any)=>{return {field: v.value.mid, value: v.value}});
+  console.log("uploaded files", fvPairs);
   
-    if (mids.length === 1 && textValue.value.trim() === "") {
+    if (fvPairs.length === 1 && textValue.value.trim() === "") {
       // single file uploaded without text input
+      // now save {mid, fileInfo} pair array in a hashtable and bakcup mm DB
+      // so FileInfo can be found by its mid.
+      fvPairs[0].value["caption"] = inpCaption.value!.trim();
+      console.log(fvPairs[0])
+      await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
+
       // create MM database for the column, new item is added to this MM.
       // add new itme to index table of ScorePair
-      let ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair( Date.now(), mids[0]))
+      let ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair( Date.now(), fvPairs[0].value["mid"]))
       console.log("Zadd ScorePair for the file, ret=", ret, props.column)
       // back mm data for publish
       mmInfo.backup()
 
       // emit an event with infor of newly uploaded file
-      fvPairs[0].value["macid"] = mids[0]
       emit('uploaded', fvPairs[0].value)
       // clear up
       localStorage.setItem("tempTextValueUploader", "")
@@ -151,6 +143,7 @@ async function onSubmit() {
       inpCaption.value = ""
     } else {
       // upload a full webpage with attachments or content text
+      await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
       let fsid = await api.client.MFOpenTempFile(api.sid)
       // create a file type PAGE. use Name field to save a string defined as:
       // 1st item is input of textarea, followed by mac ids of uploaded file
@@ -165,13 +158,12 @@ async function onSubmit() {
       // fi["type"] = "page";
       // console.log("FileInfo=", fi)
       await api.client.MFSetObject(fsid, fi)
-      // let macid = await api.client.MFTemp2MacFile(fsid, mmInfo.mid)f
       let ipfs = await temp2Ipfs(fsid);
       let mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)
       let ver = await api.client.MFSetCid(api.sid, mid, ipfs)
       let ret = await api.client.Hset(mmsidCur, props.column, mid, fi)
       ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), mid))
-      fi.macid = mid
+      fi.mid = mid
       console.log("Zadd ver=", ver, fi, mid, ret)
       
       // back mm data for publish

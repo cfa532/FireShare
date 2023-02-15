@@ -29,7 +29,7 @@ const userComponent = computed(() => {
         console.warn("Unknown file type:", fileType)
     }
 })
-const currentProperty = computed(()=>route.params)    // params: {macid:file.macid, fileType:file.type}}
+const currentProperty = computed(()=>route.params)    // params: {mid:file.mid, fileType:file.type}}
 
 onMounted(async ()=>{
     await mmInfo.init(api)
@@ -38,7 +38,7 @@ onMounted(async ()=>{
 })
 async function deleteFile() {
     try {
-        api.client.Zrem(await mmInfo.mmsidCur, route.params.title, route.params.macid, async (ret:number)=>{
+        api.client.Zrem(await mmInfo.mmsidCur, route.params.title, route.params.mid, async (ret:number)=>{
             console.log("Zrem ret=", ret)
             await mmInfo.backup()
             // redirect to parent FileList

@@ -50,7 +50,7 @@ function hide() {
     showEditor.value = "none"
 }
 function fileDownload(e: MouseEvent, file: any){
-    api.client.MMOpen(api.sid, file.macid, "last", (fsid: string)=> {
+    api.client.MMOpen(api.sid, file.mid, "last", (fsid: string)=> {
         api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
             mmInfo.downLoadByFileData(fileData, file.name, "")
         }, (err: Error) => {
@@ -65,6 +65,7 @@ function pageChanged(n: number) {
     router.push({name: "filelist", params: {page: n}})
 }
 function fileName(file: FileInfo) {
+    console.log(file)
     if (file.caption) return file.caption;
     if (file.type.includes("page")) {
         // show first 30 chars if the list item is a page
@@ -90,7 +91,7 @@ async function getFileList(pn: number) {
                     console.warn("FileInfo Error", sps[idx], fi)
                     return
                 }
-                fi.macid = sps[idx].member
+                fi.mid = sps[idx].member
                 // temporarily use timestamp when the file is added to the SocrePairs, for sorting
                 fi.lastModified = sps[idx].score;
                 fileList.value.push(fi)
@@ -125,7 +126,7 @@ async function getFileList(pn: number) {
             <li class="fileList" v-for="(file, index) in fileList" :key="index">
                 <RouterLink v-if="file.type.includes('image') || file.type.includes('video') || file.type.includes('audio')
                 || file.type.includes('page') || file.type.includes('pdf')"
-                    :to="{ name: 'fileview', params: { title: columnTitle, macid: file.macid, fileType: file.type } }">
+                    :to="{ name: 'fileview', params: { title: columnTitle, mid: file.mid, fileType: file.type } }">
                     {{ fileName(file) }}
                 </RouterLink>
                 <a v-else href="" @click.prevent="(e) => fileDownload(e, file)" download>{{ file.name }} &dArr;
