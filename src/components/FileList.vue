@@ -42,13 +42,6 @@ function uploaded(fi: FileInfo) {
     // route.params.page = "1"
     // router.go(0);
 }
-function showModal(e: MouseEvent) {
-    // show modal box
-    showEditor.value = "block"
-}
-function hide() {
-    showEditor.value = "none"
-}
 function fileDownload(e: MouseEvent, file: any){
     api.client.MMOpen(api.sid, file.mid, "last", (fsid: string)=> {
         api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
@@ -117,9 +110,9 @@ async function getFileList(pn: number) {
     <div v-if="columnTitle !== 'Webdav'">
         <div v-show="api.sid">
             <div class="postbox">
-                <p @click="showModal" class="postbox">Tell us what is happening....</p>
+                <p @click="showEditor='block'" class="postbox">Tell us what is happening....</p>
             </div>
-            <EditorModal v-if="api.sid" @uploaded="uploaded" @hide="hide" :display="showEditor"
+            <EditorModal v-if="api.sid" @uploaded="uploaded" @hide="showEditor='none'" :display="showEditor"
                 :column="(columnTitle as string)"></EditorModal>
         </div>
         <ul style="padding: 0px; margin: 0 0 0 5px;">

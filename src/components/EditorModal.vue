@@ -81,7 +81,7 @@ function selectFile() {
 function uploadFile(files: File[]) {
   return Promise.allSettled(files.map(file => {
     return new Promise<FileInfo>(async (resolve, reject) => {
-      if (file.size > sliceSize * 5) {
+      if (file.size > sliceSize * 20) {
         alert("Max file size 50MB");
         reject("Max file size exceeded");
       } else {
@@ -145,14 +145,7 @@ async function onSubmit() {
       // 1st item is input of textarea, followed by mac ids of uploaded file
       let s = JSON.stringify([textValue.value].concat(fvPairs.map(e=>e.field)))
       let fi = new FileInfo(s, Date.now(), s.length, "page", inpCaption.value!.trim());   // save it in name field
-      // console.log("FileInfo=", fi)
-      // fi = {} as any;
-      // fi["name"] = s;
-      // fi["caption"] = inpCaption.value!.trim();
-      // fi["lastModified"] = Date.now();
-      // fi["size"] = s.length;
-      // fi["type"] = "page";
-      // console.log("FileInfo=", fi)
+
       await api.client.MFSetObject(fsid, fi)
       let ipfs = await temp2Ipfs(fsid);
       let mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)

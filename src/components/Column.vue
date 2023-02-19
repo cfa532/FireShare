@@ -25,8 +25,6 @@ function goFilelist() {
         <span v-if="column.subColumn && column.subColumn.length>0">{{props.column.titleZh}}</span>
     </li>
     <ul v-if="column.subColumn && column.subColumn.length>0">
-        <li class="columnList" v-for="c in column.subColumn">
-            <Column :column=c></Column>
-        </li>
+        <Column class="columnList" v-for="c in column.subColumn" :column=c></Column>
     </ul>
 </template>
