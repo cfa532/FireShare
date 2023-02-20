@@ -9,7 +9,6 @@ const props = defineProps({
 const router = useRouter();
 
 function goFilelist() {
-    console.log(props.column)
     router.push({
         name: "filelist", params:{page: 1, title: props.column.title}
     });
