@@ -192,23 +192,16 @@ export const useMimei = defineStore({
                 return this;
             })
         },
-        backup() {
-            return new Promise<string>((resolve, reject)=>{
-                this.api.client.MMBackup(this.api.sid, this.mid, '', async (newVer:string)=>{
-                    console.log("newVer=", this.api.sid, this.mid)
-                    this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, this.mid, "last");
-                    // now publish a new version of database Mimei
-                    this.api.client.MiMeiPublish(this.api.sid, "", this.mid, async (ret:DhtReply)=>{
-                        console.log("Mimei publish []DhtReply=", ret, this._mmsid, newVer)
-                        resolve(newVer)
-                    }, (err:Error)=>{
-                        console.error("MiMeiPublish err=", err)
-                        reject("Backup error")
-                    })
-                }, (err: Error) => {
-                    reject("MMBackup error="+err)
-                })
-            })
+        async backup() {
+            try {
+                let newVer = await this.api.client.MMBackup(this.api.sid, this.mid, '')
+                this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, this.mid, "last");
+                // now publish a new version of database Mimei
+                let ret:DhtReply = this.api.client.MiMeiPublish(this.api.sid, "", this.mid)
+                console.log("Mimei publish []DhtReply=", ret, this._mmsid, "newVer="+newVer)
+            } catch(err:any) {
+                throw new Error("Backup error", err)
+            }
         },
         async getColumn(title: string) {
             // given title, return Column obj, and set Column at the same time
