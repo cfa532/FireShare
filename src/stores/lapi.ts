@@ -7,7 +7,8 @@ const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmL
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
     "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Hmset", "Hmget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile",
     "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan",
-    "MMRelease", "MMBackupA", "MFStat", "Zrem", "Zremrangebyscore", "MiMeiPublish", "PullMsg", "MFTemp2IpfsA", "MFSetCid"
+    "MMRelease", "MMBackup", "MFStat", "Zrem", "Zremrangebyscore", "MiMeiPublish", "PullMsg", "MFTemp2Ipfs", "MFSetCid",
+    "MMSum", "MiMeiSync", "IpfsAdd"
 ];
 
 function getcurips() {
@@ -146,7 +147,7 @@ export const useMimei = defineStore({
                     //     return
                     // }
                     this.api.client.MMOpen(this.api.sid, this.midNaviBar, "last", (mmsid: string)=>{
-                        console.log("MMOPen mmsid=", mmsid)
+                        console.log("MMOPen mmsid="+mmsid, "sid="+this.api.sid)
                         this.api.client.MFGetObject(mmsid, (o:any)=>{
                             state._naviColumnTree = o
                             resolve(o)
@@ -193,34 +194,17 @@ export const useMimei = defineStore({
         },
         backup() {
             return new Promise<string>((resolve, reject)=>{
-                this.api.client.MMBackupA(this.api.sid, this.mid, 'cur', async (newVer:string)=>{
-                    do {
-                        let msg:PulledMessage = await this.api.client.PullMsg(this.api.sid, 3)      // wait 3 sec
-                        if (msg) {
-                            let arr = msg.msg.match(/result=(.*)/i)
-                            // ['ver=248', '248', index: 0, input: 'ver=248', groups: undefined]
-                            if (arr) {
-                                newVer = arr[1];
-                                console.log("newVer=", arr[1], msg, this._mmsid)
-                                this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, this.mid, "last");
-                                // now publish a new version of database Mimei
-                                this.api.client.MiMeiPublish(this.api.sid, "", this.mid, async (ret:DhtReply)=>{
-                                    console.log("Mimei publish []DhtReply=", ret, this._mmsid)
-                                }, (err:Error)=>{
-                                    console.error("MiMeiPublish err=", err)
-                                    reject("Backup error")
-                                })
-                            } else {
-                                // check for error
-                                arr = msg.msg.match(/error=(.*)/i)
-                                if (arr) {
-                                    console.error("Backup error");
-                                    reject("Backup error")
-                                }
-                            }
-                        }
-                    } while(!newVer)
-                    resolve(newVer)
+                this.api.client.MMBackup(this.api.sid, this.mid, '', async (newVer:string)=>{
+                    console.log("newVer=", this.api.sid, this.mid)
+                    this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, this.mid, "last");
+                    // now publish a new version of database Mimei
+                    this.api.client.MiMeiPublish(this.api.sid, "", this.mid, async (ret:DhtReply)=>{
+                        console.log("Mimei publish []DhtReply=", ret, this._mmsid, newVer)
+                        resolve(newVer)
+                    }, (err:Error)=>{
+                        console.error("MiMeiPublish err=", err)
+                        reject("Backup error")
+                    })
                 }, (err: Error) => {
                     reject("MMBackup error="+err)
                 })

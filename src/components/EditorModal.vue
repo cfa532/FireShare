@@ -53,8 +53,6 @@ const classModal = computed(():CSSProperties=>{
 })
 onMounted(async () => {
   await mmInfo.init(api)
-  // textValue.value = props.text? props.text : "";
-  // filesUpload.value = props.attachments? props.attachments.slice(0) : [];
   console.log("Editor mount", props)
 })
 function onSelect(e: Event) {
@@ -82,7 +80,7 @@ function uploadFile(files: File[]) {
   return Promise.allSettled(files.map(file => {
     return new Promise<FileInfo>(async (resolve, reject) => {
       if (file.size > sliceSize * 20) {
-        alert("Max file size 50MB");
+        alert("Max file size 200MB");
         reject("Max file size exceeded");
       } else {
         try {
@@ -147,7 +145,8 @@ async function onSubmit() {
       let fi = new FileInfo(s, Date.now(), s.length, "page", inpCaption.value!.trim());   // save it in name field
 
       await api.client.MFSetObject(fsid, fi)
-      let ipfs = await temp2Ipfs(fsid);
+      // api.client.timeout = 30000;
+      let ipfs = await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
       let mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)
       let ver = await api.client.MFSetCid(api.sid, mid, ipfs)
       let ret = await api.client.Hset(mmsidCur, props.column, mid, fi)
@@ -174,30 +173,33 @@ async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number):Prom
   let count = await api.client.MFSetData(fsid, arr.slice(start, end), start);
   if (end === arr.byteLength) {
     // last slice done. Convert temp to Mac file
-    return temp2Ipfs(fsid);   // return a Promise, no await here
+    // return temp2Ipfs(fsid);   // return a Promise, no await here
+    return await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
   } else {
     return readFileSlice(fsid, arr, start + count)
   }
 }
-async function temp2Ipfs(fsid:string):Promise<string> {
-  api.client.MFTemp2IpfsA(fsid, mmInfo.mid)   // no await, otherwise no return
-  do {
-    let msg:PulledMessage = await api.client.PullMsg(api.sid, 3)      // wait 3 sec
-    if (msg) {
-      // "result=/ipfs/QmeLNAsehacdXgp88ZjNZbq4fWTkv3LBJzwZeKZs5DzRvy"
-      let arr = msg.msg.match(/result=\/ipfs\/(.*)/i)
-      if (arr) {
-          console.log("new ipfs id=", arr[1], fsid)
-          return arr[1];  // ipfs id
-      }
-      arr = msg.msg.match(/error=(.*)/i)
-      if (arr) {
-        console.error(arr[0], msg);    // the whole matched string
-        throw new Error(arr[0])
-      }
-    }
-  } while(true)
-}
+// async function temp2Ipfs(fsid:string):Promise<string> {
+//   api.client.MFTemp2Ipfs(fsid, mmInfo.mid)   // no await, otherwise no return
+//   console.log("In tmpe2ipfs")
+//   do {
+//     let msg:PulledMessage = await api.client.PullMsg(api.sid, 3)      // wait 3 sec
+//     console.log(msg)
+//     if (msg) {
+//       // "result=/ipfs/QmeLNAsehacdXgp88ZjNZbq4fWTkv3LBJzwZeKZs5DzRvy"
+//       let arr = msg.msg.match(/result=\/ipfs\/(.*)/i)
+//       if (arr) {
+//           console.log("new ipfs id=", arr[1], fsid)
+//           return arr[1];  // ipfs id
+//       }
+//       arr = msg.msg.match(/error=(.*)/i)
+//       if (arr) {
+//         console.error(arr[0], msg);    // the whole matched string
+//         throw new Error(arr[0])
+//       }
+//     }
+//   } while(true)
+// }
 function removeFile(f: File) {
   // removed file from preview list
   var i = filesUpload.value.findIndex((e:File) => e==f);

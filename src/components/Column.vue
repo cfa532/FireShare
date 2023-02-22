@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PropType } from 'vue';
+import { PropType, onMounted } from 'vue';
 import { useRouter } from 'vue-router'
 // import { useLeither } from '../stores/lapi';
 // const api = useLeither();
@@ -8,6 +8,9 @@ const props = defineProps({
 })
 const router = useRouter();
 
+onMounted(()=>{
+    // console.log("Column mounted", props)
+})
 function goFilelist() {
     router.push({
         name: "filelist", params:{page: 1, title: props.column.title}
@@ -24,6 +27,6 @@ function goFilelist() {
         <span v-if="column.subColumn && column.subColumn.length>0">{{props.column.titleZh}}</span>
     </li>
     <ul v-if="column.subColumn && column.subColumn.length>0">
-        <Column class="columnList" v-for="c in column.subColumn" :column=c></Column>
+        <Column v-for="c in column.subColumn" :column=c></Column>
     </ul>
 </template>
