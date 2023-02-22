@@ -160,27 +160,12 @@ export const useMimei = defineStore({
                 }
             })
         },    
-        mmsid: function(state) {
-            return new Promise<string>((resolve, reject)=>{
-                if (state._mmsid) resolve(state._mmsid);
-                else {
-                    this.api.client.MMOpen(this.api.sid, this.mid, "last", (mmsid: string)=>{
-                        state._mmsid = mmsid;
-                        resolve(mmsid);
-                    }, (err:Error)=>{
-                        reject("useMimei MMOpen mmsid err="+err)
-                    })
-                }
-            })
+        mmsid: async function(state) :Promise<string> {
+            state._mmsid = state._mmsid? state._mmsid : await this.api.client.MMOpen(this.api.sid, this.mid, "last");
+            return state._mmsid;
         },
-        mmsidCur: function(state) {
-            return new Promise<string>((resolve, reject)=>{
-                this.api.client.MMOpen(this.api.sid, this.mid, "cur", (mmsid: string)=>{
-                    resolve(mmsid);
-                }, (err:Error)=>{
-                    reject("useMimei MMOpen mmsid err="+err)
-                })
-            })
+        mmsidCur: async function(state) :Promise<string> {
+            return await this.api.client.MMOpen(this.api.sid, this.mid, "cur");
         },
     },
     actions: {
@@ -188,7 +173,7 @@ export const useMimei = defineStore({
             this.$state.api = api;
             return Promise.all([this.mmsid, this.naviColumnTree]).then((res)=>{
                 localStorage.setItem("navibarcolumns", JSON.stringify(res[1]))        // do it once during initiation  
-                window.mmInfo = this.$state;
+                window.mmInfo = this.$state;    // for easy testing
                 return this;
             })
         },
@@ -206,10 +191,6 @@ export const useMimei = defineStore({
         async getColumn(title: string) {
             // given title, return Column obj, and set Column at the same time
             return findColumn(await this.naviColumnTree, title);
-        },
-        async renewMMSid() {
-            this._mmsid = await this.api.client.MMOPen(this.api.sid, this.mid, "last");
-            return this._mmsid;
         },
         downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {
             var a = document.createElement("a");
@@ -234,4 +215,3 @@ function findColumn(cols:ContentColumn[], title:string) :ContentColumn|undefined
     }
     return col
 }
-
