@@ -174,6 +174,7 @@ async function onSubmit() {
 async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number):Promise<string> {
   // reading file slice by slice, start at given position
   var end = Math.min(start + sliceSize, arr.byteLength);
+  console.log("Uploading...", start)
   let count = await api.client.MFSetData(fsid, arr.slice(start, end), start);
   if (end === arr.byteLength) {
     // last slice done. Convert temp to Mac file
