@@ -2,7 +2,6 @@
 import { onMounted, ref, watch } from 'vue';
 import { useLeither, useMimei } from '../../stores/lapi';
 const api = useLeither();    // Leither api handler
-const mmInfo = useMimei()
 const props = defineProps({
     mid : {type: String, required: false},
     fileType: {type: String, required: false},

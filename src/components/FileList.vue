@@ -60,14 +60,14 @@ function pageChanged(n: number) {
 function fileName(file: FileInfo) {
     console.log(file)
     if (file.caption) return file.caption;
-    if (file.type.includes("page")) {
-        // show first 30 chars if the list item is a page
-        const title = JSON.parse(file.name)[0]
-        if (title.trim()==="") {
-            return "Page without text"
-        }
-        return JSON.parse(file.name)[0].substring(0, 30)
-    }
+    // if (file.type.includes("page")) {
+    //     // show first 30 chars if the list item is a page
+    //     const title = JSON.parse(file.name)[0]
+    //     if (title.trim()==="") {
+    //         return "Page without text"
+    //     }
+    //     return JSON.parse(file.name)[0].substring(0, 30)
+    // }
     return file.name;
 }
 async function getFileList(pn: number) {
