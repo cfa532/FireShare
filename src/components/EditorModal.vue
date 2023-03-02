@@ -85,12 +85,12 @@ function uploadFile(files: File[]) {
       } else {
         try {
           let fsid = await api.client.MFOpenTempFile(api.sid);    // create a temp file
-          let ipfs = await readFileSlice(fsid, await file.arrayBuffer(), 0);    // set uploaded file as temp file and convert it to ipfs
           let fi = new FileInfo(file.name, file.lastModified, file.size, file.type);
-          fi.mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)    // creaat a MM
-          let ver = await api.client.MFSetCid(api.sid, fi.mid, ipfs)    // associate the ipfs id with MM id
+          fi.mid = await readFileSlice(fsid, await file.arrayBuffer(), 0);    // set uploaded file as temp file and convert it to ipfs
+          // fi.mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)    // creaat a MM
+          // let ver = await api.client.MFSetCid(api.sid, fi.mid, ipfs)    // associate the ipfs id with MM id
           let ret = await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)    // add mm ref to database mimei, which will be published togather.
-          console.log("ipfs ver=", ver, fi, ret)
+          console.log("ipfs ver=", fi, ret)
           resolve(fi)
         } catch(err) {
           reject("ReadFileSlice err="+err)
@@ -139,24 +139,21 @@ async function onSubmit() {
     } else {
       // upload a full webpage with attachments or content text
       await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
-      let fsid = await api.client.MFOpenTempFile(api.sid)
+
       // create a file type PAGE. use Name field to save a string defined as:
       // 1st item is input of textarea, followed by mac ids of uploaded file
       let s = JSON.stringify([textValue.value].concat(fvPairs.map(e=>e.field)))
       let fi = new FileInfo(s, Date.now(), s.length, "page", inpCaption.value!.trim());   // save it in name field
-
+      let fsid = await api.client.MFOpenTempFile(api.sid)
       await api.client.MFSetObject(fsid, fi)
       // api.client.timeout = 30000;
-      let ipfs = await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
-      let mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)
-      fi.mid = mid
-      let ver = await api.client.MFSetCid(api.sid, mid, ipfs)
-      await api.client.MMAddRef(api.sid, mmInfo.mid, mid)
+      fi.mid = await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
+      await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
 
       // add new page file to index table
-      let ret = await api.client.Hset(mmsidCur, props.column, mid, fi)
-      ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), mid))
-      console.log("Zadd ver=", ver, fi, ret)
+      let ret = await api.client.Hset(mmsidCur, props.column, fi.mid, fi)
+      ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), fi.mid))
+      console.log("Zadd ver=", fi, ret)
       
       // back mm data for publish
       mmInfo.backup()

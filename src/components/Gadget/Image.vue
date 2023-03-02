@@ -17,9 +17,12 @@ onMounted(async () => {
 async function getLink() {
     if (typeof props.filePath !== "undefined") {
         // filePath not null, showing a local file
-        return api.baseUrl + "mf" + "?mmsid="+ props.mmfsid
+        return api.baseUrl + "mf?mmsid="+ props.mmfsid
     } else {
-        return api.baseUrl + "mf" + "?mmsid="+ await api.client.MMOpen(api.sid, props.mid, "last");
+        if (props.mid?.length === 27)
+            return api.baseUrl + "mf?mmsid="+ await api.client.MMOpen(api.sid, props.mid, "last");
+        else
+            return api.baseUrl + "ipfs?cid="+ props.mid;
     }
 }
 watch(()=>props.filePath, async (cv, pv)=>{

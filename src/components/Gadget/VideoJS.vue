@@ -29,9 +29,10 @@ onMounted(async ()=>{
         }]
         loadPlayer(options)
     } else {
-        // play mac file
+        // play mm file
+        let src = props.mid?.length===27 ? "mf?mmsid=" + await api.client.MMOpen(api.sid, props.mid, "last") : "ipfs?cid="+ props.mid
         options.sources = [{
-            src: api.baseUrl + "mf" + "?mmsid=" + await api.client.MMOpen(api.sid, props.mid, "last"),
+            src: api.baseUrl + src,
             type: props.fileType
         }]
         loadPlayer(options)
@@ -47,6 +48,7 @@ function loadPlayer(options:any, fn:()=>void = null as any) {
     }
 };
 watch(()=>props.filePath, async (cv, pv)=>{
+    // watch changes of local dir
     if (cv !== pv) {
         // something changed if current value != prev value
         vdiv.value.hidden = false
@@ -54,7 +56,7 @@ watch(()=>props.filePath, async (cv, pv)=>{
         if (props.fileType?.includes("video")) {
             // Finally, enforce it to play new source
             player.src({
-                src: api.baseUrl + "mf" + "?mmsid=" + props.mmfsid,
+                src: api.baseUrl + "mf?mmsid=" + props.mmfsid,
                 type: props.fileType
             })
             player.play()
