@@ -115,8 +115,8 @@ async function getFileList(pn: number) {
             <EditorModal v-if="api.sid" @uploaded="uploaded" @hide="showEditor='none'" :display="showEditor"
                 :column="(columnTitle as string)"></EditorModal>
         </div>
-        <ul style="padding: 0px; margin: 0 0 0 5px;">
-            <li class="fileList" v-for="(file, index) in fileList" :key="index">
+        <ul class="aList">
+            <li v-for="(file, index) in fileList" :key="index">
                 <RouterLink v-if="file.type.includes('image') || file.type.includes('video') || file.type.includes('audio')
                 || file.type.includes('page') || file.type.includes('pdf')"
                     :to="{ name: 'fileview', params: { title: columnTitle, mid: file.mid, fileType: file.type } }">

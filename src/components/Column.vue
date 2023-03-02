@@ -19,14 +19,14 @@ function goFilelist() {
 </script>
 
 <template>
-    <li class="columnList">
+    <li>
         <RouterLink v-if="!column.subColumn || column.subColumn.length==0"
         to="" @click.prevent="goFilelist()">
             {{props.column.titleZh}}
         </RouterLink>
         <span v-if="column.subColumn && column.subColumn.length>0">{{props.column.titleZh}}</span>
     </li>
-    <ul v-if="column.subColumn && column.subColumn.length>0">
+    <ul class="columnList" v-if="column.subColumn && column.subColumn.length>0">
         <Column v-for="c in column.subColumn" :column=c></Column>
     </ul>
 </template>
