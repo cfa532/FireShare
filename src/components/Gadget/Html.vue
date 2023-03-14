@@ -18,6 +18,7 @@ onMounted(async () => {
     await mmInfo.init(api)
     console.log("Page mounted:", props)
     api.client.MMOpen(api.sid, props.mid, "last", (fsid: string) => {
+        console.log(fsid)
         api.client.MFGetObject(fsid, async (obj:FileInfo)=>{
             const arr = JSON.parse(obj.name)    // get a string[], [0] is the text content
             textContent.value = arr[0].trim()===""? "" : arr[0];

@@ -30,7 +30,7 @@ onMounted(async ()=>{
         loadPlayer(options)
     } else {
         // play mm file
-        let src = props.mid?.length===27 ? "mf?mmsid=" + await api.client.MMOpen(api.sid, props.mid, "last") : "ipfs?cid="+ props.mid
+        let src = props.mid?.length===27 ? "mf?mmsid=" + await api.client.MMOpen(api.sid, props.mid, "last") : "ipfs/"+ props.mid
         options.sources = [{
             src: api.baseUrl + src,
             type: props.fileType

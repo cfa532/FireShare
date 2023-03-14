@@ -141,7 +141,7 @@ async function onSubmit() {
       await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
 
       // create a file type PAGE. use Name field to save a string defined as:
-      // 1st item is input of textarea, followed by mac ids of uploaded file
+      // 1st item is input of textarea, followed by mids of uploaded file
       let s = JSON.stringify([textValue.value].concat(fvPairs.map(e=>e.field)))
       let fi = new FileInfo(s, Date.now(), s.length, "page", inpCaption.value!.trim());   // save it in name field
       let fsid = await api.client.MFOpenTempFile(api.sid)

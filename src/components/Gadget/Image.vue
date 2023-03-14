@@ -21,7 +21,7 @@ async function getLink() {
         if (props.mid?.length === 27)
             return api.baseUrl + "mf?mmsid="+ await api.client.MMOpen(api.sid, props.mid, "last");
         else
-            return api.baseUrl + "ipfs?cid="+ props.mid;
+            return api.baseUrl + "ipfs/"+ props.mid;
     }
 }
 watch(()=>props.filePath, async (cv, pv)=>{
