@@ -87,8 +87,13 @@ function uploadFile(files: File[]) {
           let fsid = await api.client.MFOpenTempFile(api.sid);    // create a temp file
           let fi = new FileInfo(file.name, file.lastModified, file.size, file.type);
           fi.mid = await readFileSlice(fsid, await file.arrayBuffer(), 0);    // set uploaded file as temp file and convert it to ipfs
-          // fi.mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)    // creaat a MM
-          // let ver = await api.client.MFSetCid(api.sid, fi.mid, ipfs)    // associate the ipfs id with MM id
+          
+          if (fi.type.search(/(image|video|audio)/i) === -1) {
+            // save non-media files as Mimei type, for easy download. Other media files are stored as ipfs.
+            let mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)    // creaat a MM
+            await api.client.MFSetCid(api.sid, mid, fi.mid)    // associate the ipfs id with MM id
+            fi.mid = mid
+          }
           let ret = await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)    // add mm ref to database mimei, which will be published togather.
           console.log("ipfs ver=", fi, ret)
           resolve(fi)

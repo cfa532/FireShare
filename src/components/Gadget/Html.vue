@@ -39,14 +39,14 @@ onMounted(async () => {
     });
 })
 function fileDownload(fi: any) {
-    window.open(api.baseUrl+"ipfs/"+fi.mid, "_blank")
-    // api.client.MMOpen(api.sid, fi.mid, "last", (fsid: string) => {
-    //     api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
-    //         mmInfo.downLoadByFileData(fileData, fi.name, "")
-    //     })
-    // }, (err: Error) => {
-    //     console.error("Open file error", err, fi)
-    // })
+    // window.open(api.baseUrl+"ipfs/"+fi.mid, "_blank")
+    api.client.MMOpen(api.sid, fi.mid, "last", (fsid: string) => {
+        api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
+            mmInfo.downLoadByFileData(fileData, fi.name, "")
+        })
+    }, (err: Error) => {
+        console.error("Open file error", err, fi)
+    })
 }
 </script>
 
