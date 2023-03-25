@@ -142,7 +142,7 @@ async function onSubmit() {
       textValue.value = ""
       inpCaption.value = ""
     } else {
-      // upload a full webpage with attachments or content text
+      // upload a full webpage with attachments and/or content text
       await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
 
       // create a file type PAGE. use Name field to save a string defined as:

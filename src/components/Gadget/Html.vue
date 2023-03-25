@@ -35,7 +35,7 @@ onMounted(async () => {
             console.error("MFGetObject error=", err)
         })
     }, (err: Error) => {
-        console.error("MFOpenMacFile error=", err)
+        console.error("MFOpen error=", err)
     });
 })
 function fileDownload(fi: any) {

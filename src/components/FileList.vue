@@ -25,7 +25,7 @@ onMounted(async ()=>{
     await mmInfo.init(api)
     console.log("FileList mounted:", route.params)
     if (route.params.title !== "Webdav") {
-        api.client.Zcount(mmInfo.mmsid, route.params.title, 0, Date.now(), async (count: number)=>{     // -1 does not work for stop
+        api.client.Zcount(await mmInfo.mmsid, route.params.title, 0, Date.now(), async (count: number)=>{     // -1 does not work for stop
             itemNumber.value = count;    // total num of items in the list as a Mimei
             await getFileList(currentPage.value);
             useSpinner().setLoadingState(false)
