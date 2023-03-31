@@ -76,33 +76,37 @@ function dragOver(evt: DragEvent) {
 function selectFile() {
   document.getElementById("selectFiles")?.click();
 }
-function uploadFile(files: File[]) {
-  return Promise.allSettled(files.map(file => {
-    return new Promise<FileInfo>(async (resolve, reject) => {
-      if (file.size > sliceSize * 20) {
-        alert("Max file size 200MB");
-        reject("Max file size exceeded");
-      } else {
-        try {
-          let fsid = await api.client.MFOpenTempFile(api.sid);    // create a temp file
-          let fi = new FileInfo(file.name, file.lastModified, file.size, file.type);
-          fi.mid = await readFileSlice(fsid, await file.arrayBuffer(), 0);    // set uploaded file as temp file and convert it to ipfs
-          
-          if (fi.type.search(/(image|video|audio)/i) === -1) {
-            // save non-media files as Mimei type, for easy download. Other media files are stored as ipfs.
-            let mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705)    // creaat a MM
-            await api.client.MFSetCid(api.sid, mid, fi.mid)    // associate the ipfs id with MM id
-            fi.mid = mid
-          }
-          let ret = await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)    // add mm ref to database mimei, which will be published togather.
-          console.log("ipfs ver=", fi, ret)
-          resolve(fi)
-        } catch(err) {
-          reject("ReadFileSlice err="+err)
-        }
-      }
-    })
-  }))
+// Function to upload files and store them as IPFS or Mimei type
+async function uploadFile(files: File[]): Promise<SettledResult<FileInfo>[]> {
+  // Helper function to handle individual file uploads
+  async function uploadSingleFile(file: File): Promise<FileInfo> {
+    // Check if the file size exceeds the limit (200MB in this example)
+    if (file.size > sliceSize * 20) {
+      throw new Error("Max file size exceeded");
+    }
+
+    // Create a temporary file
+    const fsid = await api.client.MFOpenTempFile(api.sid);
+    // Create a FileInfo object with file name, last modified time,
+    const fi = new FileInfo(file.name, file.lastModified, file.size, file.type);
+    fi.mid = await readFileSlice(fsid, await file.arrayBuffer(), 0);
+
+    // Save non-media files as Mimei type, for easy download.
+    if (fi.type.search(/(image|video|audio)/i) === -1) {
+      const mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705);
+      await api.client.MFSetCid(api.sid, mid, fi.mid);
+      fi.mid = mid;
+    }
+
+    // Add MM reference to the database mimei, which will be published together.
+    await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid);
+
+    return fi;
+  }
+
+  // Use Promise.allSettled to wait for all file upload operations to complete
+  const uploadPromises = files.map(file => uploadSingleFile(file).catch(e => e));
+  return Promise.allSettled(uploadPromises);
 }
 async function onSubmit() {
   if (!inpCaption.value || inpCaption.value!.trim()==="" || (filesUpload.value.length===0 && textValue.value.trim() === "")) {
@@ -152,10 +156,11 @@ async function onSubmit() {
       fi.mid = await api.client.MMCreate(api.sid, '', '', '{{auto}}', 1, 0x07276705);
       let fsid = await api.client.MMOpen(api.sid, fi.mid, "cur")
       await api.client.MFSetObject(fsid, fi)
+      await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
       await api.client.MMBackup(api.sid, fi.mid, "")
+      await api.client.MiMeiPublish(api.sid, "", fi.mid)
       // api.client.timeout = 30000;
       // fi.mid = await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
-      await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
 
       // add new page file to index table
       let ret = await api.client.Hset(mmsidCur, props.column, fi.mid, fi)

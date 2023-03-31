@@ -23,7 +23,7 @@ function getcurips() {
         console.log("window.location", ips)
     }
     { //for test
-        // ips = "192.168.1.3:4800"
+        ips = "192.168.1.3:4800"
         ips = "192.168.1.4:8000"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
         // ips = "125.120.29.190:8000"
@@ -177,12 +177,13 @@ export const useMimei = defineStore({
                 return this;
             })
         },
-        async backup() {
+        async backup(mid: string="") {
+            if (!mid) mid = this.mid;
             try {
-                let newVer = await this.api.client.MMBackup(this.api.sid, this.mid, '')
-                this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, this.mid, "last");
+                let newVer = await this.api.client.MMBackup(this.api.sid, mid, '')
+                this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, mid, "last");
                 // now publish a new version of database Mimei
-                let ret:DhtReply = this.api.client.MiMeiPublish(this.api.sid, "", this.mid)
+                let ret:DhtReply = this.api.client.MiMeiPublish(this.api.sid, "", mid)
                 console.log("Mimei publish []DhtReply=", ret, this._mmsid, "newVer="+newVer)
             } catch(err:any) {
                 throw new Error("Backup error", err)
