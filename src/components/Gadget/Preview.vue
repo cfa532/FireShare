@@ -3,7 +3,7 @@ import { onMounted, ref, watch } from 'vue';
 const emit = defineEmits(["fileCanceled"])
 const props = defineProps({
     src: {type: File, required: true},
-    progress: {type: Number, required: false},     // uploading progress bar
+    progress: {type: Number, required: false, default:100},     // uploading progress bar
 })
 const imageUrl = ref("")
 const caption = ref("")
@@ -13,12 +13,6 @@ onMounted(()=>{
     thumbnail()
 })
 watch(()=>props.src, (newVal, oldVal)=>{
-    if (newVal !== oldVal) {
-        thumbnail()
-    }
-})
-watch(()=>props.progress, (newVal, oldVal)=>{
-    console.log("progress=", newVal, oldVal)
     if (newVal !== oldVal) {
         thumbnail()
     }

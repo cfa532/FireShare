@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CSSProperties, onMounted, ref, watch, computed } from "vue";
+import { CSSProperties, onMounted, ref, reactive, watch, computed } from "vue";
 import Preview from "./Gadget/Preview.vue";
 import { useLeither, useMimei } from '../stores/lapi'
 const api = useLeither();
@@ -35,6 +35,8 @@ const textArea = ref()
 const myModal = ref()
 const sliceSize = 1024 * 1024 * 10    // 10MB per slice of file
 const filesUpload = ref<File[]>([]);
+const uploadProgress = reactive<number[]>([]); // New ref to store upload progress of each file
+
 const props = defineProps({
     // text : {type: String, required: false},       // text input from editor
     // attachments: {type: [File], required: false},
@@ -79,17 +81,18 @@ function selectFile() {
 // Function to upload files and store them as IPFS or Mimei type
 async function uploadFile(files: File[]): Promise<SettledResult<FileInfo>[]> {
   // Helper function to handle individual file uploads
-  async function uploadSingleFile(file: File): Promise<FileInfo> {
+  async function uploadSingleFile(file: File, index: number): Promise<FileInfo> {
     // Check if the file size exceeds the limit (200MB in this example)
     if (file.size > sliceSize * 20) {
       throw new Error("Max file size exceeded");
     }
-
+    // Assign initial progress value
+    uploadProgress[index] = 0;
     // Create a temporary file
     const fsid = await api.client.MFOpenTempFile(api.sid);
     // Create a FileInfo object with file name, last modified time,
     const fi = new FileInfo(file.name, file.lastModified, file.size, file.type);
-    fi.mid = await readFileSlice(fsid, await file.arrayBuffer(), 0);
+    fi.mid = await readFileSlice(fsid, await file.arrayBuffer(), 0, index);
 
     // Save non-media files as Mimei type, for easy download.
     if (fi.type.search(/(image|video|audio)/i) === -1) {
@@ -105,7 +108,7 @@ async function uploadFile(files: File[]): Promise<SettledResult<FileInfo>[]> {
   }
 
   // Use Promise.allSettled to wait for all file upload operations to complete
-  const uploadPromises = files.map(file => uploadSingleFile(file).catch(e => e));
+  const uploadPromises = files.map((file,i) => uploadSingleFile(file, i).catch(e => e));
   return Promise.allSettled(uploadPromises);
 }
 async function onSubmit() {
@@ -180,17 +183,20 @@ async function onSubmit() {
     return
   }
 }
-async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number):Promise<string> {
+async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number, index: number):Promise<string> {
   // reading file slice by slice, start at given position
   var end = Math.min(start + sliceSize, arr.byteLength);
-  console.log("Uploading...", start)
   let count = await api.client.MFSetData(fsid, arr.slice(start, end), start);
+  // Calculate progress
+  uploadProgress[index] = Math.floor((start + count) / arr.byteLength * 100);
+  console.log("Uploading...", uploadProgress[index]+"%")
+
   if (end === arr.byteLength) {
     // last slice done. Convert temp to Mac file
     // return temp2Ipfs(fsid);   // return a Promise, no await here
     return await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
   } else {
-    return readFileSlice(fsid, arr, start + count)
+    return readFileSlice(fsid, arr, start + count, index)
   }
 }
 
@@ -230,7 +236,7 @@ watch(() => textValue.value, (newVal, oldVal) => {
         <div ref="divAttach" hidden
           style="border: 0px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-top:0px;" >
           <Preview @file-canceled="removeFile(file)" v-for="(file, index) in filesUpload" :key="index"
-            v-bind:src="file"></Preview>
+            v-bind:src="file" v-bind:progress="uploadProgress[index]"></Preview>
         </div>
         <div>
           <input id="selectFiles" @change="onSelect" type="file" hidden multiple>
