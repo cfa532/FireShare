@@ -100,10 +100,8 @@ async function uploadFile(files: File[]): Promise<SettledResult<FileInfo>[]> {
       await api.client.MFSetCid(api.sid, mid, fi.mid);
       fi.mid = mid;
     }
-
     // Add MM reference to the database mimei, which will be published together.
     await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid);
-
     return fi;
   }
 
