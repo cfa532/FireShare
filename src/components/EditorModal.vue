@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CSSProperties, onMounted, ref, reactive, watch, computed } from "vue";
+import { CSSProperties, onMounted, onBeforeUnmount, ref, reactive, watch, computed } from "vue";
 import Preview from "./Gadget/Preview.vue";
 import { useLeither, useMimei, useSpinner } from '../stores/lapi'
 const api = useLeither();
@@ -56,6 +56,7 @@ const classModal = computed(():CSSProperties=>{
 onMounted(async () => {
   await mmInfo.init(api)
   console.log("Editor mount", props)
+  window.addEventListener("click", onClickOutside);
 })
 function onSelect(e: Event) {
   let files = (e as HTMLInputEvent).target.files || (e as DragEvent).dataTransfer?.files;
@@ -208,12 +209,15 @@ function removeFile(f: File) {
   filesUpload.value.splice(i, 1)
 }
 // When the user clicks anywhere outside of the modal, close it
-window.onclick = function (e: MouseEvent) {
-  // var modal = document.getElementById("myModal");
+const onClickOutside = (e: MouseEvent) => {
   if (e.target == myModal.value) {
     emit("hide")
   }
-}
+};
+
+onBeforeUnmount(() => {
+  window.removeEventListener("click", onClickOutside);
+});
 watch(() => textValue.value, (newVal, oldVal) => {
   if (newVal !== oldVal) {
     localStorage.setItem("tempTextValueUploader", newVal)
