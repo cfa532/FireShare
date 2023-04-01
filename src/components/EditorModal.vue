@@ -193,27 +193,7 @@ async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number):Prom
     return readFileSlice(fsid, arr, start + count)
   }
 }
-// async function temp2Ipfs(fsid:string):Promise<string> {
-//   api.client.MFTemp2Ipfs(fsid, mmInfo.mid)   // no await, otherwise no return
-//   console.log("In tmpe2ipfs")
-//   do {
-//     let msg:PulledMessage = await api.client.PullMsg(api.sid, 3)      // wait 3 sec
-//     console.log(msg)
-//     if (msg) {
-//       // "result=/ipfs/QmeLNAsehacdXgp88ZjNZbq4fWTkv3LBJzwZeKZs5DzRvy"
-//       let arr = msg.msg.match(/result=\/ipfs\/(.*)/i)
-//       if (arr) {
-//           console.log("new ipfs id=", arr[1], fsid)
-//           return arr[1];  // ipfs id
-//       }
-//       arr = msg.msg.match(/error=(.*)/i)
-//       if (arr) {
-//         console.error(arr[0], msg);    // the whole matched string
-//         throw new Error(arr[0])
-//       }
-//     }
-//   } while(true)
-// }
+
 function removeFile(f: File) {
   // removed file from preview list
   var i = filesUpload.value.findIndex((e:File) => e==f);
