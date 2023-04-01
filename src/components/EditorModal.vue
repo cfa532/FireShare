@@ -79,7 +79,7 @@ function selectFile() {
   document.getElementById("selectFiles")?.click();
 }
 // Function to upload files and store them as IPFS or Mimei type
-async function uploadFile(files: File[]): Promise<SettledResult<FileInfo>[]> {
+async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>[]> {
   // Helper function to handle individual file uploads
   async function uploadSingleFile(file: File, index: number): Promise<FileInfo> {
     // Check if the file size exceeds the limit (200MB in this example)

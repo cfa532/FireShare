@@ -58,7 +58,7 @@ function pageChanged(n: number) {
     router.push({name: "filelist", params: {page: n}})
 }
 function fileName(file: FileInfo) {
-    console.log(file)
+    // console.log(file)
     if (file.caption) return file.caption;
     // if (file.type.includes("page")) {
     //     // show first 30 chars if the list item is a page
@@ -76,7 +76,7 @@ async function getFileList(pn: number) {
     console.log(route.params, start)
     api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start+pageSize.value-1, async (sps:ScorePair[])=>{
         fileList.value.length = 0       // clear fileList array
-        console.log(sps)
+        // console.log(sps)
         let mbs = sps.map((sp:ScorePair)=> sp.member)
         api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mbs, (fis: FileInfo[]) => {
             fis.forEach((fi, idx)=>{
