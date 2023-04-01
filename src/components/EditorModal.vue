@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CSSProperties, onMounted, ref, reactive, watch, computed } from "vue";
 import Preview from "./Gadget/Preview.vue";
-import { useLeither, useMimei } from '../stores/lapi'
+import { useLeither, useMimei, useSpinner } from '../stores/lapi'
 const api = useLeither();
 const mmInfo = useMimei();
 class FileInfo{
@@ -117,6 +117,8 @@ async function onSubmit() {
     caption.value?.focus()
     return;
   }
+  useSpinner().setLoadingState(true)
+  
   // if one file uploaded, without content in textArea, upload single file
   // otherwise, upload a html file for iFrame
   try {
@@ -181,6 +183,8 @@ async function onSubmit() {
   } catch(err) {
     console.error("Onsubmit err=", err);
     return
+  } finally {
+    useSpinner().setLoadingState(false)
   }
 }
 async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number, index: number):Promise<string> {

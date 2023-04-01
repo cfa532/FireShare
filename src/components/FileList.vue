@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useLeither, useMimei, useSpinner } from '../stores/lapi';
 import { useRoute, useRouter } from "vue-router";
 import MyDir from './Gadget/Dir.vue';
 import Pager from "./Gadget/Pager.vue";
 import NaviBar from "./NaviBar.vue";
 import EditorModal from "./EditorModal.vue";
-import SpinnerVue from "./Gadget/Spinner.vue";
+import Spinner from "./Gadget/Spinner.vue";
 // import { defineAsyncComponent } from 'vue'
 // const EditorModal = defineAsyncComponent(()=>import("./EditorModal.vue"));
 const api = useLeither()
@@ -105,7 +105,7 @@ async function getFileList(pn: number) {
 
 <template>
     <NaviBar :column="(columnTitle as string)"></NaviBar>
-    <SpinnerVue :active="useSpinner().loading" text="Please wait......"/>
+    <Spinner :active="useSpinner().loading" text="Please wait......"/>
     <!-- <hr/> -->
     <div v-if="columnTitle !== 'Webdav'">
         <div v-show="api.sid">
