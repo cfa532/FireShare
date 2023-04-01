@@ -162,7 +162,7 @@ async function onSubmit() {
       await api.client.MFSetObject(fsid, fi)
       await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
       await api.client.MMBackup(api.sid, fi.mid, "")
-      await api.client.MiMeiPublish(api.sid, "", fi.mid)
+      // await api.client.MiMeiPublish(api.sid, "", fi.mid)
       // api.client.timeout = 30000;
       // fi.mid = await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
 
