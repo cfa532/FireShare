@@ -26,26 +26,25 @@ WantedBy=multi-user.target
 
 ACTION=$1
 DEVICE=$2
-LABEL=$(lsblk -o LABEL /dev/${DEVICE} | tail -n 1)
-MOUNTPOINT="/mnt/${LABEL}"
 
-echo "$(date) - Starting script with DEVICE=${DEVICE}, LABEL=${LABEL}, MOUNTPOINT=${MOUNTPOINT}" >> /var/log/mount-usb-systemd.log
-
-if [ "$ACTION" == "add" ]; then
+if [ "$ACTION" = "add" ]; then
+  LABEL=$(lsblk -o LABEL /dev/${DEVICE} | tail -n 1)
+  MOUNTPOINT="/mnt/${LABEL}"
+  echo "$(date) - Starting script with DEVICE=${DEVICE}, LABEL=${LABEL}, MOUNTPOINT=${MOUNTPOINT}" >> /var/log/mount-usb-systemd.log
   eval $(/sbin/blkid -o udev /dev/${DEVICE})                # Get info for this drive: $ID_FS_LABEL, $ID_FS_UUID, and $ID_FS_TYPE
-  OPTS="rw,relatime"
-  if [[ ${ID_FS_TYPE} == "vfat" ]]; then
-    OPTS+=",users,gid=100,umask=000,shortname=mixed,utf8=1,flush";
+  # OPTS="rw,relatime"
+  if [ ${ID_FS_TYPE} = "vfat" ]; then
+    OPTS="rw,relatime,users,gid=100,umask=000,shortname=mixed,utf8=1,flush";
   else
-    OPTS+=",default_permissions";
+    OPTS="default_permissions";
   fi
   mkdir -p "${MOUNTPOINT}"
   echo "${MOUNTPOINT}" > "/run/usb-mount-${DEVICE}.mnt"		# remember the MOUNTPOINT in a tmp file, to remove it later
-  echo "$(date) - Mounting ${DEVICE} to ${MOUNTPOINT}" >> /var/log/mount-usb-systemd.log
+  echo "$(date) - Mounting ${DEVICE} - ${ID_FS_TYPE} to ${MOUNTPOINT} -o ${OPTS}" >> /var/log/mount-usb-systemd.log
   mount -o ${OPTS} /dev/${DEVICE} "${MOUNTPOINT}";
-elif [ "$ACTION" == "remove" ]; then
+elif [ "$ACTION" = "remove" ]; then
   MOUNTPOINT=$(cat "/run/usb-mount-${DEVICE}.mnt")
-  echo "$(date) - Unmounting ${DEVICE} ${MOUNTPOINT}" >> /var/log/mount-usb-systemd.log
+  echo "$(date) - Unmounting /dev/${DEVICE} ${MOUNTPOINT}" >> /var/log/mount-usb-systemd.log
   umount "${MOUNTPOINT}"
   rmdir "${MOUNTPOINT}"
   rm "/run/usb-mount-${DEVICE}.mnt";
