@@ -33,7 +33,7 @@ if [ "$ACTION" = "add" ]; then
   echo "$(date) - Starting script with DEVICE=${DEVICE}, LABEL=${LABEL}, MOUNTPOINT=${MOUNTPOINT}" >> /var/log/mount-usb-systemd.log
   eval $(/sbin/blkid -o udev /dev/${DEVICE})                # Get info for this drive: $ID_FS_LABEL, $ID_FS_UUID, and $ID_FS_TYPE
   # OPTS="rw,relatime"
-  if [ ${ID_FS_TYPE} = "vfat" ]; then
+  if [[ ${ID_FS_TYPE} = "vfat" ]]; then
     OPTS="rw,relatime,users,gid=100,umask=000,shortname=mixed,utf8=1,flush";
   else
     OPTS="default_permissions";
