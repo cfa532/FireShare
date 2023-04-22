@@ -29,25 +29,32 @@ DEVICE=$2
 
 if [ "$ACTION" = "add" ]; then
   LABEL=$(lsblk -o LABEL /dev/${DEVICE} | tail -n 1)
+  if [ -z "$LABEL" ]; then
+    LABEL=$(lsblk -o PARTLABEL /dev/${DEVICE} | tail -n 1)
+  fi
+  if [ -z "$LABEL" ]; then
+    LABEL=$DEVICE
+  fi
   MOUNTPOINT="/mnt/${LABEL}"
   echo "$(date) - Starting script with DEVICE=${DEVICE}, LABEL=${LABEL}, MOUNTPOINT=${MOUNTPOINT}" >> /var/log/mount-usb-systemd.log
   eval $(/sbin/blkid -o udev /dev/${DEVICE})                # Get info for this drive: $ID_FS_LABEL, $ID_FS_UUID, and $ID_FS_TYPE
-  # OPTS="rw,relatime"
+  #OPTS="umask=0,iocharset=utf8"	# utf8 not recommended for vfat
   if [[ ${ID_FS_TYPE} = "vfat" ]]; then
-    OPTS="rw,relatime,users,gid=100,umask=000,shortname=mixed,utf8=1,flush";
+    OPTS="rw,relatime,users,gid=100,umask=000,shortname=mixed,utf8=1,flush"
   else
-    OPTS="default_permissions";
+    OPTS="umask=0,iocharset=utf8"
   fi
   mkdir -p "${MOUNTPOINT}"
   echo "${MOUNTPOINT}" > "/run/usb-mount-${DEVICE}.mnt"		# remember the MOUNTPOINT in a tmp file, to remove it later
-  echo "$(date) - Mounting ${DEVICE} - ${ID_FS_TYPE} to ${MOUNTPOINT} -o ${OPTS}" >> /var/log/mount-usb-systemd.log
-  mount -o ${OPTS} /dev/${DEVICE} "${MOUNTPOINT}";
+  echo "$(date) - Mounting /dev/${DEVICE} - ${ID_FS_TYPE} to ${MOUNTPOINT} -o ${OPTS}" >> /var/log/mount-usb-systemd.log
+  mount -o ${OPTS} /dev/${DEVICE} "${MOUNTPOINT}"
 elif [ "$ACTION" = "remove" ]; then
   MOUNTPOINT=$(cat "/run/usb-mount-${DEVICE}.mnt")
   echo "$(date) - Unmounting /dev/${DEVICE} ${MOUNTPOINT}" >> /var/log/mount-usb-systemd.log
   umount "${MOUNTPOINT}"
+  sleep 2
   rmdir "${MOUNTPOINT}"
-  rm "/run/usb-mount-${DEVICE}.mnt";
+  rm "/run/usb-mount-${DEVICE}.mnt"
 fi
 
 echo "$(date) - Script finished" >> /var/log/mount-usb-systemd.log
