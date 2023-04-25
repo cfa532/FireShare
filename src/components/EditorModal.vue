@@ -93,13 +93,14 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
     const fsid = await api.client.MFOpenTempFile(api.sid);
     // Create a FileInfo object with file name, last modified time,
     const fi = new FileInfo(file.name, file.lastModified, file.size, file.type);
-    fi.mid = await readFileSlice(fsid, await file.arrayBuffer(), 0, index);
+    fi.mid = await readFileSlice(fsid, await file.arrayBuffer(), 0, index);   // actually an IPFS id
 
-    // Save non-media files as Mimei type, for easy download.
+    // Save non-media files as Mimei type, for easy download and open
     if (fi.type.search(/(image|video|audio)/i) === -1) {
       const mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705);
       await api.client.MFSetCid(api.sid, mid, fi.mid);
       fi.mid = mid;
+      // await api.client.MMBackup(api.sid, fi.mid, "")   // not a real mm, backup will throw error
     }
     // Add MM reference to the database mimei, which will be published together.
     await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid);
@@ -160,8 +161,8 @@ async function onSubmit() {
       fi.mid = await api.client.MMCreate(api.sid, '', '', '{{auto}}', 1, 0x07276705);
       let fsid = await api.client.MMOpen(api.sid, fi.mid, "cur")
       await api.client.MFSetObject(fsid, fi)
-      await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
       await api.client.MMBackup(api.sid, fi.mid, "")
+      await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
       // await api.client.MiMeiPublish(api.sid, "", fi.mid)
       // api.client.timeout = 30000;
       // fi.mid = await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
@@ -195,7 +196,7 @@ async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number, inde
   console.log("Uploading...", uploadProgress[index]+"%")
 
   if (end === arr.byteLength) {
-    // last slice done. Convert temp to Mac file
+    // last slice done. Convert temp to IPFS file
     // return temp2Ipfs(fsid);   // return a Promise, no await here
     return await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
   } else {
