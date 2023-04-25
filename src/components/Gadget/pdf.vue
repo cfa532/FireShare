@@ -17,8 +17,10 @@ onMounted(async () => {
         // show files in local /webdav
         fileUrl.value = api.baseUrl+"mf"+"?mmsid="+props.mmfsid
     } else {
-        if (props.mid?.length === 27)
-            return api.baseUrl + "mf?mmsid="+ await api.client.MMOpen(api.sid, props.mid, "last");
+        if (props.mid?.length === 27) {
+            window.open(api.baseUrl + "mf?mmsid="+ await api.client.MMOpen(api.sid, props.mid, "last"), "_blank")
+            history.go(-1)
+        }
         else
             return api.baseUrl + "ipfs/"+ props.mid;
     }
