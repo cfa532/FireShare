@@ -36,40 +36,40 @@ watch(()=>props.filePath, (toParams, prevParams)=>{
     }
 });
 async function showDir(filePath: string) {
-//     api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid: string) => {
-//         api.client.MFStat(mmfsid, (fi: any) => {
-//             if (fi.fIsDir) {
-//                 api.client.MFReaddir(mmfsid, (files: any[]) => {
-//                     // sort according to file name
-//                     files.sort((a, b)=> a.fName < b.fName ? -1 : 1)
-//                     itemNumber.value = files.length
-//                     var st = (currentPage.value - 1) * pageSize.value
-//                     console.log("total items=", itemNumber.value, st, pageSize.value)
-//                     localFiles.value = files.slice(st, st + pageSize.value)
-//                 }, (err: Error) => {
-//                     console.error("Readdir err=", err)
-//                 })
-//             }
-//         }, (err: Error) => {
-//             console.error("MFStat err=", err)
-//         })
-//     }, (err: Error) => {
-//         console.error("Open path err=", err)
-//     })
-// }
-// async function showMMDir(mmPath: string) {
-    const files = [
-        {fName: "Burnt 2015.mp4", template:"ipfs", id: "QmP8i1tEnV8WwCmUbzpkkT1epJFiNaZiuiGR6kNKqhfgLf"},
-        {fName: "Matrix 1999.mp4", template:"tpt", id: "dJM6X7OTmJXbGqPQaFdAZ3kGpBl"},
-    ];
-    try {
-        itemNumber.value = files.length
-        var st = (currentPage.value - 1) * pageSize.value
-        localFiles.value = files.slice(st, st + pageSize.value)
-    } catch(err) {
-        console.error("showMMDir err=", err)
-    }
+    api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid: string) => {
+        api.client.MFStat(mmfsid, (fi: any) => {
+            if (fi.fIsDir) {
+                api.client.MFReaddir(mmfsid, (files: any[]) => {
+                    // sort according to file name
+                    files.sort((a, b)=> a.fName < b.fName ? -1 : 1)
+                    itemNumber.value = files.length
+                    var st = (currentPage.value - 1) * pageSize.value
+                    console.log("total items=", itemNumber.value, st, pageSize.value)
+                    localFiles.value = files.slice(st, st + pageSize.value)
+                }, (err: Error) => {
+                    console.error("Readdir err=", err)
+                })
+            }
+        }, (err: Error) => {
+            console.error("MFStat err=", err)
+        })
+    }, (err: Error) => {
+        console.error("Open path err=", err)
+    })
 }
+// async function showMMDir(mmPath: string) {
+    // const files = [
+    //     {fName: "Burnt 2015.mp4", template:"ipfs", id: "QmP8i1tEnV8WwCmUbzpkkT1epJFiNaZiuiGR6kNKqhfgLf"},
+    //     {fName: "Matrix 1999.mp4", template:"tpt", id: "dJM6X7OTmJXbGqPQaFdAZ3kGpBl"},
+    // ];
+    // try {
+    //     itemNumber.value = files.length
+    //     var st = (currentPage.value - 1) * pageSize.value
+    //     localFiles.value = files.slice(st, st + pageSize.value)
+    // } catch(err) {
+    //     console.error("showMMDir err=", err)
+    // }
+// }
 function pageChanged(n: number) {
     currentPage.value = n
     showDir(props.filePath)
@@ -109,7 +109,7 @@ function showVideo(file: any) {
             href="#" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.fName}} &dArr;
         </a>
         <RouterLink v-else
-            :to="{ name:'fileview3', params:{tpt:file.template, id:file.id}}">{{file.fName}}
+            :to="{ name:'fileview2', params:{title:'Webdav', filePath:file.id}}">{{file.fName}}
         </RouterLink>
         <span v-if="file.fIsDir"> ...&gt;</span>
     </li>
