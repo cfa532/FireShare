@@ -3,9 +3,8 @@ import { ref, onMounted, onBeforeUnmount, watch, reactive } from 'vue';
 import videojs from 'video.js';
 import { useLeither, useMimei } from '../../stores/lapi'
 const api = useLeither();
-const mmInfo = useMimei();
 const props = defineProps({
-        macid: {type:String, required: false},
+        mid: {type:String, required: false},
         fileType: {type:String, required: false},
         filePath: {type: String, required: false},
         mmfsid: {type: String, required: false},
@@ -19,7 +18,7 @@ const options = reactive({
     autoplay: props.autoplay,
     sources: [{src:"", type :"" as string | undefined}]
 });
-onMounted(()=>{
+onMounted(async ()=>{
     console.log("Videoplayer mounted", props)
     vdiv.value.hidden = false
     if (typeof props.filePath !== "undefined") {
@@ -30,16 +29,13 @@ onMounted(()=>{
         }]
         loadPlayer(options)
     } else {
-        // play mac file
-        api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
-            options.sources = [{
-                src: api.baseUrl + "mf" + "?mmsid=" + fsid,
-                type: props.fileType
-            }]
-            loadPlayer(options)
-        }, (err: Error) => {
-            console.error("Open file error=", err)
-        })
+        // play mm file
+        let src = props.mid?.length===27 ? "mf?mmsid=" + await api.client.MMOpen(api.sid, props.mid, "last") : "ipfs/"+ props.mid
+        options.sources = [{
+            src: api.baseUrl + src,
+            type: props.fileType
+        }]
+        loadPlayer(options)
     }
 });
 function loadPlayer(options:any, fn:()=>void = null as any) {
@@ -52,6 +48,7 @@ function loadPlayer(options:any, fn:()=>void = null as any) {
     }
 };
 watch(()=>props.filePath, async (cv, pv)=>{
+    // watch changes of local dir
     if (cv !== pv) {
         // something changed if current value != prev value
         vdiv.value.hidden = false
@@ -59,7 +56,7 @@ watch(()=>props.filePath, async (cv, pv)=>{
         if (props.fileType?.includes("video")) {
             // Finally, enforce it to play new source
             player.src({
-                src: api.baseUrl + "mf" + "?mmsid=" + props.mmfsid,
+                src: api.baseUrl + "mf?mmsid=" + props.mmfsid,
                 type: props.fileType
             })
             player.play()

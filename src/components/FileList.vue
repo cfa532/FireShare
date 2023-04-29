@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useLeither, useMimei, useSpinner } from '../stores/lapi';
 import { useRoute, useRouter } from "vue-router";
 import MyDir from './Gadget/Dir.vue';
 import Pager from "./Gadget/Pager.vue";
 import NaviBar from "./NaviBar.vue";
 import EditorModal from "./EditorModal.vue";
-import SpinnerVue from "./Gadget/Spinner.vue";
+import Spinner from "./Gadget/Spinner.vue";
 // import { defineAsyncComponent } from 'vue'
 // const EditorModal = defineAsyncComponent(()=>import("./EditorModal.vue"));
 const api = useLeither()
@@ -25,7 +25,7 @@ onMounted(async ()=>{
     await mmInfo.init(api)
     console.log("FileList mounted:", route.params)
     if (route.params.title !== "Webdav") {
-        api.client.Zcount(mmInfo.mmsid, route.params.title, 0, Date.now(), async (count: number)=>{     // -1 does not work for stop
+        api.client.Zcount(await mmInfo.mmsid, route.params.title, 0, Date.now(), async (count: number)=>{     // -1 does not work for stop
             itemNumber.value = count;    // total num of items in the list as a Mimei
             await getFileList(currentPage.value);
             useSpinner().setLoadingState(false)
@@ -42,15 +42,8 @@ function uploaded(fi: FileInfo) {
     // route.params.page = "1"
     // router.go(0);
 }
-function showModal(e: MouseEvent) {
-    // show modal box
-    showEditor.value = "block"
-}
-function hide() {
-    showEditor.value = "none"
-}
 function fileDownload(e: MouseEvent, file: any){
-    api.client.MFOpenMacFile(api.sid, mmInfo.mid, file.macid, (fsid: string) => {
+    api.client.MMOpen(api.sid, file.mid, "last", (fsid: string)=> {
         api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
             mmInfo.downLoadByFileData(fileData, file.name, "")
         }, (err: Error) => {
@@ -65,15 +58,16 @@ function pageChanged(n: number) {
     router.push({name: "filelist", params: {page: n}})
 }
 function fileName(file: FileInfo) {
+    // console.log(file)
     if (file.caption) return file.caption;
-    if (file.type.includes("page")) {
-        // show first 30 chars if the list item is a page
-        const title = JSON.parse(file.name)[0]
-        if (title.trim()==="") {
-            return "Page without text"
-        }
-        return JSON.parse(file.name)[0].substring(0, 30)
-    }
+    // if (file.type.includes("page")) {
+    //     // show first 30 chars if the list item is a page
+    //     const title = JSON.parse(file.name)[0]
+    //     if (title.trim()==="") {
+    //         return "Page without text"
+    //     }
+    //     return JSON.parse(file.name)[0].substring(0, 30)
+    // }
     return file.name;
 }
 async function getFileList(pn: number) {
@@ -82,7 +76,7 @@ async function getFileList(pn: number) {
     console.log(route.params, start)
     api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start+pageSize.value-1, async (sps:ScorePair[])=>{
         fileList.value.length = 0       // clear fileList array
-        console.log(sps)
+        // console.log(sps)
         let mbs = sps.map((sp:ScorePair)=> sp.member)
         api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mbs, (fis: FileInfo[]) => {
             fis.forEach((fi, idx)=>{
@@ -90,7 +84,7 @@ async function getFileList(pn: number) {
                     console.warn("FileInfo Error", sps[idx], fi)
                     return
                 }
-                fi.macid = sps[idx].member
+                fi.mid = sps[idx].member
                 // temporarily use timestamp when the file is added to the SocrePairs, for sorting
                 fi.lastModified = sps[idx].score;
                 fileList.value.push(fi)
@@ -111,21 +105,21 @@ async function getFileList(pn: number) {
 
 <template>
     <NaviBar :column="(columnTitle as string)"></NaviBar>
-    <SpinnerVue :active="useSpinner().loading" text="Please wait......"/>
+    <Spinner :active="useSpinner().loading" text="Please wait......"/>
     <!-- <hr/> -->
     <div v-if="columnTitle !== 'Webdav'">
         <div v-show="api.sid">
             <div class="postbox">
-                <p @click="showModal" class="postbox">Tell us what is happening....</p>
+                <p @click="showEditor='block'" class="postbox">Tell us what is happening....</p>
             </div>
-            <EditorModal v-if="api.sid" @uploaded="uploaded" @hide="hide" :display="showEditor"
+            <EditorModal v-if="api.sid" @uploaded="uploaded" @hide="showEditor='none'" :display="showEditor"
                 :column="(columnTitle as string)"></EditorModal>
         </div>
-        <ul style="padding: 0px; margin: 0 0 0 5px;">
-            <li class="fileList" v-for="(file, index) in fileList" :key="index">
+        <ul class="aList">
+            <li v-for="(file, index) in fileList" :key="index">
                 <RouterLink v-if="file.type.includes('image') || file.type.includes('video') || file.type.includes('audio')
                 || file.type.includes('page') || file.type.includes('pdf')"
-                    :to="{ name: 'fileview', params: { title: columnTitle, macid: file.macid, fileType: file.type } }">
+                    :to="{ name: 'fileview', params: { title: columnTitle, mid: file.mid, fileType: file.type } }">
                     {{ fileName(file) }}
                 </RouterLink>
                 <a v-else href="" @click.prevent="(e) => fileDownload(e, file)" download>{{ file.name }} &dArr;

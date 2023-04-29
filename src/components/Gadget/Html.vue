@@ -9,7 +9,7 @@ const route = useRoute()
 const api = useLeither();    // Leither api handler
 const mmInfo = useMimei()
 const props = defineProps({
-    macid : {type: String, required: false},
+    mid : {type: String, required: false},
     fileType: {type: String, required: false},
     title: {type: String, required: false},
 });
@@ -17,41 +17,35 @@ const textContent = ref("")
 onMounted(async () => {
     await mmInfo.init(api)
     console.log("Page mounted:", props)
-    api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
+    api.client.MMOpen(api.sid, props.mid, "last", (fsid: string) => {
         api.client.MFGetObject(fsid, async (obj:FileInfo)=>{
-            const str = JSON.parse(obj.name)    // get a string[], [0] is the text content
-            textContent.value = str[0].trim()===""? "" : str[0];
-            let macids = str.slice(1);
-            console.log(route.params.title, macids)
-            api.client.Hmget(await mmInfo.mmsid, route.params.title, ...macids, (fis:any[])=>{
+            const arr = JSON.parse(obj.name)    // get a string[], [0] is the text content
+            textContent.value = arr[0].trim()===""? "" : arr[0];
+            let mids = arr.slice(1);
+            console.log(route.params.title, mids)
+            api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mids, (fis:any[])=>{
                 console.log(fis)
-                macids.forEach((macid:string, i:number) => {
-                    fileInfos.value.push({macid:macid, fileType:fis[i].type, name:fis[i].name, autoplay:false})
+                mids.forEach((mid:string, i:number) => {
+                    fileInfos.value.push({mid:mid, fileType:fis[i].type, name:fis[i].name, autoplay:false})
                 });
             }, (err: Error)=>{
                 console.error("Hmget err="+err)
             })
-            // macids.forEach((macid:string)=>{
-            //     api.client.Hget(mmInfo.mmsid, route.params.title, macid, (fi:FileInfo)=>{
-            //         fileInfos.value.push({macid: macid, fileType: fi.type, name:fi.name, autoplay:false})
-            //     }, (err:Error)=>{
-            //         console.error("Hget err=", err)
-            //     })
-            // })
         }, (err: Error) => {
             console.error("MFGetObject error=", err)
         })
     }, (err: Error) => {
-        console.error("MFOpenMacFile error=", err)
+        console.error("MFOpen error=", err)
     });
 })
 function fileDownload(fi: any) {
-    api.client.MFOpenMacFile(api.sid, mmInfo.mid, fi.macid, (fsid: string) => {
+    // window.open(api.baseUrl+"ipfs/"+fi.mid, "_blank")
+    api.client.MMOpen(api.sid, fi.mid, "last", (fsid: string) => {
         api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
             mmInfo.downLoadByFileData(fileData, fi.name, "")
         })
     }, (err: Error) => {
-        console.error("Open file error", err)
+        console.error("Open file error", err, fi)
     })
 }
 </script>

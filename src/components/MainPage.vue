@@ -40,10 +40,8 @@ function showWebdav() {
     <ul class="naviBar">
         <li><RouterLink active-class="active" :to="{name: 'main'}">众众</RouterLink></li>
     </ul>
-    <ul>
-        <li v-for="(c, i) in contentColumn" :key="i">
-            <column-vue :column=c></column-vue>
-        </li>
+    <ul class="top">
+        <column-vue v-for="(c, i) in contentColumn" :key="i" :column=c></column-vue>
     </ul>
     <MsgVue :msg="msg"></MsgVue>
 </template>

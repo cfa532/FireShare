@@ -7,7 +7,8 @@ const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmL
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
     "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Hmset", "Hmget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile",
     "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan",
-    "MMRelease", "MMBackup", "MFStat", "Zrem", "Zremrangebyscore", "MiMeiPublish", "PullMsg"
+    "MMRelease", "MMBackup", "MFStat", "Zrem", "Zremrangebyscore", "MiMeiPublish", "PullMsg", "MFTemp2Ipfs", "MFSetCid",
+    "MMSum", "MiMeiSync", "IpfsAdd", "MMAddRef"
 ];
 
 function getcurips() {
@@ -22,11 +23,10 @@ function getcurips() {
         console.log("window.location", ips)
     }
     { //for test
-        // ips = "192.168.1.3:4800"
-        ips = "192.168.1.4:8000"
+        // ips = "192.168.0.3:4800"
+        ips = "192.168.0.4:8000"
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        // ips = "115.199.114.147:8000"
-        // ips = "127.0.0.1:8000"
+        // ips = "125.120.29.190:8000"
     }
     return ips
 };
@@ -121,8 +121,8 @@ export const useMimei = defineStore({
         // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",   // 1.4
         // webdav: tA_66BjRts-xDEwlEb5STOZs4I5,     // 1.3
         midNaviBar: "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid
-        mid: "CNyB67yd4h9Gt-wJRep2aRgZyAD",             // fireshare_ipfs
-        // mid: "ilc_mDQ-vS9jRIRw2w70pyf8ASN",             // for testing
+        // mid: "CNyB67yd4h9Gt-wJRep2aRgZyAD",             // fireshare_ipfs
+        mid: "2ps-D8Ua6E4bsEr_2Zw06UgemWG",             // for testing
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
     }),
@@ -147,7 +147,7 @@ export const useMimei = defineStore({
                     //     return
                     // }
                     this.api.client.MMOpen(this.api.sid, this.midNaviBar, "last", (mmsid: string)=>{
-                        console.log("MMOPen mmsid=", mmsid)
+                        console.log("MMOPen mmsid="+mmsid, "sid="+this.api.sid)
                         this.api.client.MFGetObject(mmsid, (o:any)=>{
                             state._naviColumnTree = o
                             resolve(o)
@@ -160,27 +160,12 @@ export const useMimei = defineStore({
                 }
             })
         },    
-        mmsid: function(state) {
-            return new Promise<string>((resolve, reject)=>{
-                if (state._mmsid) resolve(state._mmsid);
-                else {
-                    this.api.client.MMOpen(this.api.sid, this.mid, "last", (mmsid: string)=>{
-                        state._mmsid = mmsid;
-                        resolve(mmsid);
-                    }, (err:Error)=>{
-                        reject("useMimei MMOpen mmsid err="+err)
-                    })
-                }
-            })
+        mmsid: async function(state) :Promise<string> {
+            state._mmsid = state._mmsid? state._mmsid : await this.api.client.MMOpen(this.api.sid, this.mid, "last");
+            return state._mmsid;
         },
-        mmsidCur: function(state) {
-            return new Promise<string>((resolve, reject)=>{
-                this.api.client.MMOpen(this.api.sid, this.mid, "cur", (mmsid: string)=>{
-                    resolve(mmsid);
-                }, (err:Error)=>{
-                    reject("useMimei MMOpen mmsid err="+err)
-                })
-            })
+        mmsidCur: async function(state) :Promise<string> {
+            return await this.api.client.MMOpen(this.api.sid, this.mid, "cur");
         },
     },
     actions: {
@@ -188,49 +173,25 @@ export const useMimei = defineStore({
             this.$state.api = api;
             return Promise.all([this.mmsid, this.naviColumnTree]).then((res)=>{
                 localStorage.setItem("navibarcolumns", JSON.stringify(res[1]))        // do it once during initiation  
-                window.mmInfo = this.$state;
+                window.mmInfo = this.$state;    // for easy testing
                 return this;
             })
         },
-        backup() {
-            // this.api.client.MMBackup(this.api.sid, this.mid, 'cur', (newVer:string)=>{
-            //     console.log("new ver=", newVer)
-            // }, (err: Error) => {
-            //     console.error("MMBackup error="+err)
-            // })
-            return new Promise<string>((resolve, reject)=>{
-                this.api.client.MMBackup(this.api.sid, this.mid, 'cur', async (newVer:string)=>{
-                    do {
-                        let msg:PulledMessage = await this.api.client.PullMsg(this.api.sid, 3)      // wait 3 sec
-                        if (msg) {
-                            let arr = msg.msg.match(/ver=(.*)/i)
-                            // ['ver=248', '248', index: 0, input: 'ver=248', groups: undefined]
-                            if (arr) {
-                                newVer = arr[1];
-                                console.log("newVer=", arr[1], msg, this._mmsid)
-                                this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, this.mid, "last");
-                                // now publish a new version of database Mimei
-                                this.api.client.MiMeiPublish(this.api.sid, "", this.mid, async (ret:DhtReply)=>{
-                                    console.log("Mimei publish []DhtReply=", ret, this._mmsid)
-                                }, (err:Error)=>{
-                                    console.error("MiMeiPublish err=", err)
-                                })
-                            }
-                        }
-                    } while(!newVer)
-                    resolve(newVer)
-                }, (err: Error) => {
-                    reject("MMBackup error="+err)
-                })
-            })
+        async backup(mid: string="") {
+            if (!mid) mid = this.mid;
+            try {
+                let newVer = await this.api.client.MMBackup(this.api.sid, mid, '')
+                this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, mid, "last");
+                // now publish a new version of database Mimei
+                let ret:DhtReply = this.api.client.MiMeiPublish(this.api.sid, "", mid)
+                console.log("Mimei publish []DhtReply=", ret, this._mmsid, "newVer="+newVer)
+            } catch(err:any) {
+                throw new Error("Backup error", err)
+            }
         },
         async getColumn(title: string) {
             // given title, return Column obj, and set Column at the same time
             return findColumn(await this.naviColumnTree, title);
-        },
-        async renewMMSid() {
-            this._mmsid = await this.api.client.MMOPen(this.api.sid, this.mid, "last");
-            return this._mmsid;
         },
         downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {
             var a = document.createElement("a");
@@ -255,4 +216,3 @@ function findColumn(cols:ContentColumn[], title:string) :ContentColumn|undefined
     }
     return col
 }
-

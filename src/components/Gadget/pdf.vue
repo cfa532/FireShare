@@ -5,25 +5,25 @@ import { useLeither, useMimei } from '../../stores/lapi';
 const api = useLeither()
 const mmInfo = useMimei()
 const props = defineProps({
-    macid : {type: String, required: false},
+    mid : {type: String, required: false},
     fileType: {type: String, required: false},
     filePath: {type: String, required: false},
     mmfsid: {type: String, required: false},
 })
 const fileUrl = ref("")
-onMounted(() => {
+onMounted(async () => {
     console.log("PDF mounted", props)
-        if (typeof props.filePath !== "undefined") {
-            // show files in local /webdav
-            fileUrl.value = api.baseUrl+"mf"+"?mmsid="+props.mmfsid
-        } else {
-            api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
-                // show Mac file in MM database
-                fileUrl.value = api.baseUrl+"mf"+"?mmsid="+fsid
-            }, (err: Error) => {
-                console.error("Open file error=", err)
-            })
+    if (typeof props.filePath !== "undefined") {
+        // show files in local /webdav
+        fileUrl.value = api.baseUrl+"mf"+"?mmsid="+props.mmfsid
+    } else {
+        if (props.mid?.length === 27) {
+            window.open(api.baseUrl + "mf?mmsid="+ await api.client.MMOpen(api.sid, props.mid, "last"), "_blank")
+            history.go(-1)
         }
+        else
+            return api.baseUrl + "ipfs/"+ props.mid;
+    }
 })
 watch(()=>props.filePath, async (cv, pv)=>{
     if (cv !== pv) {

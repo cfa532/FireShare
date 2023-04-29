@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { CSSProperties, onMounted, ref, watch, computed } from "vue";
+import { CSSProperties, onMounted, onBeforeUnmount, ref, reactive, watch, computed } from "vue";
 import Preview from "./Gadget/Preview.vue";
-import { useLeither, useMimei } from '../stores/lapi'
+import { useLeither, useMimei, useSpinner } from '../stores/lapi'
 const api = useLeither();
 const mmInfo = useMimei();
 class FileInfo{
-  name; lastModified; size; type; macid; caption;
+  name; lastModified; size; type; caption; mid;
   constructor(name: string, lastModified: number, size: number, type: string, caption:string="") {
     this.name = name;
     this.lastModified = lastModified;
     this.size = size;
     this.type = type;
-    this.macid = "";
     this.caption = caption;   // Displayed in File List view
+    this.mid = "";
   }
 }
 class ScorePair {
@@ -35,6 +35,8 @@ const textArea = ref()
 const myModal = ref()
 const sliceSize = 1024 * 1024 * 10    // 10MB per slice of file
 const filesUpload = ref<File[]>([]);
+const uploadProgress = reactive<number[]>([]); // New ref to store upload progress of each file
+
 const props = defineProps({
     // text : {type: String, required: false},       // text input from editor
     // attachments: {type: [File], required: false},
@@ -53,9 +55,8 @@ const classModal = computed(():CSSProperties=>{
 })
 onMounted(async () => {
   await mmInfo.init(api)
-  // textValue.value = props.text? props.text : "";
-  // filesUpload.value = props.attachments? props.attachments.slice(0) : [];
   console.log("Editor mount", props)
+  window.addEventListener("click", onClickOutside);
 })
 function onSelect(e: Event) {
   let files = (e as HTMLInputEvent).target.files || (e as DragEvent).dataTransfer?.files;
@@ -78,68 +79,71 @@ function dragOver(evt: DragEvent) {
 function selectFile() {
   document.getElementById("selectFiles")?.click();
 }
-function uploadFile(files: File[]) {
-  return Promise.allSettled(files.map(file => {
-    return new Promise<string>(async (resolve, reject) => {
-      if (file.size > sliceSize * 5) {
-        alert("Max file size 50MB");
-        reject("Max file size exceeded");
-      };
-      api.client.MFOpenTempFile(api.sid, async (fsid: string) => {
-        // resolve(readFileSlice(fsid, await file.arrayBuffer(), 0));
-        try {
-         let macid = await readFileSlice(fsid, await file.arrayBuffer(), 0);
-          resolve(macid)
-        } catch(err) {
-          reject("ReadFileSlice err="+err)
-        }
-      })
-    })
-  }))
+// Function to upload files and store them as IPFS or Mimei type
+async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>[]> {
+  // Helper function to handle individual file uploads
+  async function uploadSingleFile(file: File, index: number): Promise<FileInfo> {
+    // Check if the file size exceeds the limit (200MB in this example)
+    if (file.size > sliceSize * 20) {
+      throw new Error("Max file size exceeded");
+    }
+    // Assign initial progress value
+    uploadProgress[index] = 0;
+    // Create a temporary file
+    const fsid = await api.client.MFOpenTempFile(api.sid);
+    // Create a FileInfo object with file name, last modified time,
+    const fi = new FileInfo(file.name, file.lastModified, file.size, file.type);
+    fi.mid = await readFileSlice(fsid, await file.arrayBuffer(), 0, index);   // actually an IPFS id
+
+    // Save non-media files as Mimei type, for easy download and open
+    if (fi.type.search(/(image|video|audio)/i) === -1) {
+      const mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705);
+      await api.client.MFSetCid(api.sid, mid, fi.mid);
+      fi.mid = mid;
+      // await api.client.MMBackup(api.sid, fi.mid, "")   // not a real mm, backup will throw error
+    }
+    // Add MM reference to the database mimei, which will be published together.
+    await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid);
+    return fi;
+  }
+
+  // Use Promise.allSettled to wait for all file upload operations to complete
+  const uploadPromises = files.map((file,i) => uploadSingleFile(file, i).catch(e => e));
+  return Promise.allSettled(uploadPromises);
 }
 async function onSubmit() {
-  if (!inpCaption.value || inpCaption.value!.trim()==="") {
+  if (!inpCaption.value || inpCaption.value!.trim()==="" || (filesUpload.value.length===0 && textValue.value.trim() === "")) {
     // remind user to input caption, autofocus
     caption.value?.focus()
     return;
   }
-  let mmsidCur:string, macids: string[], fvPairs: FVPair[] = []
+  useSpinner().setLoadingState(true)
+  
   // if one file uploaded, without content in textArea, upload single file
   // otherwise, upload a html file for iFrame
-  if (filesUpload.value.length===0 && textValue.value.trim() === "") return
-  
-  // reopen the DB mimei as cur version, for writing
   try {
-    mmsidCur = await mmInfo.mmsidCur;
-    macids = (await uploadFile(filesUpload.value))
-      .filter((v, i)=>{
-        if (v.status==='fulfilled') {         // remove failed promises
-          const file = filesUpload.value[i];
-          // return array of successfully resolved MacIDs and FileInfos
-          fvPairs.push({
-            field:v.value,    // macid
-            value:new FileInfo(file.name, file.lastModified, file.size, file.type, inpCaption.value!.trim())})
-        };
-        return v.status==='fulfilled';
-      })
-      .map((v:any)=>{return v.value});
-    console.log(macids, fvPairs);
-
-    // now save macid : fileInfo pair array in a hashtable and bakcup mm DB
-    // so FileInfo can be found by its MacId.
-    await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
+    // reopen the DB mimei as cur version, for writing
+    let mmsidCur = await mmInfo.mmsidCur;
+    let fvPairs = (await uploadFile(filesUpload.value))
+      .filter( v=> {return v.status==='fulfilled';})
+      .map((v:any)=>{return {field: v.value.mid, value: v.value}});
+    console.log("uploaded files", fvPairs);
   
-    if (macids.length === 1 && textValue.value.trim() === "") {
+    if (fvPairs.length === 1 && textValue.value.trim() === "") {
       // single file uploaded without text input
+      // now save {mid, fileInfo} pair array in a hashtable and bakcup mm DB
+      // so FileInfo can be found by its mid.
+      fvPairs[0].value["caption"] = inpCaption.value!.trim();
+      await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
+
       // create MM database for the column, new item is added to this MM.
       // add new itme to index table of ScorePair
-      let ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair( Date.now(), macids[0]))
+      let ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair( Date.now(), fvPairs[0].value["mid"]))
       console.log("Zadd ScorePair for the file, ret=", ret, props.column)
       // back mm data for publish
       mmInfo.backup()
 
       // emit an event with infor of newly uploaded file
-      fvPairs[0].value["macid"] = macids[0]
       emit('uploaded', fvPairs[0].value)
       // clear up
       localStorage.setItem("tempTextValueUploader", "")
@@ -147,26 +151,26 @@ async function onSubmit() {
       textValue.value = ""
       inpCaption.value = ""
     } else {
-      // upload a full webpage with attachments or content text
-      let fsid = await api.client.MFOpenTempFile(api.sid)
+      // upload a full webpage with attachments and/or content text
+      await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
+
       // create a file type PAGE. use Name field to save a string defined as:
-      // 1st item is input of textarea, followed by mac ids of uploaded file
-      let s = JSON.stringify([textValue.value].concat(macids))
+      // 1st item is input of textarea, followed by mids of uploaded file
+      let s = JSON.stringify([textValue.value].concat(fvPairs.map(e=>e.field)))
       let fi = new FileInfo(s, Date.now(), s.length, "page", inpCaption.value!.trim());   // save it in name field
-      // console.log("FileInfo=", fi)
-      // fi = {} as any;
-      // fi["name"] = s;
-      // fi["caption"] = inpCaption.value!.trim();
-      // fi["lastModified"] = Date.now();
-      // fi["size"] = s.length;
-      // fi["type"] = "page";
-      // console.log("FileInfo=", fi)
+      fi.mid = await api.client.MMCreate(api.sid, '', '', '{{auto}}', 1, 0x07276705);
+      let fsid = await api.client.MMOpen(api.sid, fi.mid, "cur")
       await api.client.MFSetObject(fsid, fi)
-      let macid = await api.client.MFTemp2MacFile(fsid, mmInfo.mid)
-      let ret = await api.client.Hset(mmsidCur, props.column, macid, fi)
-      ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), macid))
-      fi.macid = macid
-      console.log("Zadd ret=", ret, fi, props)
+      await api.client.MMBackup(api.sid, fi.mid, "")
+      await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
+      // await api.client.MiMeiPublish(api.sid, "", fi.mid)
+      // api.client.timeout = 30000;
+      // fi.mid = await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
+
+      // add new page file to index table
+      let ret = await api.client.Hset(mmsidCur, props.column, fi.mid, fi)
+      ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), fi.mid))
+      console.log("Zadd ver=", fi, ret)
       
       // back mm data for publish
       mmInfo.backup()
@@ -179,42 +183,42 @@ async function onSubmit() {
   } catch(err) {
     console.error("Onsubmit err=", err);
     return
+  } finally {
+    useSpinner().setLoadingState(false)
   }
 }
-function readFileSlice(fsid: string, arr: ArrayBuffer, start: number): Promise<string> {
+async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number, index: number):Promise<string> {
   // reading file slice by slice, start at given position
   var end = Math.min(start + sliceSize, arr.byteLength);
-  return new Promise((resolve, reject) => {
-    api.client.MFSetData(fsid, arr.slice(start, end), start, (count: number) => {
-      if (end === arr.byteLength) {
-        // last slice done. Convert temp to Mac file
-        api.client.MFTemp2MacFile(fsid, mmInfo.mid, (macid: string) => {
-          console.log("Temp file to MacID=", macid, ", len=", arr.byteLength);
-          // now temp file is converted to Mac file, save file info
-          resolve(macid)
-        }, (err: Error) => {
-          reject("Failed to create Mac file")
-        })
-      } else {
-        resolve(readFileSlice(fsid, arr, start + count))
-      }
-    }, (err: Error) => {
-      reject("Set temp file data error ");
-    })
-  })
+  let count = await api.client.MFSetData(fsid, arr.slice(start, end), start);
+  // Calculate progress
+  uploadProgress[index] = Math.floor((start + count) / arr.byteLength * 100);
+  console.log("Uploading...", uploadProgress[index]+"%")
+
+  if (end === arr.byteLength) {
+    // last slice done. Convert temp to IPFS file
+    // return temp2Ipfs(fsid);   // return a Promise, no await here
+    return await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
+  } else {
+    return readFileSlice(fsid, arr, start + count, index)
+  }
 }
+
 function removeFile(f: File) {
   // removed file from preview list
   var i = filesUpload.value.findIndex((e:File) => e==f);
   filesUpload.value.splice(i, 1)
 }
 // When the user clicks anywhere outside of the modal, close it
-window.onclick = function (e: MouseEvent) {
-  // var modal = document.getElementById("myModal");
+const onClickOutside = (e: MouseEvent) => {
   if (e.target == myModal.value) {
     emit("hide")
   }
-}
+};
+
+onBeforeUnmount(() => {
+  window.removeEventListener("click", onClickOutside);
+});
 watch(() => textValue.value, (newVal, oldVal) => {
   if (newVal !== oldVal) {
     localStorage.setItem("tempTextValueUploader", newVal)
@@ -239,7 +243,7 @@ watch(() => textValue.value, (newVal, oldVal) => {
         <div ref="divAttach" hidden
           style="border: 0px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-top:0px;" >
           <Preview @file-canceled="removeFile(file)" v-for="(file, index) in filesUpload" :key="index"
-            v-bind:src="file"></Preview>
+            v-bind:src="file" v-bind:progress="uploadProgress[index]"></Preview>
         </div>
         <div>
           <input id="selectFiles" @change="onSelect" type="file" hidden multiple>

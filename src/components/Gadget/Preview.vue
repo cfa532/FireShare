@@ -3,11 +3,13 @@ import { onMounted, ref, watch } from 'vue';
 const emit = defineEmits(["fileCanceled"])
 const props = defineProps({
     src: {type: File, required: true},
+    progress: {type: Number, required: false, default:100},     // uploading progress bar
 })
 const imageUrl = ref("")
 const caption = ref("")
 onMounted(()=>{
     // src file may not be image
+    console.log("progress=", props.progress)
     thumbnail()
 })
 watch(()=>props.src, (newVal, oldVal)=>{
@@ -61,7 +63,7 @@ const generateVideoThumbnail = (file: File) => {
 </script>
 
 <template>
-    <div class="postbox_media_photo_wrapper">
+    <div class="postbox_media_photo_wrapper" :style="{position: 'relative', opacity: props.progress === 100 ? 1 : 0.7}">
         <div style="position: absolute; display: flex; top: -5px; right: -5px; z-index: 20;">
             <button @click="cancel" title="Close" class="btn-reset" type="button">
             <svg style="width:20px; height:20px;">
@@ -74,8 +76,8 @@ const generateVideoThumbnail = (file: File) => {
         <div class="postbox_media_photo_img_wrapper" draggable="true">
             <img :src="imageUrl" class="postbox_media_photo_img" draggable="false">
         </div>
-        <div style="overflow:hidden; height:40px; position:absolute; bottom: 0px; left: 0px; padding: 5px 2px 0px 3px;">
-            <div style="font-size:small; inline-size: 119px; overflow-wrap: break-word;">{{caption}}</div>
+        <div v-if="props.progress < 100" class="progress-bar-overlay">
+            <div class="progress-bar" :style="{width: props.progress + '%', height: '10px', backgroundColor: 'green', borderRadius: '5px'}"></div>
         </div>
     </div>
 </template>

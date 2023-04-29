@@ -2,9 +2,8 @@
 import { onMounted, ref, watch } from 'vue';
 import { useLeither, useMimei } from '../../stores/lapi';
 const api = useLeither();    // Leither api handler
-const mmInfo = useMimei()
 const props = defineProps({
-    macid : {type: String, required: false},
+    mid : {type: String, required: false},
     fileType: {type: String, required: false},
     filePath: {type: String, required: false},
     mmfsid: {type: String, required: false},
@@ -13,21 +12,17 @@ const imageUrl = ref("")
 onMounted(async () => {
     console.log("Image mounted", props)
     imageUrl.value = await getLink()
-    // imageUrl.value = api.baseUrl + "mf/" + encodeURI(props.macid!) + "?mmsid="+ api.mmsid
 });
-async function getLink():Promise<string> {
-    return new Promise((resolve, reject)=>{
-        if (typeof props.filePath !== "undefined") {
-            // filePath not null, showing a local file
-            resolve(api.baseUrl + "mf" + "?mmsid="+ props.mmfsid)
-        } else {
-            api.client.MFOpenMacFile(api.sid, mmInfo.mid, props.macid, (fsid: string) => {
-                resolve(api.baseUrl + "mf" + "?mmsid="+ fsid)
-            }, (err: Error) => {
-                reject("Open mac file error="+err)
-            })
-        }
-    })
+async function getLink() {
+    if (typeof props.filePath !== "undefined") {
+        // filePath not null, showing a local file
+        return api.baseUrl + "mf?mmsid="+ props.mmfsid
+    } else {
+        if (props.mid?.length === 27)
+            return api.baseUrl + "mf?mmsid="+ await api.client.MMOpen(api.sid, props.mid, "last");
+        else
+            return api.baseUrl + "ipfs/"+ props.mid;
+    }
 }
 watch(()=>props.filePath, async (cv, pv)=>{
     if (cv !== pv) {

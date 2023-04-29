@@ -12,7 +12,7 @@ app.use(router)
 
 const api = useLeither()
 useMimei().init(api).then(()=>{
-    console.warn("main.ts loaded....on Feb 14")
+    console.warn("main.ts loaded....on Apr 28")
     app.mount("#app")
 }, (err)=>{
     console.error(err);
