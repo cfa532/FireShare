@@ -25,7 +25,7 @@ function getcurips() {
     { //for test
         // ips = "192.168.0.3:4800"     //杭州盒子
         // ips = "192.168.0.4:8000"     //台湾盒子
-        ips = "192.168.0.5:8001"        //gen8 ProLiant
+        ips = "192.168.0.5:8002"        //gen8 ProLiant
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
         // ips = "125.120.29.190:8000"
     }
@@ -118,7 +118,7 @@ export const useMimei = defineStore({
     id: 'MMInfo',
     state: ()=>({
         api: {} as any,      // leither api handler
-        // appid: "54EWqhacwGq8G800gMsQfcTC_Mz", "BM5UwSlQKiYbySrC5VLBYwFHY3s",
+        // appid: FnO8_Dl4WQ0xU-m6xHrTmgdF_LC", "BM5UwSlQKiYbySrC5VLBYwFHY3s",
         // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",   // 1.4
         // webdav: tA_66BjRts-xDEwlEb5STOZs4I5,     // 1.3
         midNaviBar: "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid
