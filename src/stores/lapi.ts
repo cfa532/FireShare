@@ -25,7 +25,7 @@ function getcurips() {
     { //for test
         // ips = "192.168.0.3:4800"     //杭州盒子
         // ips = "192.168.0.4:8000"     //台湾盒子
-        ips = "192.168.0.5:8002"        //gen8 ProLiant
+        // ips = "192.168.0.5:8002"        //gen8 ProLiant
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
         // ips = "125.120.29.190:8000"
     }
@@ -122,8 +122,8 @@ export const useMimei = defineStore({
         // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",   // 1.4
         // webdav: tA_66BjRts-xDEwlEb5STOZs4I5,     // 1.3
         midNaviBar: "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid
-        // mid: "CNyB67yd4h9Gt-wJRep2aRgZyAD",             // fireshare_ipfs
-        mid: "2ps-D8Ua6E4bsEr_2Zw06UgemWG",             // for testing
+        mid: "-4Q6x4ZbhiNPA2Fen3ekndqV1lO",             // pratum
+        // mid: "2ps-D8Ua6E4bsEr_2Zw06UgemWG",             // for testing
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
     }),
