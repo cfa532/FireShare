@@ -117,7 +117,7 @@ export const useMimei = defineStore({
     id: 'MMInfo',
     state: ()=>({
         api: {} as any,      // leither api handler
-        // appid: "54EWqhacwGq8G800gMsQfcTC_Mz", "BM5UwSlQKiYbySrC5VLBYwFHY3s",
+        // appid: "BM5UwSlQKiYbySrC5VLBYwFHY3s",
         // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",   // 1.4
         // webdav: tA_66BjRts-xDEwlEb5STOZs4I5,     // 1.3
         midNaviBar: "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid
