@@ -65,6 +65,9 @@ function onSelect(e: Event) {
     if (filesUpload.value.findIndex((e:File) => { return e.name === f.name && e.size === f.size && e.lastModified === f.lastModified }) === -1) {
       // filter duplication
       console.log(f)
+      if (inpCaption.value === "" || !inpCaption.value) {
+        inpCaption.value = f.name
+      }
       filesUpload.value.push(f);
     }
   })
