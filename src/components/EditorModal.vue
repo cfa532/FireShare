@@ -65,6 +65,9 @@ function onSelect(e: Event) {
     if (filesUpload.value.findIndex((e:File) => { return e.name === f.name && e.size === f.size && e.lastModified === f.lastModified }) === -1) {
       // filter duplication
       console.log(f)
+      if (inpCaption.value === "" || !inpCaption.value) {
+        inpCaption.value = f.name
+      }
       filesUpload.value.push(f);
     }
   })
@@ -94,7 +97,7 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
     // Create a FileInfo object with file name, last modified time,
     const fi = new FileInfo(file.name, file.lastModified, file.size, file.type);
     fi.mid = await readFileSlice(fsid, await file.arrayBuffer(), 0, index);   // actually an IPFS id
-
+    
     // Save non-media files as Mimei type, for easy download and open
     if (fi.type.search(/(image|video|audio)/i) === -1) {
       const mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705);
@@ -103,6 +106,7 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
       // await api.client.MMBackup(api.sid, fi.mid, "")   // not a real mm, backup will throw error
     }
     // Add MM reference to the database mimei, which will be published together.
+    console.log(fi)
     await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid);
     return fi;
   }
@@ -161,11 +165,9 @@ async function onSubmit() {
       fi.mid = await api.client.MMCreate(api.sid, '', '', '{{auto}}', 1, 0x07276705);
       let fsid = await api.client.MMOpen(api.sid, fi.mid, "cur")
       await api.client.MFSetObject(fsid, fi)
+      // api.client.timeout = 30000;
       await api.client.MMBackup(api.sid, fi.mid, "")
       await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
-      // await api.client.MiMeiPublish(api.sid, "", fi.mid)
-      // api.client.timeout = 30000;
-      // fi.mid = await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
 
       // add new page file to index table
       let ret = await api.client.Hset(mmsidCur, props.column, fi.mid, fi)
@@ -174,6 +176,7 @@ async function onSubmit() {
       
       // back mm data for publish
       mmInfo.backup()
+
       emit('uploaded', fi)
       localStorage.setItem("tempTextValueUploader", "")
       filesUpload.value = [];   // clear file list of upload

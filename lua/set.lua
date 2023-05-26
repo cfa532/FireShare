@@ -17,38 +17,44 @@ f["3"] = 3;			--检查数据类型
 f["4"] = "lua4";
 f["6"] = "lua6";
 
-local fmid, err = mm.MMCreate(sid, '', '', '{{auto}}', 1, 0x07276705)
-if (err ~= nil) then
-	print('MMCreate err',  err);
-	return err
-end
-print("fmid=", fmid)
+--写100个值
+for i=0, 100, 1 do
+    f["name"] = "lua1"..i;
+    f["key"] = "lua2"..i;
 
-local fsid, err = mm.MMOpen(sid, fmid, "cur")
-if (err ~= nil) then
-	print('MMOpen err',  err);
-	return err
-end
-print("fsid=",fsid)
-err = mm.MFSetObject(fsid, f)
-if (err ~= nil) then
-	print('MFSetObject err',  err);
-	return err
-end
-local ret, err = mm.MMBackup(sid, fmid, "")
-if (err ~= nil) then
-	print('MMBackup err',  err);
-	return err
-end
-local ret, err = mm.Hset(mmsid, "TESTTTTT", fmid, f)
-if (err ~= nil) then
-    print("Hset err", err);
-    return err
-end
-local ret, err = mm.MMBackup(sid, mid, "")
-if (err ~= nil) then
-	print('MMBackup2 err',  err);
-	return err
+    local fmid, err = mm.MMCreate(sid, '', '', '{{auto}}', 1, 0x07276705)
+    if (err ~= nil) then
+        print('MMCreate err',  err);
+        return err
+    end
+    print("fmid=", fmid)
+    
+    local fsid, err = mm.MMOpen(sid, fmid, "cur")
+    if (err ~= nil) then
+        print('MMOpen err',  err);
+        return err
+    end
+    print("fsid=",fsid)
+    err = mm.MFSetObject(fsid, f)
+    if (err ~= nil) then
+        print('MFSetObject err',  err);
+        return err
+    end
+    local ret, err = mm.MMBackup(sid, fmid, "")
+    if (err ~= nil) then
+        print('MMBackup err',  err);
+        return err
+    end
+    local ret, err = mm.Hset(mmsid, "TESTTTTT", fmid, f)
+    if (err ~= nil) then
+        print("Hset err", err);
+        return err
+    end
+    local ret, err = mm.MMBackup(sid, mid, "")
+    if (err ~= nil) then
+        print('MMBackup2 err',  err);
+        return err
+    end
 end
 
 print("f[4]", f[4])
