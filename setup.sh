@@ -1,8 +1,8 @@
 #!/bin/bash
-USER=lsb; PASSWORD=123456; KEYFILE=my
-URL=192.168.1.101:4800
-MYDOMAIN=fsca; GWADDR=leithertest.link
-MYAPP=fireshare
+USER=demo; PASSWORD=zaq12WSX; KEYFILE=demo
+URL=192.168.0.5:8002
+MYDOMAIN=pratum; GWADDR=leithertest.link
+MYAPP=pratum	# not important
 
 function readInput {
     # take 2 params, 1st is the variable name for user to input, 2nd is the description of the variable
@@ -15,23 +15,27 @@ function readInput {
     fi
     echo $2: ${!t}
 }
-readInput USER "User Name"
-readInput PASSWORD "Password"
-readInput KEYFILE "key file name"
-readInput MYAPP "local APP directory"
-readInput URL "local URL"
-readInput MYDOMAIN "user domain"
+#readInput USER "User Name"
+#readInput PASSWORD "Password"
+#readInput KEYFILE "key file name"
+#readInput MYAPP "local APP directory"
+#readInput URL "local URL"
+#readInput MYDOMAIN "user domain"
 
+#echo ./Leither lpki runscript -s "local auth=require('auth'); return auth.Register('$USER', '$PASSWORD');"
 #./Leither lpki runscript -s "local auth=require('auth'); return auth.Register('$USER', '$PASSWORD');"
+#echo ./Leither lpki runscript -s "local node=require('mimei'); return node.MMSetRight(request.sid, 'mmroot', '', 0x07276707);"
 #./Leither lpki runscript -s "local node=require('mimei'); return node.MMSetRight(request.sid, 'mmroot', '', 0x07276707);"
 #echo "User "$USER" created and authorized"
 
+#echo ./Leither lpki genkey -o $KEYFILE.key
 #./Leither lpki genkey -o $KEYFILE.key
-#./Leither lpki genca -k $KEYFILE.key -m "name=$KEYFILE" -o $KEYFILE.ca
+#echo ./Leither lpki gencert -k $KEYFILE.key -m "name=forapp" -o $KEYFILE.cert
 #./Leither lpki gencert -k $KEYFILE.key -m "name=forapp" -o $KEYFILE.cert
-echo ./Leither lpki signppt -c $KEYFILE.cert -m "CertFor=Self" -o ${KEYFILE}login.ppt
-./Leither lpki signppt -c $KEYFILE.cert -m "CertFor=Self" -o ${KEYFILE}login.ppt
-echo "PPT files created"
+#echo ./Leither lpki addkey -i $KEYFILE.key
+#./Leither lpki addkey -i $KEYFILE.key
+#echo ./Leither lpki signppt -c $KEYFILE.cert -m "CertFor=Self" -o ${KEYFILE}login.ppt
+#./Leither lpki signppt -c $KEYFILE.cert -m "CertFor=Self" -o ${KEYFILE}login.ppt
 
 URL=http://$URL/
 #URL=h4V196PipVUv8gf-Zwj9HQLWfV-
@@ -45,7 +49,7 @@ echo ./Leither lapp uploadapp -p ${KEYFILE}login.ppt -i ./$MYAPP -n $URL
 
 #echo ./Leither lapp setdomain -d $MYDOMAIN.$GWADDR -n $URL -a $MYAPP -p ${KEYFILE}login.ppt -m gwaddr=$GWADDR
 #./Leither lapp setdomain -d $MYDOMAIN.$GWADDR -n $URL -a $MYAPP -p ${KEYFILE}login.ppt -m gwaddr=$GWADDR
-echo -e "\n Backup App"
 echo ./Leither lapp backup -a $MYAPP -p ${KEYFILE}login.ppt -n $URL
 ./Leither lapp backup -a $MYAPP -p ${KEYFILE}login.ppt -n $URL
+#./Leither mimei publish p6nO2plU9RsMWR2Iz53lYpOi1GH
 echo "APP published successfully"

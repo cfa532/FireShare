@@ -118,11 +118,11 @@ export const useMimei = defineStore({
     id: 'MMInfo',
     state: ()=>({
         api: {} as any,      // leither api handler
-        // appid: p6nO2plU9RsMWR2Iz53lYpOi1GH", "BM5UwSlQKiYbySrC5VLBYwFHY3s",
+        // appid: "5SGm790VxI0EaoZhxKBSk_eWqid", "BM5UwSlQKiYbySrC5VLBYwFHY3s",
         // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",   // 1.4
         // webdav: tA_66BjRts-xDEwlEb5STOZs4I5,     // 1.3
         midNaviBar: "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid
-        mid: "-4Q6x4ZbhiNPA2Fen3ekndqV1lO",             // pratum
+        mid: "2LrVtr6mwjYLGVdBCiNEZvBoHEJ",             // pratum
         // mid: "2ps-D8Ua6E4bsEr_2Zw06UgemWG",             // for testing
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
