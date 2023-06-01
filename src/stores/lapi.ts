@@ -122,7 +122,7 @@ export const useMimei = defineStore({
         // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",   // 1.4
         // webdav: tA_66BjRts-xDEwlEb5STOZs4I5,     // 1.3
         midNaviBar: "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid
-        mid: "2LrVtr6mwjYLGVdBCiNEZvBoHEJ",             // pratum
+        mid: "ml8kS5E951NQU1Ad8SFWm1nXz7n",             // pratum
         // mid: "2ps-D8Ua6E4bsEr_2Zw06UgemWG",             // for testing
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.

@@ -87,7 +87,7 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
   // Helper function to handle individual file uploads
   async function uploadSingleFile(file: File, index: number): Promise<FileInfo> {
     // Check if the file size exceeds the limit (200MB in this example)
-    if (file.size > sliceSize * 20) {
+    if (file.size > sliceSize * 30) {
       throw new Error("Max file size exceeded");
     }
     // Assign initial progress value
