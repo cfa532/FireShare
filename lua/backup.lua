@@ -178,3 +178,5 @@ for k,v in ipairs(fvs) do
 end
 --]]
 return ver
+
+./Leither lpki runscript -k demo.key -s "local log = require('log');log.Debug('set new pass request=%v', request.sid);info = {newname='lsb',newpass='123456'};local auth = require('auth');return auth.SetUserInfo(request.sid, info);"
