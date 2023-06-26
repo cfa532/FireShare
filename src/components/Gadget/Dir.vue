@@ -23,9 +23,9 @@ const filePath = computed(()=>{
     return props.filePath==='/' ? '/' : props.filePath+'/';
 })
 
-onMounted(()=>{
+onMounted(async ()=>{
     console.log("Dir mounted:", props)
-    showDir(props.filePath)
+    await showDir(props.filePath)
     useSpinner().setLoadingState(false)
 })
 watch(()=>props.filePath, (toParams, prevParams)=>{
@@ -34,46 +34,29 @@ watch(()=>props.filePath, (toParams, prevParams)=>{
         currentPage.value = 1       // to reload dir data when <- or .. is clicked
         showDir(props.filePath)
     }
-});
-async function showDir(filePath: string) {
-//     api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid: string) => {
-//         api.client.MFStat(mmfsid, (fi: any) => {
-//             if (fi.fIsDir) {
-//                 api.client.MFReaddir(mmfsid, (files: any[]) => {
-//                     // sort according to file name
-//                     files.sort((a, b)=> a.fName < b.fName ? -1 : 1)
-//                     itemNumber.value = files.length
-//                     var st = (currentPage.value - 1) * pageSize.value
-//                     console.log("total items=", itemNumber.value, st, pageSize.value)
-//                     localFiles.value = files.slice(st, st + pageSize.value)
-//                 }, (err: Error) => {
-//                     console.error("Readdir err=", err)
-//                 })
-//             }
-//         }, (err: Error) => {
-//             console.error("MFStat err=", err)
-//         })
-//     }, (err: Error) => {
-//         console.error("Open path err=", err)
-//     })
-// }
-// async function showMMDir(mmPath: string) {
-    const files = [
-        {fName: "Burnt 2015.mp4", template:"ipfs", id: "QmP8i1tEnV8WwCmUbzpkkT1epJFiNaZiuiGR6kNKqhfgLf"},
-        {fName: "Matrix 1999.mp4", template:"tpt", id: "dJM6X7OTmJXbGqPQaFdAZ3kGpBl"},
-    ];
-    try {
-        itemNumber.value = files.length
-        var st = (currentPage.value - 1) * pageSize.value
-        localFiles.value = files.slice(st, st + pageSize.value)
-    } catch(err) {
-        console.error("showMMDir err=", err)
-    }
-}
+})
 function pageChanged(n: number) {
     currentPage.value = n
     showDir(props.filePath)
 }
+async function showDir(filePath: string) {
+    try {
+        let mmfsid = await api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0);
+        let fi = await api.client.MFStat(mmfsid);
+        if (fi.fIsDir) {
+            let files: any[] = (await api.client.MFReaddir(mmfsid)).filter((f:any)=>{return f.fName.substring(0,1) !== '.'})    // remove hidden dot files
+            // sort according to file name
+            files.sort((a, b)=> a.fName < b.fName ? -1 : 1)
+            itemNumber.value = files.length
+            var st = (currentPage.value - 1) * pageSize.value
+            console.log("total items=", itemNumber.value, st, pageSize.value)
+            localFiles.value = files.slice(st, st + pageSize.value)
+        }
+    } catch(err) {
+        console.error(err)
+    }
+}
+
 function fileDownload(e: MouseEvent, file: any){
     api.client.MFOpenByPath(api.sid, "mmroot", filePath.value+file.fName, 0, (mmfsid:string)=>{
         api.client.MFGetData(mmfsid, 0, -1, (fileData:Uint8Array)=>{
@@ -85,21 +68,10 @@ function fileDownload(e: MouseEvent, file: any){
         console.error("Open by path err=", err)
     })
 }
-function showVideo(file: any) {
-    console.log(file);
-    let objUrl = api.baseUrl + file.template + "/" + file.id
-    if (file.template == "tpt") {
-        window.open(objUrl, '_blank');
-    } else {
-        let strVideo = '<video controls autoplay style="width:100%" id= "media" name="media"><source src="' + objUrl+ '" type="video/mp4"> </video>'
-        document.getElementById('dirBody')!.innerHTML = strVideo
-    }
-    // history.pushState({key: Date.now()}, "", location.href)
-}
 </script>
 
 <template>
-<div id="dirBody">
+<div>
     <ul style="padding: 0px; margin: 0 0 0 5px;">
     <li v-if="props.filePath!==parentPath" class="fileList">
         <RouterLink :to="{name:'fileview2', params:{filePath:parentPath}}"><strong>. .</strong></RouterLink>
@@ -109,7 +81,7 @@ function showVideo(file: any) {
             href="#" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.fName}} &dArr;
         </a>
         <RouterLink v-else
-            :to="{ name:'fileview3', params:{tpt:file.template, id:file.id}}">{{file.fName}}
+            :to="{ name:'fileview2', params:{filePath:filePath+file.fName}}">{{file.fName}}
         </RouterLink>
         <span v-if="file.fIsDir"> ...&gt;</span>
     </li>
