@@ -41,10 +41,12 @@ function pageChanged(n: number) {
 }
 async function showDir(filePath: string) {
     try {
+        let files: any[] = []
+        if (!api.sid) return
         let mmfsid = await api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0);
         let fi = await api.client.MFStat(mmfsid);
         if (fi.fIsDir) {
-            let files: any[] = (await api.client.MFReaddir(mmfsid)).filter((f:any)=>{return f.fName.substring(0,1) !== '.'})    // remove hidden dot files
+            files = (await api.client.MFReaddir(mmfsid)).filter((f:any)=>{return f.fName.substring(0,1) !== '.'})    // remove hidden dot files
             // sort according to file name
             files.sort((a, b)=> a.fName < b.fName ? -1 : 1)
             itemNumber.value = files.length
