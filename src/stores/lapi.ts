@@ -121,8 +121,8 @@ export const useMimei = defineStore({
         // appid: "5SGm790VxI0EaoZhxKBSk_eWqid", "BM5UwSlQKiYbySrC5VLBYwFHY3s",
         // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",   // 1.4
         // webdav: tA_66BjRts-xDEwlEb5STOZs4I5,     // 1.3
-        midNaviBar: "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid
-        mid: "ml8kS5E951NQU1Ad8SFWm1nXz7n",             // pratum
+        midNaviBar: import.meta.env.VITE_MIMEI_NAVI_BAR, // "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid
+        mid: import.meta.env.VITE_MIMEI_DB,  // "ml8kS5E951NQU1Ad8SFWm1nXz7n",             // pratum
         // mid: "2ps-D8Ua6E4bsEr_2Zw06UgemWG",             // for testing
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
