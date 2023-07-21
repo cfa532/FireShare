@@ -187,7 +187,7 @@ export const useMimei = defineStore({
                 let ret:DhtReply = this.api.client.MiMeiPublish(this.api.sid, "", mid)
                 console.log("Mimei publish []DhtReply=", ret, this._mmsid, "newVer="+newVer)
             } catch(err:any) {
-                throw new Error("Backup error", err)
+                throw new Error(err)
             }
         },
         async getColumn(title: string) {
