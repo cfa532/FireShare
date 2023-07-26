@@ -76,6 +76,9 @@ const generateVideoThumbnail = (file: File) => {
         <div class="postbox_media_photo_img_wrapper" draggable="true">
             <img :src="imageUrl" class="postbox_media_photo_img" draggable="false">
         </div>
+        <div style="overflow:hidden; height:40px; position:absolute; bottom: 0px; left: 0px; padding: 5px 2px 0px 3px;">
+            <div style="font-size:small; inline-size: 119px; overflow-wrap: break-word;">{{caption}}</div>
+        </div>
         <div v-if="props.progress < 100" class="progress-bar-overlay">
             <div class="progress-bar" :style="{width: props.progress + '%', height: '10px', backgroundColor: 'green', borderRadius: '5px'}"></div>
         </div>
