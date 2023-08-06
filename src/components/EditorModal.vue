@@ -185,7 +185,6 @@ async function onSubmit() {
     }
   } catch(err) {
     console.error("Onsubmit err=", err);
-    return
   } finally {
     useSpinner().setLoadingState(false)
   }
