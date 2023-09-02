@@ -40,10 +40,6 @@ function pageChanged(n: number) {
     showDir(props.filePath)
 }
 async function showDir(filePath: string) {
-    const files = [
-        {fName: "Burnt 2015.mp4", template:"ipfs", id: "QmP8i1tEnV8WwCmUbzpkkT1epJFiNaZiuiGR6kNKqhfgLf"},
-        {fName: "Matrix 1999.mp4", template:"tpt", id: "dJM6X7OTmJXbGqPQaFdAZ3kGpBl"},
-    ];
     try {
         let files: any[] = []
         if (!api.sid) return
@@ -63,17 +59,7 @@ async function showDir(filePath: string) {
         console.error("showMMDir err=", err)
     }
 }
-function showVideo(file: any) {
-    console.log(file);
-    let objUrl = api.baseUrl + file.template + "/" + file.id
-    if (file.template == "tpt") {
-        window.open(objUrl, '_blank');
-    } else {
-        let strVideo = '<video controls autoplay style="width:100%" id= "media" name="media"><source src="' + objUrl+ '" type="video/mp4"> </video>'
-        document.getElementById('dirBody')!.innerHTML = strVideo
-    }
-    // history.pushState({key: Date.now()}, "", location.href)
-}
+
 function fileDownload(e: MouseEvent, file: any){
     api.client.MFOpenByPath(api.sid, "mmroot", filePath.value+file.fName, 0, (mmfsid:string)=>{
         api.client.MFGetData(mmfsid, 0, -1, (fileData:Uint8Array)=>{
@@ -98,7 +84,7 @@ function fileDownload(e: MouseEvent, file: any){
             href="#" @click.prevent="(e:MouseEvent)=>fileDownload(e, file)" download>{{file.fName}} &dArr;
         </a>
         <RouterLink v-else
-            :to="{ name:'fileview3', params:{tpt:file.template, id:file.id}}">{{file.fName}}
+            :to="{ name:'fileview2', params:{filePath:filePath+file.fName}}">{{file.fName}}
         </RouterLink>
         <span v-if="file.fIsDir"> ...&gt;</span>
     </li>
@@ -107,3 +93,14 @@ function fileDownload(e: MouseEvent, file: any){
         :current-page="currentPage" :page-size="pageSize" :item-number="itemNumber"></Pager>
 </div>
 </template>
+
+<style>
+li.fileList {
+    list-style-type: none;
+    display: block;
+    padding: 3px 0px;
+}
+li.fileList:hover {
+    background-color: cornsilk;
+}
+</style>

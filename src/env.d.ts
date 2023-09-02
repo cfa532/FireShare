@@ -10,3 +10,4 @@ declare module '*.vue' {
 // declare external JS package as module
 // declare module 'pdfobject'
 declare module 'video.js'
+declare module 'bootstrap'

@@ -6,9 +6,11 @@
 </script>
 
 <template>
-  <!-- <img alt="Vue logo" src="logo.png" style="width: 50px;"/> -->
-      <!-- route outlet -->
-      <!-- component matched by the route will render here -->
-      <router-view></router-view>
-
+<div class="container-fluid">
+    <div class="row justify-content-start">
+      <div class="col-10 align-self-start">
+        <router-view></router-view>
+      </div>
+    </div>
+</div>
 </template>

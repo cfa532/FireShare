@@ -28,7 +28,7 @@ function getcurips() {
         // ips = "115.192.101.172:8002"        //gen8 ProLiant
 
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        // ips = "192.168.0.5:8002"
+        ips = "192.168.0.5:8002"
     }
     return ips
 };

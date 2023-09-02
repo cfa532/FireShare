@@ -36,6 +36,7 @@ function showWebdav() {
 </script>
 
 <template>
+    <!-- push content down to not overlap with horizontal navi bar -->
     <div style="margin-top: 40px;"></div>
     <ul class="naviBar">
         <li><RouterLink active-class="active" :to="{name: 'main'}">众众</RouterLink></li>
@@ -45,3 +46,60 @@ function showWebdav() {
     </ul>
     <MsgVue :msg="msg"></MsgVue>
 </template>
+
+<style>
+ul.naviBar {
+  display: table;
+  list-style-type: none;
+  background-color: antiquewhite;
+  overflow: hidden;
+  margin: 0px 0px 10px 0px;
+  padding: 0px 0px 0px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 32px;
+}
+ul.naviBar li {
+  display: inline-block;
+  color: rgb(132, 181, 32);
+  text-align: center;
+  padding: 0px 5px;
+  margin: 0px;
+}
+ul.naviBar li#login {
+    display: inline-block;
+    position: fixed;
+    right: 0;
+    color: rgb(132, 181, 32);
+    text-align: center;
+    padding: 0px 5px;
+    margin-right: 5px;
+    margin-top:6px;
+}
+ul.naviBar li a.active {
+    display: block;
+    background-color: #04aa6d;
+    color:aliceblue;
+    padding: 5px;
+}
+
+ul.top {
+  list-style-type: none;
+  overflow: hidden;
+  margin: 0px 0px 0px -20px;
+  width: 200px;
+}
+ul.top li {
+  margin: 10px 0px 0px 0px;
+}
+ul.top li a {
+  display: inline-block;
+  width: 200px;
+  background-color:rgb(220, 247, 202);
+}
+ul.top li a::before {
+  content:"• ";
+}
+</style>

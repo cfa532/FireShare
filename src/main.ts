@@ -4,10 +4,13 @@ import { useLeither, useMimei } from './stores/lapi';
 import { router } from './router'
 import App from './App.vue';
 
+import"bootstrap/dist/css/bootstrap.min.css"
+import"bootstrap"
+
 const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
-app.config.unwrapInjectedRef=true       // temp setting until ver 3.3
+// app.config.unwrapInjectedRef=true       // temp setting until ver 3.3
 app.use(router)
 
 const api = useLeither()

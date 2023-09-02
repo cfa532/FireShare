@@ -134,3 +134,21 @@ async function getFileList(pn: number) {
     </div>
 </template>
 
+<style>
+ul.aList {
+  list-style-type: decimal;
+  overflow: hidden;
+  /* margin: 0px 0px 0px -20px; */
+  width: 95%;
+  padding-left: 30px;
+}
+ul.aList li {
+  padding: 5px 0px 0px 0px;
+}
+ul.aList li:hover {
+  background-color: cornsilk;
+}
+ul.aList li:nth-child(even) {
+  background: rgb(220, 247, 202, 0.5);;
+}
+</style>
