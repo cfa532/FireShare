@@ -138,6 +138,7 @@ export const useMimei = defineStore({
                     {"title":"Funny", "titleZh":"搞笑"},
                     {"title":"Cutie", "titleZh":"萌宠"},
                 ]},
+                {"title":"Exercise", "titleZh":"运动"},
                 {"title":"Test", "titleZh":"TCL"},
                 {"title":"Webdav", "titleZh":"本地文档"}
             ];
