@@ -80,7 +80,7 @@ function fileDownload(e: MouseEvent, file: any){
     </li>
     <li class="fileList" v-for="(file, index) in localFiles" :key="index">
         <a v-if="['docx', 'doc'].includes(file.fName.substring(file.fName.length-3).toLowerCase())"
-            href="#" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.fName}} &dArr;
+            href="#" @click.prevent="(e:MouseEvent)=>fileDownload(e, file)" download>{{file.fName}} &dArr;
         </a>
         <RouterLink v-else
             :to="{ name:'fileview2', params:{filePath:filePath+file.fName}}">{{file.fName}}
