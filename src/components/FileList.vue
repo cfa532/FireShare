@@ -77,7 +77,7 @@ async function getFileList(pn: number) {
     api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start+pageSize.value-1, async (sps:ScorePair[])=>{
         fileList.value.length = 0       // clear fileList array
         // console.log(sps)
-        let mbs = sps.map((sp:ScorePair)=> sp.member)
+        let mbs = sps.map((sp:ScorePair)=> sp.member)   // Mimei ids on the current page
         api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mbs, (fis: FileInfo[]) => {
             fis.forEach((fi, idx)=>{
                 if (!fi || !fi.type || fi.size==0) {
@@ -122,7 +122,7 @@ async function getFileList(pn: number) {
                     :to="{ name: 'fileview', params: { title: columnTitle, mid: file.mid, fileType: file.type } }">
                     {{ fileName(file) }}
                 </RouterLink>
-                <a v-else href="" @click.prevent="(e) => fileDownload(e, file)" download>{{ file.name }} &dArr;
+                <a v-else href="" @click.prevent="(e:MouseEvent) => fileDownload(e, file)" download>{{ file.name }} &dArr;
                 </a>
             </li>
         </ul>

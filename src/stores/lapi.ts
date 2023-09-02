@@ -25,9 +25,10 @@ function getcurips() {
     { //for test
         // ips = "192.168.0.3:4800"     //杭州盒子
         // ips = "192.168.0.4:8000"     //台湾盒子
-        // ips = "192.168.0.5:8002"        //gen8 ProLiant
+        // ips = "115.192.101.172:8002"        //gen8 ProLiant
+
         // ips = '[240e:390:e6f:4fb0:e4a7:c56d:a055:2]:4800'
-        // ips = "125.120.29.190:8000"
+        // ips = "192.168.0.5:8002"
     }
     return ips
 };
@@ -121,45 +122,51 @@ export const useMimei = defineStore({
         // appid: "5SGm790VxI0EaoZhxKBSk_eWqid", "BM5UwSlQKiYbySrC5VLBYwFHY3s",
         // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",   // 1.4
         // webdav: tA_66BjRts-xDEwlEb5STOZs4I5,     // 1.3
-        midNaviBar: "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid
-        // mid: "ml8kS5E951NQU1Ad8SFWm1nXz7n",             // pratum
-        mid: "2ps-D8Ua6E4bsEr_2Zw06UgemWG",             // for testing
+        midNaviBar: import.meta.env.VITE_MIMEI_NAVI_BAR, // "ZXYnjn7xo_oHPpzLfopKIkRuxkc",      // navigation bar' mid, deprecated
+        mid: import.meta.env.VITE_MIMEI_DB,  // "ml8kS5E951NQU1Ad8SFWm1nXz7n",             // pratum
+        // mid: "2ps-D8Ua6E4bsEr_2Zw06UgemWG",             // for testing
+
         _mmsid: "",
         _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
     }),
     getters: {
         naviColumnTree: function(state) {
-            return new Promise<ContentColumn[]>((resolve, reject)=>{
-                // state._naviColumnTree = [
-                //     {"title":"News", "titleZh":"最新文档"}, 
-                //     {"title":"Pictures", "titleZh":"图片专区", "subColumn": [
-                //         {"title":"Western", "titleZh":"洋画"},
-                //         {"title":"Japan", "titleZh":"邦画"},
-                //         {"title":"Test", "titleZh":"TCL"}
-                //     ]},
-                //     {"title":"Webdav", "titleZh":"本地文档"}
-                // ];
-                // resolve(state._naviColumnTree);
-                if (state._naviColumnTree.length>0) resolve(state._naviColumnTree);
-                else {
-                    // if (localStorage.getItem("navibarcolumns")) {
-                    //     state._naviColumnTree = JSON.parse(localStorage.getItem("navibarcolumns")!)
-                    //     resolve(state._naviColumnTree)
-                    //     return
-                    // }
-                    this.api.client.MMOpen(this.api.sid, this.midNaviBar, "last", (mmsid: string)=>{
-                        console.log("MMOPen mmsid="+mmsid, "sid="+this.api.sid)
-                        this.api.client.MFGetObject(mmsid, (o:any)=>{
-                            state._naviColumnTree = o
-                            resolve(o)
-                        }, (err:Error)=>{
-                            reject("useMimei MFGetObject err="+err)
-                        })
-                    }, (err:Error)=>{
-                        reject("useMimei MMOpen err="+err)
-                    })
-                }
-            })
+            return [
+                {"title":"News", "titleZh":"News"}, 
+                {"title":"World", "titleZh":"World"}, 
+                {"title":"Videos", "titleZh":"小视频"}, 
+                {"title":"Pictures", "titleZh":"美图秀"}, 
+                {"title":"Twitter", "titleZh":"X", "subColumn": [
+                    {"title":"Contrarian", "titleZh":"Noop"},
+                    {"title":"Funny", "titleZh":"搞笑"},
+                    {"title":"Cutie", "titleZh":"萌宠"},
+                ]},
+                {"title":"Exercise", "titleZh":"运动"},
+                {"title":"Test", "titleZh":"TCL"},
+                {"title":"Webdav", "titleZh":"本地文档"}
+            ];
+            // resolve(state._naviColumnTree);
+            // return new Promise<ContentColumn[]>((resolve, reject)=>{
+            //     if (state._naviColumnTree.length>0) resolve(state._naviColumnTree);
+            //     else {
+            //         // if (localStorage.getItem("navibarcolumns")) {
+            //         //     state._naviColumnTree = JSON.parse(localStorage.getItem("navibarcolumns")!)
+            //         //     resolve(state._naviColumnTree)
+            //         //     return
+            //         // }
+            //         this.api.client.MMOpen(this.api.sid, this.midNaviBar, "last", (mmsid: string)=>{
+            //             console.log("MMOPen mmsid="+mmsid, "sid="+this.api.sid)
+            //             this.api.client.MFGetObject(mmsid, (o:any)=>{
+            //                 state._naviColumnTree = o
+            //                 resolve(o)
+            //             }, (err:Error)=>{
+            //                 reject("useMimei MFGetObject err="+err)
+            //             })
+            //         }, (err:Error)=>{
+            //             reject("useMimei MMOpen err="+err)
+            //         })
+            //     }
+            // })
         },    
         mmsid: async function(state) :Promise<string> {
             state._mmsid = state._mmsid? state._mmsid : await this.api.client.MMOpen(this.api.sid, this.mid, "last");
@@ -187,7 +194,7 @@ export const useMimei = defineStore({
                 let ret:DhtReply = this.api.client.MiMeiPublish(this.api.sid, "", mid)
                 console.log("Mimei publish []DhtReply=", ret, this._mmsid, "newVer="+newVer)
             } catch(err:any) {
-                throw new Error("Backup error", err)
+                throw new Error(err)
             }
         },
         async getColumn(title: string) {

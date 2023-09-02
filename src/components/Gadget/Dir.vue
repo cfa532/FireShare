@@ -45,9 +45,20 @@ async function showDir(filePath: string) {
         {fName: "Matrix 1999.mp4", template:"tpt", id: "dJM6X7OTmJXbGqPQaFdAZ3kGpBl"},
     ];
     try {
-        itemNumber.value = files.length
-        var st = (currentPage.value - 1) * pageSize.value
-        localFiles.value = files.slice(st, st + pageSize.value)
+        let files: any[] = []
+        if (!api.sid) return
+        let mmfsid = await api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0);
+        let fi = await api.client.MFStat(mmfsid);
+        if (fi.fIsDir) {
+            files = (await api.client.MFReaddir(mmfsid)).filter((f:any)=>{return f.fName.substring(0,1) !== '.'})    // remove hidden dot files
+            // sort according to file name
+            files.sort((a, b)=> a.fName < b.fName ? -1 : 1)
+            itemNumber.value = files.length
+            var st = (currentPage.value - 1) * pageSize.value
+            console.log("total items=", itemNumber.value, st, pageSize.value)
+            localFiles.value = files.slice(st, st + pageSize.value)
+        }
+
     } catch(err) {
         console.error("showMMDir err=", err)
     }
@@ -84,7 +95,7 @@ function fileDownload(e: MouseEvent, file: any){
     </li>
     <li class="fileList" v-for="(file, index) in localFiles" :key="index">
         <a v-if="['docx', 'doc'].includes(file.fName.substring(file.fName.length-3).toLowerCase())"
-            href="#" @click.prevent="(e)=>fileDownload(e, file)" download>{{file.fName}} &dArr;
+            href="#" @click.prevent="(e:MouseEvent)=>fileDownload(e, file)" download>{{file.fName}} &dArr;
         </a>
         <RouterLink v-else
             :to="{ name:'fileview3', params:{tpt:file.template, id:file.id}}">{{file.fName}}

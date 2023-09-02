@@ -135,7 +135,7 @@ async function onSubmit() {
   
     if (fvPairs.length === 1 && textValue.value.trim() === "") {
       // single file uploaded without text input
-      // now save {mid, fileInfo} pair array in a hashtable and bakcup mm DB
+      // now save {mid, fileInfo} as FV pair and bakcup mm DB
       // so FileInfo can be found by its mid.
       fvPairs[0].value["caption"] = inpCaption.value!.trim();
       await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
@@ -145,7 +145,7 @@ async function onSubmit() {
       let ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair( Date.now(), fvPairs[0].value["mid"]))
       console.log("Zadd ScorePair for the file, ret=", ret, props.column)
       // back mm data for publish
-      mmInfo.backup()
+      await mmInfo.backup()
 
       // emit an event with infor of newly uploaded file
       emit('uploaded', fvPairs[0].value)
@@ -175,7 +175,7 @@ async function onSubmit() {
       console.log("Zadd ver=", fi, ret)
       
       // back mm data for publish
-      mmInfo.backup()
+      await mmInfo.backup()
 
       emit('uploaded', fi)
       localStorage.setItem("tempTextValueUploader", "")
@@ -185,7 +185,6 @@ async function onSubmit() {
     }
   } catch(err) {
     console.error("Onsubmit err=", err);
-    return
   } finally {
     useSpinner().setLoadingState(false)
   }

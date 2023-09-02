@@ -27,6 +27,7 @@ const userComponent = computed(() => {
         return Page
     } else {
         console.warn("Unknown file type:", fileType)
+        return "<p>Unkonwn file type</P>"
     }
 })
 const currentProperty = computed(()=>route.params)    // params: {mid:file.mid, fileType:file.type}}
