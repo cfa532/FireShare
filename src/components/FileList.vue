@@ -4,7 +4,6 @@ import { useLeither, useMimei, useSpinner } from '../stores/lapi';
 import { useRoute, useRouter } from "vue-router";
 import MyDir from './Gadget/Dir.vue';
 import Pager from "./Gadget/Pager.vue";
-import NaviBar from "./NaviBar.vue";
 import EditorModal from "./EditorModal.vue";
 import Spinner from "./Gadget/Spinner.vue";
 // import { defineAsyncComponent } from 'vue'
@@ -104,7 +103,7 @@ async function getFileList(pn: number) {
 </script>
 
 <template>
-    <NaviBar :column="(columnTitle as string)"></NaviBar>
+    <!-- <NaviBar :column="(columnTitle as string)"></NaviBar> -->
     <Spinner :active="useSpinner().loading" text="Please wait......"/>
     <!-- <hr/> -->
     <div v-if="columnTitle !== 'Webdav'">
@@ -150,5 +149,25 @@ ul.aList li:hover {
 }
 ul.aList li:nth-child(even) {
   background: rgb(220, 247, 202, 0.5);;
+}
+
+p.postbox {
+  font-style: italic;
+  opacity: 0.3;
+  margin: 10px 0px 0px 20px;
+  width: 100%;
+}
+p.postbox:hover {
+  opacity: 0.6;
+}
+div.postbox {
+  display: flex;
+  background-color:#f9f9f9;
+  width: 100%;
+  max-width: 600px;
+  height: 40px;
+  margin: 0px 0px 10px 0px;
+  box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2);
+  cursor: text;
 }
 </style>

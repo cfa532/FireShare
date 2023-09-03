@@ -1,21 +1,34 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
-import { useRouter } from "vue-router";
+import { onMounted, ref, computed, watch } from 'vue';
+import { useRouter, useRoute } from "vue-router";
 import { useMimei, useLeither } from "../stores/lapi";
 const router = useRouter()
+const route = useRoute()
 const props = defineProps({
-    column: {type: String, required: true }
+    column: {type: String, required: false }
 })
 const api = useLeither()
 const mmInfo = useMimei()
-const col = ref<ContentColumn>({title:"News", titleZh:""});     // placeholder because of async mounted()
+const col = ref<ContentColumn>();     // placeholder because of async mounted()
 const txtLogin = ref("Login")
 
 onMounted(async ()=>{
     await mmInfo.init(api)
-    col.value = await mmInfo.getColumn(props.column) as ContentColumn
+    if (props.column)
+        col.value = await mmInfo.getColumn(props.column) as ContentColumn
     console.log("Navibar mounted", props.column, col.value)
     txtLogin.value = api.sid? "Logout" : "Login";
+})
+const rootClass = computed(()=>{
+    return col.value? "nav-link" : "nav-link active"
+})
+watch(()=>route.params.title, async (cv, pv)=>{
+    if (cv != pv) {
+        if (props.column)
+            col.value = await mmInfo.getColumn(props.column) as ContentColumn
+        else
+            col.value = undefined
+    }
 })
 function logout() {
     if (api.sid) {
@@ -28,14 +41,17 @@ function logout() {
 </script>
 
 <template>
-<div style="margin-top: 40px; width:100%"></div>
-<ul class="naviBar">
-    <li><RouterLink active-class="active" :to="{name: 'main'}">众众</RouterLink></li>
-    <li>--</li>
-    <li><RouterLink class="active" :to="{name: 'filelist', params:{title: col.title}}">
-        {{col.titleZh}}</RouterLink>
+<!-- <div style="margin-top: 40px; width:100%"></div> -->
+<ul class="nav">
+    <li class="nav-item">
+        <RouterLink :class=rootClass :to="{name: 'main'}">众众</RouterLink>
     </li>
-    <li id="login"><RouterLink @click.prevent="logout" to="/">{{txtLogin}}</RouterLink></li>
+    <li v-if="col" class="nav-item">
+        <RouterLink :class=rootClass :to="{name: 'filelist', params:{title: col.title}}">{{col.titleZh}}</RouterLink>
+    </li>
+    <li v-if="col" class="nav-itme" id="login">
+        <RouterLink class="nav-link" @click.prevent="logout" to="/">{{txtLogin}}</RouterLink>
+    </li>
 </ul>
 </template>
 

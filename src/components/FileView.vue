@@ -3,7 +3,6 @@ import { computed, onMounted } from "vue";
 import { router } from '../router';
 import { useRoute } from 'vue-router';
 import { useLeither, useMimei, useSpinner } from '../stores/lapi';
-import NaviBarVue from './NaviBar.vue';
 import MyImg from './Gadget/Image.vue';
 import MyPdf from './Gadget/pdf.vue';
 import VideoPlayer from './Gadget/VideoJS.vue';
@@ -54,7 +53,6 @@ async function deleteFile() {
 </script>
 
 <template>
-    <NaviBarVue :column="(route.params.title as string)"></NaviBarVue>
     <SpinnerVue :active="useSpinner().loading" text="Please wait......"/>
     <!-- <hr/> -->
     <ShareVue @delete-file="deleteFile"  ref="shareMenu" v-bind="currentProperty"></ShareVue>

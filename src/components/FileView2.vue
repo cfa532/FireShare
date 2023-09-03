@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import { useLeither, useMimei } from '../stores/lapi';
-import NaviBarVue from './NaviBar.vue';
 import MyImg from './Gadget/Image.vue';
 import MyPdf from './Gadget/pdf.vue';
 import MyDir from './Gadget/Dir.vue';
@@ -15,7 +14,6 @@ const api = useLeither()
 const mmInfo = useMimei()
 const userComponent = shallowRef()
 const currentProperty = shallowRef({filePath: "", mmfsid:"", fileType: ""})    // props
-const columnTitle = ref("Webdav");      // local files
 
 onMounted(()=>{
     console.log("FileView2 mounted", route.params)
@@ -77,7 +75,6 @@ watch(()=>route.params.filePath, (toParams, prevParams)=>{
 </script>
 
 <template>
-    <NaviBarVue :column="columnTitle"></NaviBarVue>
     <!-- show Share menu if not Dir view -->
     <ShareVue v-if="userComponent != MyDir"></ShareVue>
     <KeepAlive>
