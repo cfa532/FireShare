@@ -84,3 +84,51 @@ const generateVideoThumbnail = (file: File) => {
         </div>
     </div>
 </template>
+
+<style>
+.progress-bar-overlay {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    transform: translateY(-50%);
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.5);
+  }
+  .progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: green;
+    border-radius: 5px;
+  }
+  .postbox_media_photo_img_wrapper {
+    top: 10px;
+    position: absolute;
+    display: flex;
+    width: 100%;
+    height: 120px;
+    cursor: move;
+    user-select: none;
+    overflow: hidden;
+    /* height: calc(100% - 32px); */
+}
+.postbox_media_photo_img {
+    /* display: block; */
+    margin-left: auto;
+    margin-right: auto;
+    margin-top:auto;
+    margin-bottom: auto;
+    width: 100%;
+}
+.btn-reset {
+    background: none;
+    border: none;
+    filter: none;
+    padding: 0;
+    outline: none;
+    cursor: pointer;
+}
+</style>
