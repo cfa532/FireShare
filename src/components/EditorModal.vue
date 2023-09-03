@@ -236,10 +236,10 @@ watch(() => textValue.value, (newVal, oldVal) => {
         <div style="width:99%; margin-bottom: 10px;">
           <input autofocus type="text" placeholder="Caption...  required" v-model="inpCaption" ref="caption" style="border:0px; width:100%; height:22px; margin-bottom: 8px;">
           <textarea ref="textArea" v-model="textValue" placeholder="Input......"
-            style="border:0px; width:100%; height: 110px; border-radius: 3px;"></textarea>
+            style="border:1px; width:100%; height: 110px; border-radius: 3px;"></textarea>
           <div ref="dropHere" hidden
-            style="border: 1px solid lightgrey; text-align: center; width:100%; height:100%; margin: 0px;">
-            <p style="font-size: 24px">DROP HERE</p>
+            style="border: 1px solid lightgrey; width:100%; height:110px; margin: 0px; text-align: center; vertical-align: middle;">
+            <p style="font-size: 24px;">DROP HERE</p>
           </div>
         </div>
         <div ref="divAttach" hidden

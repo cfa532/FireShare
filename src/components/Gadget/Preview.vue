@@ -115,6 +115,21 @@ const generateVideoThumbnail = (file: File) => {
     overflow: hidden;
     /* height: calc(100% - 32px); */
 }
+
+.postbox_media_photo_wrapper {
+    height: 170px;
+    width: 120px;
+    position: relative;
+    display: inline-block;
+    background-color: #fff;
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    transition: All .15s ease-out;
+    /* max-width: calc(25% - 32px); */
+    flex-grow: 1;
+    margin-right: 15px;
+    margin-top: 5px;
+}
 .postbox_media_photo_img {
     /* display: block; */
     margin-left: auto;
