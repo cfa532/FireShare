@@ -256,6 +256,18 @@ watch(() => textValue.value, (newVal, oldVal) => {
     </div>
   </div>
 </template>
-<style>
 
+<style>
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 26px;
+  font-weight: bold;
+}
+.close:hover, .close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
 </style>
