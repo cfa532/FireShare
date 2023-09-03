@@ -10,12 +10,12 @@ const route = useRoute()
 <template>
 <div class="container-fluid">
     <div class="row justify-content-start">
-      <div class="col-10">
+      <div class="col">
         <NaviBar :column="(route.params.title as string)"></NaviBar>
+        <router-view></router-view>
       </div>
     </div>
 </div>
-<router-view></router-view>
 </template>
 
 <style>

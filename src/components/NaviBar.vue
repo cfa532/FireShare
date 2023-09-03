@@ -25,6 +25,7 @@ const rootClass = computed(()=>{
 watch(()=>route.params.title, async (cv, pv)=>{
     if (cv != pv) {
         col.value = props.column? await mmInfo.getColumn(props.column) as ContentColumn : undefined
+        txtLogin.value = api.sid? "Logout" : "Login";
     }
 })
 function logout() {
@@ -39,17 +40,21 @@ function logout() {
 
 <template>
 <!-- <div style="margin-top: 40px; width:100%"></div> -->
-<ul class="nav">
+<nav class="navbar navbar-expand-sm bg-light">
+<ul class="navbar-nav">
     <li class="nav-item">
         <RouterLink :class=rootClass :to="{name: 'main'}">众众</RouterLink>
     </li>
     <li v-if="col" class="nav-item">
-        <RouterLink :class=rootClass :to="{name: 'filelist', params:{title: col.title}}">{{col.titleZh}}</RouterLink>
+        <RouterLink :class=rootClass aria-current="page" :to="{name: 'filelist', params:{title: col.title}}">{{col.titleZh}}</RouterLink>
     </li>
-    <li v-if="col" class="nav-itme" id="login">
-        <RouterLink class="nav-link" @click.prevent="logout" to="/">{{txtLogin}}</RouterLink>
+<!-- </ul>
+<ul class="nav justify-content-end"  style="display:inline-flex;"> -->
+    <li v-if="col" class="nav-itme" style="position:absolute; right: 0;" id="login">
+        <RouterLink class="nav-link" @click.prevent="logout" to="#">{{txtLogin}}</RouterLink>
     </li>
 </ul>
+</nav>
 </template>
 
 <style>
