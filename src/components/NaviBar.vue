@@ -48,7 +48,7 @@ function logout() {
         <RouterLink :class=rootClass aria-current="page" :to="{name: 'filelist', params:{title: col.title}}">{{col.titleZh}}</RouterLink>
     </li>
     <li v-if="col" class="nav-itme" style="position:absolute; right: 0;" id="login">
-        <RouterLink class="nav-link" @click.prevent="logout" to="">{{txtLogin}}</RouterLink>
+        <RouterLink class="nav-link" @click.prevent="logout" to="logout">{{txtLogin}}</RouterLink>
     </li>
 </ul>
 </template>
