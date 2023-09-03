@@ -24,10 +24,7 @@ const rootClass = computed(()=>{
 })
 watch(()=>route.params.title, async (cv, pv)=>{
     if (cv != pv) {
-        if (props.column)
-            col.value = await mmInfo.getColumn(props.column) as ContentColumn
-        else
-            col.value = undefined
+        col.value = props.column? await mmInfo.getColumn(props.column) as ContentColumn : undefined
     }
 })
 function logout() {
