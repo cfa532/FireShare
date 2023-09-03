@@ -128,10 +128,10 @@ async function onSubmit() {
   try {
     // reopen the DB mimei as cur version, for writing
     let mmsidCur = await mmInfo.mmsidCur;
-    let fvPairs = (await uploadFile(filesUpload.value))
+    let fvPairs:FVPair[] = (await uploadFile(filesUpload.value))
       .filter( v=> {return v.status==='fulfilled';})
       .map((v:any)=>{return {field: v.value.mid, value: v.value}});
-    console.log("uploaded files", fvPairs);
+    console.log("uploaded files", ...fvPairs, props.column);
   
     if (fvPairs.length === 1 && textValue.value.trim() === "") {
       // single file uploaded without text input
@@ -202,7 +202,7 @@ async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number, inde
     // return temp2Ipfs(fsid);   // return a Promise, no await here
     return await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
   } else {
-    return readFileSlice(fsid, arr, start + count, index)
+    return await readFileSlice(fsid, arr, start + count, index)
   }
 }
 

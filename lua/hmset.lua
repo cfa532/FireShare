@@ -17,8 +17,12 @@ if (err ~= nil) then
 end
 print('MMOpen mmsid=', mmsid);
 
-
-local fv0 = fvpair.new('field0', 'value0')
+local field0 = 'QmTmkJ7HProViFAeSHhVnNnCXecKCVg2HNEDy5tQNZo2F4'
+local fv0 = fvpair.new(field0, {
+	lastModified= 1671770939241,
+	mid= "QmTmkJ7HProViFAeSHhVnNnCXecKCVg2HNEDy5tQNZo2F4",
+	name= "Fkl64-lXwAY7rGR.jpeg",
+})
 
 --hmset hmget
 err = mm.HMSet(mmsid, 'hkey', fv0);
@@ -26,7 +30,7 @@ if (err ~= nil) then
 	print("HMSet result=", err)
 end
 
-local fvs, err = mm.HMGet(mmsid, "hkey", "field0")
+local fvs, err = mm.HMGet(mmsid, "hkey", field0)
 if (err ~= nil) then
 	print('HMGet err=',  err);
 	return err
@@ -39,7 +43,7 @@ end
 
 --backup
 --备份
-err = mm.MMBackup(sid, mid, '')
+ver, err = mm.MMBackup(sid, mid, '')
 if (err ~= nil) then
 	print('MMBackup err=%v',  err);
 	return err
@@ -61,7 +65,7 @@ do
 	info = strmsg:getMsg()
 	reg = "(%a+)=(.*)"
 	_, _, key, value = string.find(info, reg)
-	
+
 	if (key=="ver") then
 		--print("ver", value)
 		ver = value
@@ -70,8 +74,8 @@ do
 	if (key=="err") then
 		print("err", value)
 		return value
-	end	
-	
+	end
+
 	print(key, value)
 end
 
@@ -83,7 +87,7 @@ if (err ~= nil) then
 	return err
 end
 
-local fvs, err = mm.HMGet(mmsid2, "hkey", "field0")
+local fvs, err = mm.HMGet(mmsid2, "hkey", field0)
 if (err ~= nil) then
 	print('HMGet err=',  err);
 	return err
