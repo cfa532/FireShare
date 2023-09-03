@@ -40,21 +40,17 @@ function logout() {
 
 <template>
 <!-- <div style="margin-top: 40px; width:100%"></div> -->
-<nav class="navbar navbar-expand-sm bg-light">
-<ul class="navbar-nav">
+<ul class="nav nav-tabs">
     <li class="nav-item">
         <RouterLink :class=rootClass :to="{name: 'main'}">众众</RouterLink>
     </li>
     <li v-if="col" class="nav-item">
         <RouterLink :class=rootClass aria-current="page" :to="{name: 'filelist', params:{title: col.title}}">{{col.titleZh}}</RouterLink>
     </li>
-<!-- </ul>
-<ul class="nav justify-content-end"  style="display:inline-flex;"> -->
     <li v-if="col" class="nav-itme" style="position:absolute; right: 0;" id="login">
-        <RouterLink class="nav-link" @click.prevent="logout" to="#">{{txtLogin}}</RouterLink>
+        <RouterLink class="nav-link" @click.prevent="logout" to="">{{txtLogin}}</RouterLink>
     </li>
 </ul>
-</nav>
 </template>
 
 <style>
