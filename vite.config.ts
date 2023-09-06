@@ -6,11 +6,6 @@ import { viteSingleFile } from "vite-plugin-singlefile"
 export default defineConfig({
     plugins: [vue(), viteSingleFile({inlinePattern: ["*.css"]})],
   build: {
-    // rollupOptions: {
-    //   output: {
-    //     manualChunks: undefined,
-    //   },
-    // },
     assetsDir: '.',   // create only one layer of directory structure
     cssCodeSplit: true
   }
