@@ -34,6 +34,7 @@ const currentProperty = computed(()=>route.params)    // params: {mid:file.mid, 
 onMounted(async ()=>{
     await mmInfo.init(api)
     console.log("FileView mounted,", route.params)
+    document.title = import.meta.env.VITE_PAGE_TITLE+' - '+(route.params.fileName? route.params.fileName as string : route.params.title as string)
     useSpinner().setLoadingState(false)
 })
 async function deleteFile() {

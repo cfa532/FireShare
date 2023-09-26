@@ -20,7 +20,7 @@ export const router = createRouter({
                 const s = useSpinner().setLoadingState(true);
                 console.log("Before entering filelist", to.path)
             }},
-        { path: '/fileview/:title/:mid/:fileType', name:"fileview", component: FileViewVue},    // mimei files
+        { path: '/fileview/:title/:mid/:fileType/:fileName?', name:"fileview", component: FileViewVue},    // mimei files
         { path: '/fileview2/:title/:filePath', name:"fileview2", component: FileView2Vue},      // local webdav files
         { path: '/fileview3/:tpt/:id', name:"fileview3", component: FileView3Vue},              // ipfs id list
         // catch all redirect to home page

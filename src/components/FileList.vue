@@ -18,12 +18,13 @@ const itemNumber = ref(1)
 const showEditor =  ref("none")
 const currentPage = computed(() => route.params.page? parseInt(route.params.page as string) : 1)
 const localRoot = '/'
-const columnTitle = computed(() => route.params.title)
+const columnTitle = computed(() => route.params.title as string)
 
 onMounted(async ()=>{
     await mmInfo.init(api)
     console.log("FileList mounted:", route.params)
-    if (route.params.title !== "Webdav") {
+    if (columnTitle.value !== "Webdav") {
+        document.title = import.meta.env.VITE_PAGE_TITLE+' - '+columnTitle.value
         api.client.Zcount(await mmInfo.mmsid, route.params.title, 0, Date.now(), async (count: number)=>{     // -1 does not work for stop
             itemNumber.value = count;    // total num of items in the list as a Mimei
             await getFileList(currentPage.value);
@@ -112,13 +113,13 @@ async function getFileList(pn: number) {
                 <p @click="showEditor='block'" class="postbox">Tell us what is happening....</p>
             </div>
             <EditorModal v-if="api.sid" @uploaded="uploaded" @hide="showEditor='none'" :display="showEditor"
-                :column="(columnTitle as string)"></EditorModal>
+                :column="columnTitle"></EditorModal>
         </div>
         <ul class="aList">
             <li v-for="(file, index) in fileList" :key="index">
                 <RouterLink v-if="file.type.includes('image') || file.type.includes('video') || file.type.includes('audio')
                 || file.type.includes('page') || file.type.includes('pdf')"
-                    :to="{ name: 'fileview', params: { title: columnTitle, mid: file.mid, fileType: file.type } }">
+                    :to="{ name: 'fileview', params: { title: columnTitle, mid: file.mid, fileType: file.type, fileName: fileName(file)} }">
                     {{ fileName(file) }}
                 </RouterLink>
                 <a v-else href="" @click.prevent="(e:MouseEvent) => fileDownload(e, file)" download>{{ file.name }} &dArr;
