@@ -30,6 +30,7 @@ function getComponent(filePath: string) {
                 currentProperty.value.filePath = filePath
                 userComponent.value = MyDir;
             } else {
+                document.title = import.meta.env.VITE_PAGE_TITLE+' - '+fi.fName
                 api.client.MFGetMimeType(mmfsid, (mimeType: string)=>{
                     var ext = filePath.substring(filePath.lastIndexOf('.')+1)
                     if (mimeType=="video/mp4" || ['mp4','mkv','mov','avi','divx','wmv','flv','rmvb','mp3','flac'].includes(ext.toLowerCase())) {
