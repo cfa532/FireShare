@@ -9,9 +9,14 @@ const props = defineProps({
     mmfsid: {type: String, required: false},
 })
 const imageUrl = ref("")
+const showSpinner = ref(true)
+
 onMounted(async () => {
     console.log("Image mounted", props)
     imageUrl.value = await getLink()
+    window.setTimeout(async ()=>{
+        showSpinner.value = false
+    }, 500)
 });
 async function getLink() {
     if (typeof props.filePath !== "undefined") {
@@ -36,5 +41,8 @@ watch(()=>props.filePath, async (cv, pv)=>{
 </script>
 
 <template>
-    <img alt="Loading......" style="max-width: 100%; object-fit: contain;" :src="imageUrl"/>
+    <div v-if="showSpinner" class="spinner-grow" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+    <img v-else style="max-width: 100%; object-fit: contain;" :src="imageUrl"/>
 </template>
