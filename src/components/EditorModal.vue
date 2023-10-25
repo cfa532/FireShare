@@ -198,9 +198,9 @@ async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number, inde
   console.log("Uploading...", uploadProgress[index]+"%")
 
   if (end === arr.byteLength) {
-    // last slice done. Convert temp to IPFS file
+    // last slice read. Convert temp to IPFS file
     // return temp2Ipfs(fsid);   // return a Promise, no await here
-    return await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
+    return api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
   } else {
     return await readFileSlice(fsid, arr, start + count, index)
   }
