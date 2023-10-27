@@ -96,7 +96,7 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
     const fsid = await api.client.MFOpenTempFile(api.sid);
     // Create a FileInfo object with file name, last modified time,
     const fi = new FileInfo(file.name, file.lastModified, file.size, file.type);
-    fi.mid = await readFileSlice(fsid, await file.arrayBuffer(), 0, index);   // actually an IPFS id
+    fi.mid = await readFileSlice(fsid, await file.arrayBuffer(), 0, index);   // return an IPFS id actually
     
     // Save non-media files as Mimei type, for easy download and open
     if (fi.type.search(/(image|video|audio)/i) === -1) {
@@ -106,89 +106,96 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
       // await api.client.MMBackup(api.sid, fi.mid, "")   // not a real mm, backup will throw error
     }
     // Add MM reference to the database mimei, which will be published together.
-    console.log(fi)
+    console.log(fi)   // never executed when there is a timeout uploading file.
     await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid);
     return fi;
   }
 
   // Use Promise.allSettled to wait for all file upload operations to complete
-  const uploadPromises = files.map((file,i) => uploadSingleFile(file, i).catch(e => e));
-  return Promise.allSettled(uploadPromises);
+  return Promise.allSettled(files.map((file,i) => uploadSingleFile(file, i)));
 }
 async function onSubmit() {
-  if (!inpCaption.value || inpCaption.value!.trim()==="" || (filesUpload.value.length===0 && textValue.value.trim() === "")) {
+  if (!inpCaption.value || inpCaption.value!.trim() === "" || (filesUpload.value.length === 0 && textValue.value.trim() === "")) {
     // remind user to input caption, autofocus
     caption.value?.focus()
     return;
   }
   useSpinner().setLoadingState(true)
-  
-  // if one file uploaded, without content in textArea, upload single file
-  // otherwise, upload a html file for iFrame
+  let mmsidCur = await mmInfo.mmsidCur;
   try {
-    // reopen the DB mimei as cur version, for writing
-    let mmsidCur = await mmInfo.mmsidCur;
-    let fvPairs:FVPair[] = (await uploadFile(filesUpload.value))
-      .filter( v=> {return v.status==='fulfilled';})
-      .map((v:any)=>{return {field: v.value.mid, value: v.value}});
-    console.log("uploaded files", ...fvPairs, props.column);
-  
-    if (fvPairs.length === 1 && textValue.value.trim() === "") {
-      // single file uploaded without text input
-      // now save {mid, fileInfo} as FV pair and bakcup mm DB
-      // so FileInfo can be found by its mid.
-      fvPairs[0].value["caption"] = inpCaption.value!.trim();
-      await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
+    if (filesUpload.value.length) {
+      // with attachments to be uploaded
+      // reopen the DB mimei as cur version, for writing
+      let fvPairs: FVPair[] = (await uploadFile(filesUpload.value))
+        .filter(v => { return v.status === 'fulfilled'; })
+        .map((v: any) => { return { field: v.value.mid, value: v.value } });  // mid as field, fileInfo as value
+      console.log("uploaded files", ...fvPairs, props.column);
 
-      // create MM database for the column, new item is added to this MM.
-      // add new itme to index table of ScorePair
-      let ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair( Date.now(), fvPairs[0].value["mid"]))
-      console.log("Zadd ScorePair for the file, ret=", ret, props.column)
-      // back mm data for publish
-      await mmInfo.backup()
+      if (fvPairs.length === 1 && textValue.value.trim() === "") {
+        // single file uploaded without text input
+        // now save {mid, fileInfo} as FV pair and bakcup mm DB
+        // so FileInfo can be found by its mid.
+        fvPairs[0].value["caption"] = inpCaption.value!.trim();
+        await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
 
-      // emit an event with infor of newly uploaded file
-      emit('uploaded', fvPairs[0].value)
-      // clear up
-      localStorage.setItem("tempTextValueUploader", "")
-      filesUpload.value = [];   // clear file list of upload
-      textValue.value = ""
-      inpCaption.value = ""
+        // create MM database for the column, new item is added to this MM.
+        // add new itme to index table of ScorePair
+        let ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), fvPairs[0].value["mid"]))
+        console.log("Zadd ScorePair for the file, ret=", ret, props.column)
+        // back mm data for publish
+        await mmInfo.backup()
+
+        // emit an event with infor of newly uploaded file
+        emit('uploaded', fvPairs[0].value)
+        localStorage.setItem("tempTextValueUploader", "")
+        filesUpload.value = [];   // clear file list of upload
+        textValue.value = ""
+        inpCaption.value = ""
+      } else {
+        // upload a full webpage with attachments and/or content text
+        // use Name field to save a string defined as: 1st item is input of textarea, followed by mids of uploaded file
+        await addPage(JSON.stringify([textValue.value].concat(fvPairs.map(e => e.field))))
+      }
     } else {
-      // upload a full webpage with attachments and/or content text
-      await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
-
-      // create a file type PAGE. use Name field to save a string defined as:
-      // 1st item is input of textarea, followed by mids of uploaded file
-      let s = JSON.stringify([textValue.value].concat(fvPairs.map(e=>e.field)))
-      let fi = new FileInfo(s, Date.now(), s.length, "page", inpCaption.value!.trim());   // save it in name field
-      fi.mid = await api.client.MMCreate(api.sid, '', '', '{{auto}}', 1, 0x07276705);
-      let fsid = await api.client.MMOpen(api.sid, fi.mid, "cur")
-      await api.client.MFSetObject(fsid, fi)
-      // api.client.timeout = 30000;
-      await api.client.MMBackup(api.sid, fi.mid, "")
-      await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
-
-      // add new page file to index table
-      let ret = await api.client.Hset(mmsidCur, props.column, fi.mid, fi)
-      ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), fi.mid))
-      console.log("Zadd ver=", fi, ret)
-      
-      // back mm data for publish
-      await mmInfo.backup()
-
-      emit('uploaded', fi)
-      localStorage.setItem("tempTextValueUploader", "")
-      filesUpload.value = [];   // clear file list of upload
-      textValue.value = "";
-      inpCaption.value = ""
+      // no attachment
+        // create a file type PAGE. use Name field to save a string defined as:
+        // 1st item is input of textarea, followed by mids of uploaded file
+        await addPage(JSON.stringify([textValue.value]))
     }
-  } catch(err) {
-    console.error("Onsubmit err=", err);
+  } catch (err) {
+    // something wrong uploading files, abort
+    console.error("onSubmit err:", err)
+    window.alert(err)
   } finally {
     useSpinner().setLoadingState(false)
   }
+
+  async function addPage(s: string) {
+    // create a file type PAGE.
+    let fi = new FileInfo(s, Date.now(), s.length, "page", inpCaption.value!.trim());
+    fi.mid = await api.client.MMCreate(api.sid, '', '', '{{auto}}', 1, 0x07276705);
+    let fsid = await api.client.MMOpen(api.sid, fi.mid, "cur")
+    await api.client.MFSetObject(fsid, fi)
+    // api.client.timeout = 30000;
+    await api.client.MMBackup(api.sid, fi.mid, "")
+    await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
+
+    // add new page file to index table
+    let ret = await api.client.Hset(mmsidCur, props.column, fi.mid, fi)
+    ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), fi.mid))
+    console.log("Zadd ver=", fi, ret)
+
+    // back mm data for publish
+    await mmInfo.backup()
+
+    emit('uploaded', fi)
+    localStorage.setItem("tempTextValueUploader", "")
+    filesUpload.value = [];   // clear file list of upload
+    textValue.value = "";
+    inpCaption.value = ""
+  }
 }
+
 async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number, index: number):Promise<string> {
   // reading file slice by slice, start at given position
   var end = Math.min(start + sliceSize, arr.byteLength);
