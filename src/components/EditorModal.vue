@@ -154,6 +154,7 @@ async function onSubmit() {
       } else {
         // upload a full webpage with attachments and/or content text
         // use Name field to save a string defined as: 1st item is input of textarea, followed by mids of uploaded file
+        await api.client.Hmset(mmsidCur, props.column, ...fvPairs);
         await addPage(JSON.stringify([textValue.value].concat(fvPairs.map(e => e.field))))
       }
     } else {
