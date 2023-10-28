@@ -88,6 +88,7 @@ async function getFileList(pn: number) {
                 // temporarily use timestamp when the file is added to the SocrePairs, for sorting
                 fi.lastModified = sps[idx].score;
                 fileList.value.push(fi)
+                // console.log(fi)
             })
             // fileList.value.sort((a: FileInfo, b: FileInfo) => a.lastModified > b.lastModified ? -1 : 1)
         }, (err: Error) => {
