@@ -7,7 +7,8 @@ import { useMimei, useLeither } from "../stores/lapi"
 const api = useLeither();
 const mmInfo = useMimei();
 const contentColumn = ref<ContentColumn[]>([])
-const msg = ref();
+const ips = ref([]);
+const aid = ref()
 onMounted(async ()=>{
   document.title = import.meta.env.VITE_PAGE_TITLE
   try {
@@ -17,13 +18,15 @@ onMounted(async ()=>{
       // msg.value = JSON.stringify(mmInfo.$state)
       if (window.getParam) {
           let p=window.getParam()
-          msg.value = "Resource data provided by:" + p["ips"][p.CurNode] + " from Providers: " + p.ips
+          aid.value = p.aid
+          ips.value = p.ips
+          // msg.value = "Resource data provided by:" + p["ips"][p.CurNode] + " from Providers: " + p.ips
       }
   } catch(e) {
       console.error(e)
       // the error is often caused by expired sid, try logout
-      msg.value = JSON.stringify(e)
-      nextTick(()=>{msg.value = JSON.stringify(mmInfo.$state)})
+      // msg.value = JSON.stringify(e)
+      // nextTick(()=>{msg.value = JSON.stringify(mmInfo.$state)})
       api.logout();
   }
 })
@@ -41,11 +44,12 @@ function showWebdav() {
     <ul class="top">
         <column-vue v-for="(c, i) in contentColumn" :key="i" :column=c></column-vue>
     </ul>
-    <MsgVue :msg="msg"></MsgVue>
+    <MsgVue>
+      <a v-for="ip in ips" :href="'http://'+ip+'/entry?mid='+aid+'&ver=last&rand='+Date.now()" style="color:lightgray">{{ ip }}&nbsp;</a>
+    </MsgVue>
 </template>
 
 <style>
-
 ul.top {
   list-style-type: none;
   overflow: hidden;
