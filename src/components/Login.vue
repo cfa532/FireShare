@@ -21,11 +21,7 @@ onMounted(()=>{
 </script>
 
 <template>
-<div style="margin-top: 40px;"></div>
-    <ul class="naviBar">
-        <li><RouterLink class="active" :to="{name: 'main'}">众众</RouterLink></li>
-    </ul>
-
+<div style="margin-top: 10px; position:absolute; right: 40px;">
 <form @submit.prevent="login">
     <label for="fname">User name:</label><br>
     <input type="text" v-model="usr" name="usr" autocomplete="username"><br>
@@ -34,4 +30,5 @@ onMounted(()=>{
     <p></p>
     <input type="submit" value="Submit">
 </form>
+</div>
 </template>
