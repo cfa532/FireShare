@@ -15,14 +15,15 @@ onMounted(async () => {
     console.log("PDF mounted", props)
     if (typeof props.filePath !== "undefined") {
         // show files in local /webdav
-        fileUrl.value = api.baseUrl+"mf"+"?mmsid="+props.mmfsid
+        fileUrl.value = api.baseUrl+"mf?mmsid="+props.mmfsid
     } else {
         if (props.mid?.length === 27) {
-            window.open(api.baseUrl + "mf?mmsid="+ await api.client.MMOpen(api.sid, props.mid, "last"), "_blank")
-            history.go(-1)
+            // window.open(api.baseUrl + "mf?mmsid="+ await api.client.MMOpen(api.sid, props.mid, "last"), "_blank")
+            // history.go(-1)
+            fileUrl.value = api.baseUrl + "mf?mmsid="+ await api.client.MMOpen(api.sid, props.mid, "last")
         }
         else
-            return api.baseUrl + "ipfs/"+ props.mid;
+            fileUrl.value = api.baseUrl + "ipfs/"+ props.mid;
     }
 })
 watch(()=>props.filePath, async (cv, pv)=>{

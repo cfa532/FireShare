@@ -4,7 +4,7 @@ import { reactive, onMounted, CSSProperties, computed } from "vue";
 // display pages of item list
 const props = defineProps({
     currentPage: {type:Number, required: false, default:1},
-    pageSize: {type:Number, required: false, default:20},
+    pageSize: {type:Number, required: false, default:30},
     itemNumber: {type:Number, required: true},
 })
 const curClass = reactive<CSSProperties>({
