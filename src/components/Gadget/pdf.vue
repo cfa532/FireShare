@@ -38,6 +38,5 @@ watch(()=>props.filePath, async (cv, pv)=>{
 </script>
 
 <template>
-    <!-- <div id="pdfviewer" style="width: 100%;"></div> -->
-    <object type="application/pdf" :data="fileUrl"  style="width: 100%; height: 95vh;"></object>
+    <object type="application/pdf" :data="fileUrl"  style="min-height:100vh;width:100%"></object>
 </template>
