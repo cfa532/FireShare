@@ -60,7 +60,7 @@ onMounted(async () => {
 })
 watch(()=>props.display, (nv, ov)=>{
   if (nv == 'block') {
-    console.log(textArea.value)
+    // focus() was called before textArea was rendered. Use nextTick() to fix it.
     nextTick(()=>{
       textArea.value?.focus()
     })
