@@ -59,30 +59,40 @@ onMounted(async () => {
   window.addEventListener("click", onClickOutside);
 })
 watch(()=>props.display, (nv, ov)=>{
-  if (nv == 'block') {
+  if (nv!=ov && nv == 'block') {
     // focus() was called before textArea was rendered. Use nextTick() to fix it.
     nextTick(()=>{
       textArea.value?.focus()
     })
   }
 })
-function onSelect(e: Event) {
-  let files = (e as HTMLInputEvent).target.files || (e as DragEvent).dataTransfer?.files || (e as ClipboardEvent).clipboardData?.files;
-  if (!files) return
-  Array.from(files).forEach(f => {
-    if (filesUpload.value.findIndex((e:File) => { return e.name === f.name && e.size === f.size && e.lastModified === f.lastModified }) === -1) {
-      // filter duplication
-      console.log(f)
-      if (inpCaption.value === "" || !inpCaption.value) {
-        inpCaption.value = f.name
+async function onSelect(e: Event) {
+  const files = (e as HTMLInputEvent).target.files || (e as DragEvent).dataTransfer?.files || (e as ClipboardEvent).clipboardData?.files;
+  // console.log(files)
+  if (files?.length! > 0) {
+    Array.from(files!).forEach(f => {
+      if (filesUpload.value.findIndex((e:File) => { return e.name === f.name && e.size === f.size && e.lastModified === f.lastModified }) === -1) {
+        // filter duplication
+        console.log(f)
+        if (inpCaption.value === "" || !inpCaption.value) {
+          inpCaption.value = f.name
+        }
+        filesUpload.value.push(f);
       }
-      filesUpload.value.push(f);
+    })
+    divAttach.value!.hidden = false
+    textArea.value!.hidden = false
+    dropHere.value!.hidden = true
+  } else {
+    const t = await navigator.clipboard.readText()
+    if ((e.target as HTMLTextAreaElement) === textArea.value) {
+      textValue.value = t
+    } else if ((e.target as HTMLFormElement) === caption.value) {
+      inpCaption.value = t
     }
-  })
-  divAttach.value!.hidden = false
-  textArea.value!.hidden = false
-  dropHere.value!.hidden = true
-};
+  }
+}
+
 function dragOver(evt: DragEvent) {
   textArea!.value!.hidden = true
   dropHere!.value!.hidden = false
