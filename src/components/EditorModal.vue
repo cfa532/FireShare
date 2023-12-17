@@ -258,19 +258,19 @@ watch(() => textValue.value, (newVal, oldVal) => {
     <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect">
       <!-- <span class="close" @click="closeModal">&times;</span> -->
       <div style="width:99%; margin-bottom: 10px;">
-          <input type="text" placeholder="Caption...  required" v-model="inpCaption" ref="caption" style="border:0px; width:100%; height:22px; margin-bottom: 8px;">
-          <textarea ref="textArea" v-model="textValue" placeholder="Input......"
-            style="border:1px; width:100%; height: 110px; border-radius: 3px;"></textarea>
-          <div ref="dropHere" hidden
-            style="border: 1px solid lightgrey; width:100%; height:110px; margin: 0px; text-align: center; vertical-align: middle;">
-            <p style="font-size: 24px;">DROP HERE</p>
-          </div>
+        <input type="text" placeholder="Caption...  required" v-model="inpCaption" ref="caption" style="border:0px; width:100%; height:22px; margin-bottom: 8px;">
+        <textarea ref="textArea" v-model="textValue" placeholder="Input......"
+          style="border:1px; width:100%; height: 110px; border-radius: 3px;"></textarea>
+        <div ref="dropHere" hidden
+          style="border: 1px solid lightgrey; width:100%; height:110px; margin: 0px; text-align: center; vertical-align: middle;">
+          <p style="font-size: 24px;">DROP HERE</p>
         </div>
-        <div ref="divAttach" hidden
-          style="border: 0px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-top:0px;" >
-          <Preview @file-canceled="removeFile(file)" v-for="(file, index) in filesUpload" :key="index"
-            v-bind:src="file" v-bind:progress="uploadProgress[index]"></Preview>
-        </div>
+      </div>
+      <div ref="divAttach" hidden
+        style="border: 0px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-top:0px;" >
+        <Preview @file-canceled="removeFile(file)" v-for="(file, index) in filesUpload" :key="index"
+          v-bind:src="file" v-bind:progress="uploadProgress[index]"></Preview>
+      </div>
       <form @submit.prevent="onSubmit" enctype="multipart/form-data" @paste.prevent="onSelect">
           <input id="selectFiles" @change="onSelect" type="file" hidden multiple>
           <button @click.prevent="selectFile">Choose</button>
