@@ -123,8 +123,7 @@ async function getFileList(pn: number) {
                     :to="{ name: 'fileview', params: { title: columnTitle, mid: file.mid, fileType: file.type, fileName: fileName(file)} }">
                     {{ fileName(file) }}
                 </RouterLink>
-                <a v-else href="" @click.prevent="(e:MouseEvent) => fileDownload(e, file)" download>{{ file.name }} &dArr;
-                </a>
+                <a v-else href="" @click.prevent="(e:MouseEvent) => fileDownload(e, file)" download>{{ file.name }} &dArr;</a>
             </li>
         </ul>
         <Pager v-if="itemNumber/pageSize>1" @page-changed="pageChanged" :current-page="currentPage"

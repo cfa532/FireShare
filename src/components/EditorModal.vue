@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CSSProperties, onMounted, onBeforeUnmount, ref, reactive, watch, computed } from "vue";
+import { CSSProperties, onMounted, onBeforeUnmount, ref, reactive, watch, computed, nextTick } from "vue";
 import Preview from "./Gadget/Preview.vue";
 import { useLeither, useMimei, useSpinner } from '../stores/lapi'
 const api = useLeither();
@@ -17,8 +17,8 @@ class FileInfo{
 }
 class ScorePair {
   score: number;
-  member: any;
-  constructor(score: number, member: any) {
+  member: string;
+  constructor(score: number, member: string) {
     this.score = score;
     this.member = member;
   }
@@ -31,7 +31,7 @@ const textValue = ref("")
 const caption = ref<HTMLFormElement>();
 const divAttach = ref()
 const dropHere = ref()
-const textArea = ref()
+const textArea = ref<HTMLTextAreaElement>()
 const myModal = ref()
 const sliceSize = 1024 * 1024 * 10    // 10MB per slice of file
 const filesUpload = ref<File[]>([]);
@@ -58,8 +58,16 @@ onMounted(async () => {
   console.log("Editor mount", props)
   window.addEventListener("click", onClickOutside);
 })
+watch(()=>props.display, (nv, ov)=>{
+  if (nv == 'block') {
+    console.log(textArea.value)
+    nextTick(()=>{
+      textArea.value?.focus()
+    })
+  }
+})
 function onSelect(e: Event) {
-  let files = (e as HTMLInputEvent).target.files || (e as DragEvent).dataTransfer?.files;
+  let files = (e as HTMLInputEvent).target.files || (e as DragEvent).dataTransfer?.files || (e as ClipboardEvent).clipboardData?.files;
   if (!files) return
   Array.from(files).forEach(f => {
     if (filesUpload.value.findIndex((e:File) => { return e.name === f.name && e.size === f.size && e.lastModified === f.lastModified }) === -1) {
@@ -116,7 +124,7 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
 }
 async function onSubmit() {
   if (!inpCaption.value || inpCaption.value!.trim() === "" || (filesUpload.value.length === 0 && textValue.value.trim() === "")) {
-    // remind user to input caption, autofocus
+    // remind user to input caption
     caption.value?.focus()
     return;
   }
@@ -225,7 +233,6 @@ const onClickOutside = (e: MouseEvent) => {
     emit("hide")
   }
 };
-
 onBeforeUnmount(() => {
   window.removeEventListener("click", onClickOutside);
 });
@@ -238,11 +245,11 @@ watch(() => textValue.value, (newVal, oldVal) => {
 
 <template> 
   <div ref="myModal" :style="classModal">
-    <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect">
+    <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect" @paste.prevent="onSelect">
       <!-- <span class="close" @click="closeModal">&times;</span> -->
       <form @submit.prevent="onSubmit" enctype="multipart/form-data">
         <div style="width:99%; margin-bottom: 10px;">
-          <input autofocus type="text" placeholder="Caption...  required" v-model="inpCaption" ref="caption" style="border:0px; width:100%; height:22px; margin-bottom: 8px;">
+          <input type="text" placeholder="Caption...  required" v-model="inpCaption" ref="caption" style="border:0px; width:100%; height:22px; margin-bottom: 8px;">
           <textarea ref="textArea" v-model="textValue" placeholder="Input......"
             style="border:1px; width:100%; height: 110px; border-radius: 3px;"></textarea>
           <div ref="dropHere" hidden
@@ -267,6 +274,16 @@ watch(() => textValue.value, (newVal, oldVal) => {
 
 <style>
 /* The Close Button */
+.modal-content {
+  border-radius: 5px;
+  background-color: #ebf0f3;
+  margin: 5% 10% 5% 2%;
+  padding: 10px;
+  border: 1px solid #888;
+  width: 80%;
+  /* height: 150px; */
+  max-width: 800px;
+}
 .close {
   color: #aaa;
   float: right;

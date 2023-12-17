@@ -8,7 +8,7 @@ const usr = ref()
 const psd = ref()
 async function login() {
     try {
-        let returnUrl = await api.login(usr.value, psd.value);
+        let returnUrl = await api.login(usr.value.trim(), psd.value.trim());
         router.push(returnUrl)
     } catch(err) {
         console.error(err)
