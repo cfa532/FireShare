@@ -255,10 +255,9 @@ watch(() => textValue.value, (newVal, oldVal) => {
 
 <template> 
   <div ref="myModal" :style="classModal">
-    <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect" @paste.prevent="onSelect">
+    <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect">
       <!-- <span class="close" @click="closeModal">&times;</span> -->
-      <form @submit.prevent="onSubmit" enctype="multipart/form-data">
-        <div style="width:99%; margin-bottom: 10px;">
+      <div style="width:99%; margin-bottom: 10px;">
           <input type="text" placeholder="Caption...  required" v-model="inpCaption" ref="caption" style="border:0px; width:100%; height:22px; margin-bottom: 8px;">
           <textarea ref="textArea" v-model="textValue" placeholder="Input......"
             style="border:1px; width:100%; height: 110px; border-radius: 3px;"></textarea>
@@ -272,11 +271,10 @@ watch(() => textValue.value, (newVal, oldVal) => {
           <Preview @file-canceled="removeFile(file)" v-for="(file, index) in filesUpload" :key="index"
             v-bind:src="file" v-bind:progress="uploadProgress[index]"></Preview>
         </div>
-        <div>
+      <form @submit.prevent="onSubmit" enctype="multipart/form-data" @paste.prevent="onSelect">
           <input id="selectFiles" @change="onSelect" type="file" hidden multiple>
           <button @click.prevent="selectFile">Choose</button>
           <button style="float: right;">Submit</button>
-        </div>
       </form>
     </div>
   </div>
