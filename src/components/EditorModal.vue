@@ -68,13 +68,11 @@ watch(()=>props.display, (nv, ov)=>{
 })
 async function onSelect(e: Event) {
   const files = (e as HTMLInputEvent).target.files || (e as DragEvent).dataTransfer?.files || (e as ClipboardEvent).clipboardData?.files;
-  // console.log(files)
   if (files?.length! > 0) {
     Array.from(files!).forEach(f => {
-      if (filesUpload.value.findIndex((e:File) => { return e.name === f.name && e.size === f.size && e.lastModified === f.lastModified }) === -1) {
-        // filter duplication
-        console.log(f)
-        if (inpCaption.value === "" || !inpCaption.value) {
+      if (filesUpload.value.findIndex((e:File) => {return e.size === f.size && e.name === f.name }) === -1) {
+        // remove duplication
+        if (!inpCaption.value || inpCaption.value.trim() === "") {
           inpCaption.value = f.name
         }
         filesUpload.value.push(f);
@@ -84,15 +82,16 @@ async function onSelect(e: Event) {
     textArea.value!.hidden = false
     dropHere.value!.hidden = true
   } else {
-    const t = await navigator.clipboard.readText()
+    // clipboard works only with HTTPS
+    // const t = await navigator.clipboard.readText()
     if ((e.target as HTMLTextAreaElement) === textArea.value) {
-      textValue.value = t
+      console.log(e)
+      document.execCommand('paste')
     } else if ((e.target as HTMLFormElement) === caption.value) {
-      inpCaption.value = t
+      document.execCommand("paste")
     }
   }
 }
-
 function dragOver(evt: DragEvent) {
   textArea!.value!.hidden = true
   dropHere!.value!.hidden = false
@@ -237,6 +236,7 @@ function removeFile(f: File) {
   var i = filesUpload.value.findIndex((e:File) => e==f);
   filesUpload.value.splice(i, 1)
 }
+
 // When the user clicks anywhere outside of the modal, close it
 const onClickOutside = (e: MouseEvent) => {
   if (e.target == myModal.value) {
