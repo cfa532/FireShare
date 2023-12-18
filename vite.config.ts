@@ -11,7 +11,8 @@ export default defineConfig(({ command, mode }) => {
       cssCodeSplit: true
     },
     define: {
-      __BUILD_TIME__: JSON.stringify(new Date().toISOString())
+      // declare it in env.d.ts, otherwise won't build
+      __BUILD_TIME__: JSON.stringify(new Date().toISOString()),   // https://vitejs.dev/config/shared-options.html
     }
   }
 })
