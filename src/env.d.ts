@@ -11,3 +11,5 @@ declare module '*.vue' {
 // declare module 'pdfobject'
 declare module 'video.js'
 declare module 'bootstrap'
+
+declare const __BUILD_TIME__: string
