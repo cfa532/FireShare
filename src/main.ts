@@ -15,7 +15,7 @@ app.use(router)
 
 const api = useLeither()
 useMimei().init(api).then(()=>{
-    console.warn("main.ts loaded....on " + __BUILD_TIME__)
+    console.warn("main.ts built....on " + __BUILD_TIME__)
     app.mount("#app")
 }, (err)=>{
     console.error(err);
