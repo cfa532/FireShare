@@ -35,7 +35,7 @@ onMounted(async ()=>{
     // check session sanity
     if (sessionStorage["isBot"] == undefined) {
         // first time open the page
-        const r = Math.floor(Math.random()*900+100).toString()
+        const r = Math.floor(Math.random()*90+10).toString()
         // let isBot = "OK"
         let isBot = prompt("Say friend and enter "+r+":")
         console.log(isBot)
