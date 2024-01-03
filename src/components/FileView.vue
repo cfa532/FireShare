@@ -38,12 +38,12 @@ onMounted(async ()=>{
         const r = Math.floor(Math.random()*90+10).toString()
         // let isBot = "OK"
         let isBot = prompt("Say friend and enter:\n    "+r+"")
-        console.log(isBot)
+        sessionStorage["isBot"] = "Human"   // pass
         if (!isBot) {
             // redirect to main page
-            router.push("/")
+            // router.push("/")
         } else {
-            isBot==r? sessionStorage["isBot"] = "Human" : router.push("/")
+            // isBot==r? sessionStorage["isBot"] = "Human" : router.push("/")
             // proceed
         }
         // alert(navigator.userAgent)
