@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CSSProperties, onMounted, onBeforeUnmount, ref, reactive, watch, computed } from "vue";
+import { CSSProperties, onMounted, onBeforeUnmount, ref, reactive, watch, computed, nextTick } from "vue";
 import Preview from "./Gadget/Preview.vue";
 import { useLeither, useMimei, useSpinner } from '../stores/lapi'
 const api = useLeither();
@@ -17,8 +17,8 @@ class FileInfo{
 }
 class ScorePair {
   score: number;
-  member: any;
-  constructor(score: number, member: any) {
+  member: string;
+  constructor(score: number, member: string) {
     this.score = score;
     this.member = member;
   }
@@ -31,7 +31,7 @@ const textValue = ref("")
 const caption = ref<HTMLFormElement>();
 const divAttach = ref()
 const dropHere = ref()
-const textArea = ref()
+const textArea = ref<HTMLTextAreaElement>()
 const myModal = ref()
 const sliceSize = 1024 * 1024 * 10    // 10MB per slice of file
 const filesUpload = ref<File[]>([]);
@@ -58,23 +58,40 @@ onMounted(async () => {
   console.log("Editor mount", props)
   window.addEventListener("click", onClickOutside);
 })
-function onSelect(e: Event) {
-  let files = (e as HTMLInputEvent).target.files || (e as DragEvent).dataTransfer?.files;
-  if (!files) return
-  Array.from(files).forEach(f => {
-    if (filesUpload.value.findIndex((e:File) => { return e.name === f.name && e.size === f.size && e.lastModified === f.lastModified }) === -1) {
-      // filter duplication
-      console.log(f)
-      if (inpCaption.value === "" || !inpCaption.value) {
-        inpCaption.value = f.name
+watch(()=>props.display, (nv, ov)=>{
+  if (nv!=ov && nv == 'block') {
+    // focus() was called before textArea was rendered. Use nextTick() to fix it.
+    nextTick(()=>{
+      textArea.value?.focus()
+    })
+  }
+})
+async function onSelect(e: Event) {
+  const files = (e as HTMLInputEvent).target.files || (e as DragEvent).dataTransfer?.files || (e as ClipboardEvent).clipboardData?.files;
+  if (files?.length! > 0) {
+    Array.from(files!).forEach(f => {
+      if (filesUpload.value.findIndex((e:File) => {return e.size === f.size && e.name === f.name }) === -1) {
+        // remove duplication
+        if (!inpCaption.value || inpCaption.value.trim() === "") {
+          inpCaption.value = f.name
+        }
+        filesUpload.value.push(f);
       }
-      filesUpload.value.push(f);
+    })
+    divAttach.value!.hidden = false
+    textArea.value!.hidden = false
+    dropHere.value!.hidden = true
+  } else {
+    // clipboard works only with HTTPS
+    // const t = await navigator.clipboard.readText()
+    if ((e.target as HTMLTextAreaElement) === textArea.value) {
+      console.log(e)
+      document.execCommand('paste')
+    } else if ((e.target as HTMLFormElement) === caption.value) {
+      document.execCommand("paste")
     }
-  })
-  divAttach.value!.hidden = false
-  textArea.value!.hidden = false
-  dropHere.value!.hidden = true
-};
+  }
+}
 function dragOver(evt: DragEvent) {
   textArea!.value!.hidden = true
   dropHere!.value!.hidden = false
@@ -116,7 +133,7 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
 }
 async function onSubmit() {
   if (!inpCaption.value || inpCaption.value!.trim() === "" || (filesUpload.value.length === 0 && textValue.value.trim() === "")) {
-    // remind user to input caption, autofocus
+    // remind user to input caption
     caption.value?.focus()
     return;
   }
@@ -219,13 +236,13 @@ function removeFile(f: File) {
   var i = filesUpload.value.findIndex((e:File) => e==f);
   filesUpload.value.splice(i, 1)
 }
+
 // When the user clicks anywhere outside of the modal, close it
 const onClickOutside = (e: MouseEvent) => {
   if (e.target == myModal.value) {
     emit("hide")
   }
 };
-
 onBeforeUnmount(() => {
   window.removeEventListener("click", onClickOutside);
 });
@@ -240,26 +257,24 @@ watch(() => textValue.value, (newVal, oldVal) => {
   <div ref="myModal" :style="classModal">
     <div class="modal-content" @dragover.prevent="dragOver" @drop.prevent="onSelect">
       <!-- <span class="close" @click="closeModal">&times;</span> -->
-      <form @submit.prevent="onSubmit" enctype="multipart/form-data">
-        <div style="width:99%; margin-bottom: 10px;">
-          <input autofocus type="text" placeholder="Caption...  required" v-model="inpCaption" ref="caption" style="border:0px; width:100%; height:22px; margin-bottom: 8px;">
-          <textarea ref="textArea" v-model="textValue" placeholder="Input......"
-            style="border:1px; width:100%; height: 110px; border-radius: 3px;"></textarea>
-          <div ref="dropHere" hidden
-            style="border: 1px solid lightgrey; width:100%; height:110px; margin: 0px; text-align: center; vertical-align: middle;">
-            <p style="font-size: 24px;">DROP HERE</p>
-          </div>
+      <div style="width:99%; margin-bottom: 10px;">
+        <input type="text" placeholder="Caption...  required" v-model="inpCaption" ref="caption" style="border:0px; width:100%; height:22px; margin-bottom: 8px;">
+        <textarea ref="textArea" v-model="textValue" placeholder="Input......"
+          style="border:1px; width:100%; height: 110px; border-radius: 3px;"></textarea>
+        <div ref="dropHere" hidden
+          style="border: 1px solid lightgrey; width:100%; height:110px; margin: 0px; text-align: center; vertical-align: middle;">
+          <p style="font-size: 24px;">DROP HERE</p>
         </div>
-        <div ref="divAttach" hidden
-          style="border: 0px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-top:0px;" >
-          <Preview @file-canceled="removeFile(file)" v-for="(file, index) in filesUpload" :key="index"
-            v-bind:src="file" v-bind:progress="uploadProgress[index]"></Preview>
-        </div>
-        <div>
+      </div>
+      <div ref="divAttach" hidden
+        style="border: 0px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-top:0px;" >
+        <Preview @file-canceled="removeFile(file)" v-for="(file, index) in filesUpload" :key="index"
+          v-bind:src="file" v-bind:progress="uploadProgress[index]"></Preview>
+      </div>
+      <form @submit.prevent="onSubmit" enctype="multipart/form-data" @paste.prevent="onSelect">
           <input id="selectFiles" @change="onSelect" type="file" hidden multiple>
           <button @click.prevent="selectFile">Choose</button>
           <button style="float: right;">Submit</button>
-        </div>
       </form>
     </div>
   </div>
@@ -267,6 +282,16 @@ watch(() => textValue.value, (newVal, oldVal) => {
 
 <style>
 /* The Close Button */
+.modal-content {
+  border-radius: 5px;
+  background-color: #ebf0f3;
+  margin: 5% 10% 5% 2%;
+  padding: 10px;
+  border: 1px solid #888;
+  width: 80%;
+  /* height: 150px; */
+  max-width: 800px;
+}
 .close {
   color: #aaa;
   float: right;
