@@ -23,8 +23,8 @@ function getcurips() {
         console.log("window.location", ips)
     }
     { //for test
-        ips = "192.168.0.5:8002"
-        // ips = "192.168.0.4:8000"     //台湾盒子
+        // ips = "192.168.0.5:8002"
+        ips = "192.168.0.4:8000"     //台湾盒子
     }
     return ips
 };
