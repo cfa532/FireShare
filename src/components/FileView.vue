@@ -46,6 +46,7 @@ onMounted(async ()=>{
             isBot==r? sessionStorage["isBot"] = "Human" : router.push("/")
             // proceed
         }
+        // alert(navigator.userAgent)
         useSpinner().setLoadingState(false)
     } else {
         await mmInfo.init(api)
