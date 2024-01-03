@@ -37,7 +37,7 @@ onMounted(async ()=>{
         // first time open the page
         const r = Math.floor(Math.random()*90+10).toString()
         // let isBot = "OK"
-        let isBot = prompt("Say friend and enter "+r+":")
+        let isBot = prompt("Say friend and enter:\n    "+r+"")
         console.log(isBot)
         if (!isBot) {
             // redirect to main page
