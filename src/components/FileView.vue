@@ -32,10 +32,27 @@ const userComponent = computed(() => {
 const currentProperty = computed(()=>route.params)    // params: {mid:file.mid, fileType:file.type}}
 
 onMounted(async ()=>{
-    await mmInfo.init(api)
-    console.log("FileView mounted,", route.params)
-    document.title = import.meta.env.VITE_PAGE_TITLE+' - '+(route.params.fileName? route.params.fileName as string : route.params.title as string)
-    useSpinner().setLoadingState(false)
+    // check session sanity
+    if (sessionStorage["isBot"] == undefined) {
+        // first time open the page
+        const r = Math.floor(Math.random()*900+100).toString()
+        // let isBot = "OK"
+        let isBot = prompt("Say friend and enter "+r+":")
+        console.log(isBot)
+        if (!isBot) {
+            // redirect to main page
+            router.push("/")
+        } else {
+            isBot==r? sessionStorage["isBot"] = "Human" : router.push("/")
+            // proceed
+        }
+        useSpinner().setLoadingState(false)
+    } else {
+        await mmInfo.init(api)
+        console.log("FileView mounted,", route.params)
+        document.title = import.meta.env.VITE_PAGE_TITLE+' - '+(route.params.fileName? route.params.fileName as string : route.params.title as string)
+        useSpinner().setLoadingState(false)
+    }
 })
 async function deleteFile() {
     try {

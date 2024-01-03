@@ -24,7 +24,8 @@ export const router = createRouter({
         { path: '/fileview2/:title/:filePath', name:"fileview2", component: FileView2Vue},      // local webdav files
         { path: '/fileview3/:tpt/:id', name:"fileview3", component: FileView3Vue},              // ipfs id list
         // catch all redirect to home page
-        { path: '/:pathMatch(.*)*', redirect: '/' }
+        { path: '/:pathMatch(.*)*', redirect: '/' },
+        // { path: '/checkBot', name:'botCheck', component: BotCheck},
     ],
 });
 
