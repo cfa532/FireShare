@@ -33,27 +33,12 @@ const currentProperty = computed(()=>route.params)    // params: {mid:file.mid, 
 
 onMounted(async ()=>{
     // check session sanity
-    if (sessionStorage["isBot"] == undefined) {
-        // first time open the page
-        const r = Math.floor(Math.random()*90+10).toString()
-        // let isBot = "OK"
-        let isBot = prompt("Say friend and enter:\n    "+r+"")
-        sessionStorage["isBot"] = "Human"   // pass
-        if (!isBot) {
-            // redirect to main page
-            // router.push("/")
-        } else {
-            // isBot==r? sessionStorage["isBot"] = "Human" : router.push("/")
-            // proceed
-        }
-        // alert(navigator.userAgent)
-        useSpinner().setLoadingState(false)
-    } else {
-        await mmInfo.init(api)
-        console.log("FileView mounted,", route.params)
-        document.title = import.meta.env.VITE_PAGE_TITLE+' - '+(route.params.fileName? route.params.fileName as string : route.params.title as string)
-        useSpinner().setLoadingState(false)
-    }
+    // const r = Math.floor(Math.random()*90+10).toString()
+    confirm("Say friend and enter.\n")
+    await mmInfo.init(api)
+    console.log("FileView mounted,", route.params)
+    document.title = import.meta.env.VITE_PAGE_TITLE+' - '+(route.params.fileName? route.params.fileName as string : route.params.title as string)
+    useSpinner().setLoadingState(false)
 })
 async function deleteFile() {
     try {
