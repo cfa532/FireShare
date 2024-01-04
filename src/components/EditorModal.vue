@@ -85,9 +85,10 @@ async function onSelect(e: Event) {
     // clipboard works only with HTTPS
     // const t = await navigator.clipboard.readText()
     if ((e.target as HTMLTextAreaElement) === textArea.value) {
-      console.log(e)
+      // paste into text area
       document.execCommand('paste')
     } else if ((e.target as HTMLFormElement) === caption.value) {
+      // paste into caption
       document.execCommand("paste")
     }
   }
@@ -266,12 +267,12 @@ watch(() => textValue.value, (newVal, oldVal) => {
           <p style="font-size: 24px;">DROP HERE</p>
         </div>
       </div>
-      <div ref="divAttach" hidden
+      <form @submit.prevent="onSubmit" enctype="multipart/form-data" @paste.prevent="onSelect">
+        <div ref="divAttach" hidden
         style="border: 0px solid lightgray; border-radius: 3px; margin-bottom: 6px; padding-top:0px;" >
         <Preview @file-canceled="removeFile(file)" v-for="(file, index) in filesUpload" :key="index"
           v-bind:src="file" v-bind:progress="uploadProgress[index]"></Preview>
-      </div>
-      <form @submit.prevent="onSubmit" enctype="multipart/form-data" @paste.prevent="onSelect">
+        </div>
           <input id="selectFiles" @change="onSelect" type="file" hidden multiple>
           <button @click.prevent="selectFile">Choose</button>
           <button style="float: right;">Submit</button>
