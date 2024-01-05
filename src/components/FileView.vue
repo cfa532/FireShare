@@ -34,11 +34,15 @@ const currentProperty = computed(()=>route.params)    // params: {mid:file.mid, 
 onMounted(async ()=>{
     // check session sanity
     // const r = Math.floor(Math.random()*90+10).toString()
-    confirm("Say friend and enter.\n")
-    await mmInfo.init(api)
-    console.log("FileView mounted,", route.params)
-    document.title = import.meta.env.VITE_PAGE_TITLE+' - '+(route.params.fileName? route.params.fileName as string : route.params.title as string)
-    useSpinner().setLoadingState(false)
+    if (!sessionStorage["isBot"]) {
+        confirm("Say friend and enter.\n") ? sessionStorage["isBot"] = "No" : history.go(-1)
+        useSpinner().setLoadingState(false)
+    } else {
+        await mmInfo.init(api)
+        console.log("FileView mounted,", route.params)
+        document.title = import.meta.env.VITE_PAGE_TITLE+' - '+(route.params.fileName? route.params.fileName as string : route.params.title as string)
+        useSpinner().setLoadingState(false)
+    }
 })
 async function deleteFile() {
     try {
