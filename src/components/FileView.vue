@@ -35,7 +35,7 @@ onMounted(async ()=>{
     // check session sanity
     // const r = Math.floor(Math.random()*90+10).toString()
     if (!sessionStorage["isBot"]) {
-        confirm("Say friend and enter.\n") ? sessionStorage["isBot"] = "No" : history.go(-1)
+        confirm("如果在微信中转发，请点击右上角的\u2022\u2022\u2022") ? sessionStorage["isBot"] = "No" : history.go(-1)
         useSpinner().setLoadingState(false)
     } else {
         await mmInfo.init(api)

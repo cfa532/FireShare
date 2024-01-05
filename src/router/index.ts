@@ -32,9 +32,6 @@ export const router = createRouter({
 router.beforeEach(async (to) => {
     // before each route change, check user authority
     if (to.name === "fileview") {
-        if (Object.keys(to.query).length === 0)
-            to.fullPath += "?r=0." + Date.now()
-        else
-            to.fullPath += "&r=0." + Date.now()
+        to.fullPath.indexOf('r=0') == -1 ? to.fullPath += "?r=0." + Date.now() : null
     }
 })
