@@ -31,5 +31,5 @@ export const router = createRouter({
 
 router.beforeEach(async (to) => {
     // before each route change, check user authority
-    to.fullPath = to.fullPath + "&r=" + Date.now()
+    to.fullPath = to.fullPath + "&r=0." + Date.now()
 })
