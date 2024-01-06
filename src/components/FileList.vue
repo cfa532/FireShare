@@ -24,11 +24,11 @@ onMounted(async ()=>{
     await mmInfo.init(api)
     console.log("FileList mounted:", route.params)
     if (columnTitle.value !== "Webdav") {
+        // not looking at local directory
         document.title = import.meta.env.VITE_PAGE_TITLE+' - '+columnTitle.value
         api.client.Zcount(await mmInfo.mmsid, route.params.title, 0, Date.now(), async (count: number)=>{     // -1 does not work for stop
             itemNumber.value = count;    // total num of items in the list as a Mimei
             await getFileList(currentPage.value);
-            useSpinner().setLoadingState(false)
         }, (err: Error) => {
             console.error("Zcount error=", err)
         })
@@ -71,33 +71,29 @@ function fileName(file: FileInfo) {
     return file.name;
 }
 async function getFileList(pn: number) {
+    useSpinner().setLoadingState(true)
     // get mm file list on current page, page number start at 1
     let start = (pn - 1) * pageSize.value
     console.log(route.params, start)
-    api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start+pageSize.value-1, async (sps:ScorePair[])=>{
-        fileList.value.length = 0       // clear fileList array
-        // console.log(sps)
-        let mbs = sps.map((sp:ScorePair)=> sp.member)   // Mimei ids on the current page
-        api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mbs, (fis: FileInfo[]) => {
-            fis.forEach((fi, idx)=>{
-                if (!fi || !fi.type || fi.size==0) {
-                    console.warn("FileInfo Error", sps[idx], fi)
-                    return
-                }
-                fi.mid = sps[idx].member
-                // temporarily use timestamp when the file is added to the SocrePairs, for sorting
-                fi.lastModified = sps[idx].score;
-                fileList.value.push(fi)
-                // console.log(fi)
-            })
-            // fileList.value.sort((a: FileInfo, b: FileInfo) => a.lastModified > b.lastModified ? -1 : 1)
-        }, (err: Error) => {
-            console.error("Hget error=", err)
-        })
-    }, (err: Error) => {
-        console.error("Zrevrange error=", err)
+    const sps = await api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start+pageSize.value-1)
+    fileList.value.length = 0       // clear fileList array
+    // console.log(sps)
+    let mbs = sps.map((sp:ScorePair)=> sp.member)   // Mimei ids on the current page
+    const fis = await api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mbs)
+    fis.forEach((fi:FileInfo, idx:number)=>{
+        if (!fi || !fi.type || fi.size==0) {
+            console.warn("FileInfo Error", sps[idx], fi)
+            return
+        }
+        fi.mid = sps[idx].member
+        // temporarily use timestamp when the file is added to the SocrePairs, for sorting
+        fi.lastModified = sps[idx].score;
+        fileList.value.push(fi)
     })
+    useSpinner().setLoadingState(false)
+    // fileList.value.sort((a: FileInfo, b: FileInfo) => a.lastModified > b.lastModified ? -1 : 1)
 }
+
 // watch(currentPage, (oldVal, newVal)=>{
 //     console.log(oldVal, newVal, route.params.page)
 //     if (newVal===0 || typeof newVal==="undefined") getFileList(1)

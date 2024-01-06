@@ -16,13 +16,15 @@ export const router = createRouter({
         { path: '/', name:"main", component: MainPageVue},
         { path: '/login', name:"login", component: Login},
         { path: '/filelist/:title/:page?', name:"filelist", component: FileListVue,
-            beforeEnter: (to, from)=>{
-                const s = useSpinner().setLoadingState(true);
-                console.log("Before entering filelist", to.path)
-            }},
+            // beforeEnter: (to, from)=>{
+            //     const s = useSpinner().setLoadingState(true);
+            //     console.log("Before entering filelist", to.path)
+            // }
+        },
         { path: '/fileview/:title/:mid/:fileType/:fileName?', name:"fileview", component: FileViewVue,
             beforeEnter: (to)=>{
                 const reg = /r=0.\d+/i
+                console.log(to.fullPath)
                 if (to.fullPath.search(reg) > -1) {
                     // update random number in the URL
                     to.fullPath = to.fullPath.replace(reg, "r=0."+Date.now())
