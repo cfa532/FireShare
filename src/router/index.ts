@@ -20,7 +20,16 @@ export const router = createRouter({
                 const s = useSpinner().setLoadingState(true);
                 console.log("Before entering filelist", to.path)
             }},
-        { path: '/fileview/:title/:mid/:fileType/:fileName?', name:"fileview", component: FileViewVue},    // mimei files
+        { path: '/fileview/:title/:mid/:fileType/:fileName?', name:"fileview", component: FileViewVue,
+            beforeEnter: (to)=>{
+                const reg = /r=0.\d+/i
+                if (to.fullPath.search(reg) > -1) {
+                    // update random number in the URL
+                    to.fullPath = to.fullPath.replace(reg, "r=0."+Date.now())
+                } else
+                    to.fullPath += "?r=0." + Date.now()
+            }
+        },    // mimei files
         { path: '/fileview2/:title/:filePath', name:"fileview2", component: FileView2Vue},      // local webdav files
         { path: '/fileview3/:tpt/:id', name:"fileview3", component: FileView3Vue},              // ipfs id list
         // catch all redirect to home page
@@ -29,9 +38,15 @@ export const router = createRouter({
     ],
 });
 
-router.beforeEach(async (to) => {
-    // before each route change, check user authority
-    if (to.name === "fileview") {
-        to.fullPath.indexOf('r=0') == -1 ? to.fullPath += "?r=0." + Date.now() : null
-    }
-})
+// router.beforeEach(async (to) => {
+//     // before each route change, check user authority
+//     if (to.name === "fileview") {
+//         const reg = /r=0.\d+/i
+//         console.log(to.fullPath.search(reg))
+//         if (to.fullPath.search(reg) > -1) {
+//             // update random number in the URL
+//             to.fullPath = to.fullPath.replace(reg, "r=0."+Date.now())
+//         } else
+//             to.fullPath += "?r=0." + Date.now()
+//     }
+// })
