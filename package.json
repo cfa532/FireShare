@@ -4,10 +4,9 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "host": "vite --host",
+    "host": "vite --build",
     "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "host": "vite --host"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@achrinza/node-ipc": "^10.1.9",
