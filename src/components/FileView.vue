@@ -35,7 +35,8 @@ onMounted(async ()=>{
     // check session sanity
     // const r = Math.floor(Math.random()*90+10).toString()
     // assign it early otherwise title will be empty in Wechat.
-    document.title = import.meta.env.VITE_PAGE_TITLE+' - '+(route.params.fileName? route.params.fileName as string : route.params.title as string)
+    document.title = (route.params.fileName? route.params.fileName as string : route.params.title as string)
+                    +' - '+import.meta.env.VITE_PAGE_TITLE
     if (!sessionStorage["isBot"]) {
         confirm("如果在微信中转发，请点击右上角的\u2022\u2022\u2022") ? sessionStorage["isBot"] = "No" : history.go(-1)
         useSpinner().setLoadingState(false)
