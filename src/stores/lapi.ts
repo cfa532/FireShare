@@ -133,7 +133,8 @@ export const useMimei = defineStore({
                 {"title":"Twitter", "titleZh":"X", "subColumn": [
                     {"title":"Contrarian", "titleZh":"Noop"},
                     {"title":"Funny", "titleZh":"搞笑"},
-                    {"title":"Cutie", "titleZh":"萌宠"},
+                    {"title":"Cutie", "titleZh":"文革"},
+                    {"title":"History", "titleZh":"老故事"},
                 ]},
                 {"title":"Exercise", "titleZh":"运动"},
                 {"title":"Test", "titleZh":"TCL"},
