@@ -71,7 +71,7 @@ function fileName(file: FileInfo) {
     return file.name;
 }
 async function getFileList(pn: number) {
-    useSpinner().setLoadingState(true)
+    useSpinner().setLoadingState(true)      // necessary to show it on page changes
     // get mm file list on current page, page number start at 1
     let start = (pn - 1) * pageSize.value
     console.log(route.params, start)
@@ -102,9 +102,9 @@ async function getFileList(pn: number) {
 
 <template>
     <!-- <NaviBar :column="(columnTitle as string)"></NaviBar> -->
-    <Spinner :active="useSpinner().loading" text="Please wait......"/>
     <!-- <hr/> -->
     <div v-if="columnTitle !== 'Webdav'">
+        <Spinner :active="useSpinner().loading" text="Please wait......"/>
         <div v-show="api.sid">
             <div class="postbox">
                 <p @click="showEditor='block'" class="postbox">Tell us what is happening....</p>
@@ -135,7 +135,7 @@ ul.aList {
   list-style-type: decimal;
   overflow: hidden;
   /* margin: 0px 0px 0px -20px; */
-  width: 95%;
+  width: 100%;
   padding-left: 30px;
 }
 ul.aList li {
@@ -160,8 +160,8 @@ p.postbox:hover {
 div.postbox {
   display: flex;
   background-color:#f9f9f9;
-  width: 100%;
-  max-width: 600px;
+  /* width: 100%; */
+  max-width: 80%;
   height: 40px;
   margin: 0px 0px 10px 0px;
   box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2);
