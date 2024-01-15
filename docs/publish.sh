@@ -1,7 +1,7 @@
 #!/bin/bash
-USER=gen8; PASSWORD=123456; KEYFILE=gen8
-URL=192.168.0.5:8002
-MYDOMAIN=ju4; GWADDR=fireshare.xyz
+USER=lsb; PASSWORD=123456; KEYFILE=lsb
+URL=192.168.1.4:4800
+MYDOMAIN=ks; GWADDR=fireshare.xyz
 MYAPP=pratum	# not important
 
 function readInput {
@@ -29,8 +29,10 @@ function readInput {
 #./Leither lpki genkey -o $KEYFILE.key
 #./Leither lpki gencert -k $KEYFILE.key -m "name=forapp" -o $KEYFILE.cert
 #./Leither lpki addkey -i $KEYFILE.key
-echo ./Leither lpki signppt -c $KEYFILE.cert -m "CertFor=Self" -o ${KEYFILE}login.ppt
-./Leither lpki signppt -c $KEYFILE.cert -m "CertFor=Self" -o ${KEYFILE}login.ppt
+
+# ppt is not need in simple scenario
+#echo ./Leither lpki signppt -c $KEYFILE.cert -m "CertFor=Self" -o ${KEYFILE}login.ppt
+#./Leither lpki signppt -c $KEYFILE.cert -m "CertFor=Self" -o ${KEYFILE}login.ppt
 #echo "PPT files created"
 
 URL=http://$URL/
@@ -40,13 +42,13 @@ echo -e "\n./Leither lpki reqservice -c $KEYFILE.cert -m RequestService=mimei -n
 ./Leither lpki reqservice -c $KEYFILE.cert -m RequestService=mimei -n $URL
 
 echo -e "\nupload APP to service node"
-echo ./Leither lapp uploadapp -p ${KEYFILE}login.ppt -i ./$MYAPP -n $URL
-./Leither lapp uploadapp -p ${KEYFILE}login.ppt -i ./$MYAPP -n $URL
+echo ./Leither lapp uploadapp -k $KEYFILE.key -i ./$MYAPP -n $URL
+./Leither lapp uploadapp -k $KEYFILE.key -i ./$MYAPP -n $URL
 
-echo ./Leither lapp setdomain -d $MYDOMAIN.$GWADDR -n $URL -a $MYAPP -p ${KEYFILE}login.ppt -m gwaddr=$GWADDR
-./Leither lapp setdomain -d $MYDOMAIN.$GWADDR -n $URL -a $MYAPP -p ${KEYFILE}login.ppt -m gwaddr=35.183.27.67:8080
+echo ./Leither lapp setdomain -d $MYDOMAIN.$GWADDR -n $URL -a $MYAPP -k $KEYFILE.key -m gwaddr=$GWADDR
+./Leither lapp setdomain -d $MYDOMAIN.$GWADDR -n $URL -a $MYAPP -k $KEYFILE.key -m gwaddr=99.79.67.244:8080
 echo -e "\n Backup App"
-echo ./Leither lapp backup -a $MYAPP -p ${KEYFILE}login.ppt -n $URL
-./Leither lapp backup -a $MYAPP -p ${KEYFILE}login.ppt -n $URL
-./Leither mimei publish tjZkGj19X8nCTytfQFxbRQPDNk9
+echo ./Leither lapp backup -a $MYAPP -k $KEYFILE.key -n $URL
+./Leither lapp backup -a $MYAPP -k $KEYFILE.key -n $URL
+./Leither mimei publish J62Fohg6bPG6BjcD8Mccc3YCrvG
 echo "APP published successfully"
