@@ -57,7 +57,7 @@ async function showDir(filePath: string) {
             files.sort((a, b)=> a.fName < b.fName ? -1 : 1)
             itemNumber.value = files.length
             var st = (currentPage.value - 1) * pageSize.value
-            console.log("total items=", itemNumber.value, st, pageSize.value, files)
+            console.log("total items=", itemNumber.value, st, pageSize.value)
             localFiles.value = files.slice(st, st + pageSize.value)
         }
         useSpinner().setLoadingState(false)
