@@ -17,7 +17,7 @@ const msgBox = ref()
 // })
 </script>
 <template>
-    <p ref="msgBox" style="margin-left:0px; width:98%; padding: 5px; position: absolute; bottom:0; border-top: 1px solid gainsboro; color:lightgray; word-wrap: break-word;">
+    <p ref="msgBox" style="margin-left:0px; width:98%; padding-left: 5px; padding-top: 10px; position:relative; border-top: 0px solid gainsboro; color:lightgray; word-wrap: break-word;">
         <slot></slot>
     </p>
 </template>

@@ -9,10 +9,21 @@ const props = defineProps({
     fileType: {type: String, required: false},
     filePath: {type: String, required: false},
     mmfsid: {type: String, required: false},
+    delRef: {type: String, required: false}
 })
 const fileUrl = ref("")
+const emit = defineEmits(["deleted"])
+watch(()=>props.delRef, async nv=>{
+    if (nv=="true") {
+        // when attached file is deleted, remove its reference from database MM
+        await api.client.MMDelRef(api.sid, mmInfo.mid, props.mid);
+        emit("deleted")
+    }
+})
+
 onMounted(async () => {
     console.log("PDF mounted", props)
+    await mmInfo.init(api)
     if (typeof props.filePath !== "undefined") {
         // show files in local /webdav
         fileUrl.value = api.baseUrl+"mf?mmsid="+props.mmfsid

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, shallowReactive } from "vue";
 import { router } from '../router';
 import { useRoute } from 'vue-router';
 import { useLeither, useMimei, useSpinner } from '../stores/lapi';
@@ -29,7 +29,9 @@ const userComponent = computed(() => {
         return "<p>Unkonwn file type</P>"
     }
 })
-const currentProperty = computed(()=>route.params)    // params: {mid:file.mid, fileType:file.type}}
+// params: {mid:file.mid, fileType:file.type}}
+route.params["delRef"] = "false"    // tell child comp to delete reference when deleting post
+const currentProperty = shallowReactive(route.params)
 
 onMounted(async ()=>{
     // check session sanity
@@ -41,13 +43,14 @@ onMounted(async ()=>{
         confirm("如果在微信中转发，请点击右上角的\u2022\u2022\u2022") ? sessionStorage["isBot"] = "No" : history.go(-1)
         useSpinner().setLoadingState(false)
     } else {
-        await mmInfo.init(api)
         console.log("FileView mounted,", route.params)
         useSpinner().setLoadingState(false)
     }
 })
-async function deleteFile() {
+async function deleted() {
+    // reference of Mimei or IPFS file has been deleted in child component
     try {
+        await mmInfo.init(api)
         api.client.Zrem(await mmInfo.mmsidCur, route.params.title, route.params.mid, async (ret:number)=>{
             console.log("Zrem ret=", ret)
             await mmInfo.backup()
@@ -64,9 +67,9 @@ async function deleteFile() {
 
 <template>
     <SpinnerVue :active="useSpinner().loading" text="Please wait......"/>
-    <!-- <hr/> -->
-    <ShareVue @delete-file="deleteFile"  ref="shareMenu" v-bind="currentProperty"></ShareVue>
+    <!-- Delete page function is in the Share Menu -->
+    <ShareVue @delete-post='currentProperty["delRef"] = "true"'></ShareVue>
     <KeepAlive>
-        <component :is="userComponent" v-bind="currentProperty"></component>
+        <component @deleted="deleted" :is="userComponent" v-bind="currentProperty"></component>
     </KeepAlive>
 </template>

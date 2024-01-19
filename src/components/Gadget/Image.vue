@@ -2,17 +2,30 @@
 import { onMounted, ref, watch } from 'vue';
 import { useLeither, useMimei } from '../../stores/lapi';
 const api = useLeither();    // Leither api handler
+const mmInfo = useMimei();
 const props = defineProps({
-    mid : {type: String, required: false},
+    mid : {type: String, required: false},      // undefined when showing local files
     fileType: {type: String, required: false},
     filePath: {type: String, required: false},
     mmfsid: {type: String, required: false},
+    // title: {type: String, required: true},
+    delRef: {type: String, required: false}
 })
 const imageUrl = ref("")
 const showSpinner = ref(true)
 
+const emit = defineEmits(["deleted"])
+watch(()=>props.delRef, async nv=>{
+    if (nv=="true") {
+        // when attached file is deleted, remove its reference from database MM
+        await api.client.MMDelRef(api.sid, mmInfo.mid, props.mid);
+        emit("deleted")
+    }
+})
+
 onMounted(async () => {
     console.log("Image mounted", props)
+    await mmInfo.init(api)
     imageUrl.value = await getLink()
     window.setTimeout(async ()=>{
         showSpinner.value = false
@@ -31,8 +44,8 @@ async function getLink() {
 }
 watch(()=>props.filePath, async (cv, pv)=>{
     if (cv !== pv) {
-        // something changed if current value != prev value
-        console.log(props)
+        // path changed if current value != prev value
+        // console.log(props)
         if (props.fileType?.includes("image")) {
             imageUrl.value = await getLink()
         }

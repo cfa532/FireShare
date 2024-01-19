@@ -8,7 +8,7 @@ const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmL
     "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Hmset", "Hmget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile",
     "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan",
     "MMRelease", "MMBackup", "MFStat", "Zrem", "Zremrangebyscore", "MiMeiPublish", "PullMsg", "MFTemp2Ipfs", "MFSetCid",
-    "MMSum", "MiMeiSync", "IpfsAdd", "MMAddRef"
+    "MMSum", "MiMeiSync", "IpfsAdd", "MMAddRef", "MMDelRef", "MMDelVers", "MMRelease", "MMGetRef", "MMGetRefs", "Hdel"
 ];
 
 function getcurips() {
@@ -25,7 +25,7 @@ function getcurips() {
     { //for test
         // ips = "192.168.0.5:8002"
         // ips = "192.168.0.4:8000"     //台湾盒子
-        // ips = "192.168.1.4:4800"     // hz-box
+        ips = "192.168.1.4:4800"     // hz-box
         // ips = "99.79.67.244:8080"
     }
     return ips

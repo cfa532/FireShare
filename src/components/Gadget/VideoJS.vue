@@ -3,12 +3,14 @@ import { ref, onMounted, onBeforeUnmount, watch, reactive } from 'vue';
 import videojs from 'video.js';
 import { useLeither, useMimei } from '../../stores/lapi'
 const api = useLeither();
+const mmInfo = useMimei();
 const props = defineProps({
-        mid: {type:String, required: false},
-        fileType: {type:String, required: false},
-        filePath: {type: String, required: false},
-        mmfsid: {type: String, required: false},
-        autoplay: {type: Boolean, required: false, default: true},
+  mid: {type:String, required: false},
+  fileType: {type:String, required: false},
+  filePath: {type: String, required: false},
+  mmfsid: {type: String, required: false},
+  autoplay: {type: Boolean, required: false, default: true},
+  delRef: {type: String, required: false}
 });
 const videoPlayer = ref<HTMLVideoElement>()
 const vdiv = ref()  // to deal with a bug sometime player do not hide when switching components in parent Vue
@@ -18,8 +20,19 @@ const options = reactive({
     autoplay: props.autoplay,
     sources: [{src:"", type :"" as string | undefined}]
 });
+
+const emit = defineEmits(["deleted"])
+watch(()=>props.delRef, async nv=>{
+    if (nv=="true") {
+        // when attached file is deleted, remove its reference from database MM
+        await api.client.MMDelRef(api.sid, mmInfo.mid, props.mid);
+        emit("deleted")
+    }
+})
+
 onMounted(async ()=>{
     console.log("Videoplayer mounted", props)
+    await mmInfo.init(api)
     vdiv.value.hidden = false
     if (typeof props.filePath !== "undefined") {
         // play local file in /webdav
@@ -66,6 +79,7 @@ watch(()=>props.filePath, async (cv, pv)=>{
         }
     }
 })
+
 onBeforeUnmount(()=>{
     if (player) {
         console.log("Video player disposed", player)

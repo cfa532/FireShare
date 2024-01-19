@@ -6,6 +6,7 @@ import FileViewVue from '../components/FileView.vue';        // Mac files within
 import FileView2Vue from '../components/FileView2.vue';      // view files in /webdav under Leither
 import FileView3Vue from '../components/FileView3.vue';      // view mm files
 import Login from '../components/Login.vue';
+import IPs from '../views/IPs.vue'
 
 // const MainPageVue = ()=>import('../components/MainPage.vue')
 export const router = createRouter({
@@ -15,6 +16,7 @@ export const router = createRouter({
     routes: [
         { path: '/', name:"main", component: MainPageVue},
         { path: '/login', name:"login", component: Login},
+        { path: '/ips', name:"ips", component: IPs},
         { path: '/filelist/:title/:page?', name:"filelist", component: FileListVue,
             // beforeEnter: (to, from)=>{
             //     const s = useSpinner().setLoadingState(true);

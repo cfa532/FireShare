@@ -4,13 +4,7 @@ import { useLeither} from '../../stores/lapi';
 import { ref } from 'vue'
 const api = useLeither()
 const shareMenu = ref()
-const props = defineProps({
-    macid : {type: String, required: false},
-    fileType: {type: String, required: false},
-    filePath: {type: String, required: false},
-    mmfsid: {type: String, required: false},
-});
-const emit = defineEmits(["deleteFile"])
+const emit = defineEmits(["deletePost"])
 
 function showShareMenu() {
     shareMenu.value.hidden = false
@@ -37,9 +31,8 @@ function copyLink() {
     // if (window.isSecureContext && navigator.clipboard)
     // navigator.clipboard.writeText(window.location.href)
 }
-async function editPage() {
-    console.log(props);
-    emit("deleteFile")
+function deletePage() {
+    emit("deletePost")
 }
 </script>
 
@@ -52,7 +45,7 @@ async function editPage() {
             <a href="#" @click.prevent="copyLink">Copy &#128279; to clipboard</a>
         </div>
         <div style="border-bottom: 1px dotted; padding: 10px; text-align: center;">
-            <a href="#" @click.prevent="editPage">Delete</a>
+            <a href="#" @click.prevent="deletePage">Delete</a>
         </div>
     </div>
 </div>
