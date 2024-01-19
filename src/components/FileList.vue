@@ -79,7 +79,6 @@ async function getFileList(pn: number) {
     fileList.value.length = 0       // clear fileList array
     // console.log(sps)
     let mbs = sps.map((sp:ScorePair)=> sp.member)   // Mimei ids on the current page
-    console.log(mbs)
     const fis = await api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mbs)
     fis.forEach(async (fi:FileInfo, idx:number)=>{
         if (!fi || !fi.type || fi.size==0) {
