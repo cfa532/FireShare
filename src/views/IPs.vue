@@ -11,8 +11,6 @@ onMounted(()=>{
         aid.value = p.aid
         ips.value = p.ips
         // msg.value = "Resource data provided by:" + p["ips"][p.CurNode] + " from Providers: " + p.ips
-    } else {
-        ips.value = ["127.0.0.1"]
     }
 })
 </script>
