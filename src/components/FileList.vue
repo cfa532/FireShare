@@ -74,15 +74,21 @@ async function getFileList(pn: number) {
     useSpinner().setLoadingState(true)      // necessary to show it on page changes
     // get mm file list on current page, page number start at 1
     let start = (pn - 1) * pageSize.value
-    console.log(route.params, start)
+    console.log(route.params, start, pageSize.value)
     const sps = await api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start+pageSize.value-1)
     fileList.value.length = 0       // clear fileList array
     // console.log(sps)
     let mbs = sps.map((sp:ScorePair)=> sp.member)   // Mimei ids on the current page
+    console.log(mbs)
     const fis = await api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mbs)
-    fis.forEach((fi:FileInfo, idx:number)=>{
+    fis.forEach(async (fi:FileInfo, idx:number)=>{
         if (!fi || !fi.type || fi.size==0) {
-            console.warn("FileInfo Error", sps[idx], fi)
+            console.warn("FileInfo Error. idx=", mbs[idx], fi)
+            if (api.sid) {
+                // remove error items from file list if user logged in.
+                await api.client.Zrem(await mmInfo.mmsidCur, route.params.title, mbs[idx])
+                await mmInfo.backup()
+            }
             return
         }
         fi.mid = sps[idx].member

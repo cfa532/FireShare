@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Image from './Image.vue';
 import VideoJS from './VideoJS.vue'
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useLeither, useMimei } from '../../stores/lapi';
 import { useRoute } from 'vue-router';
 const fileInfos = ref<any[]>([])
@@ -12,16 +12,31 @@ const props = defineProps({
     mid : {type: String, required: false},
     fileType: {type: String, required: false},
     title: {type: String, required: false},
+    delRef: {type: String, required: false}
 });
 const textContent = ref("")
+let mids: any[] = []
+const emit = defineEmits(["deleted"])
+watch(()=>props.delRef, async nv=>{
+    if (nv=="true") {
+        // when attached file is deleted, remove its reference from database MM
+        mids.forEach(async mid=>{
+            await api.client.MMDelRef(api.sid, mmInfo.mid, mid);
+        })
+        emit("deleted")
+    }
+})
+
 onMounted(async () => {
-    await mmInfo.init(api)
     console.log("Page mounted:", props)
+    await mmInfo.init(api)
     api.client.MMOpen(api.sid, props.mid, "last", (fsid: string) => {
         api.client.MFGetObject(fsid, async (obj:FileInfo)=>{
             const arr = JSON.parse(obj.name)    // get a string[], [0] is the text content
-            textContent.value = arr[0].trim()===""? "" : arr[0];
-            let mids = arr.slice(1);
+            textContent.value = arr[0].trim();
+            if (arr.length <2)
+                return      // no attachments
+            mids = arr.slice(1);        // rest of the array are mid or IPFS of all the attachments
             console.log(route.params.title, mids)
             api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mids, (fis:any[])=>{
                 console.log(fis)
