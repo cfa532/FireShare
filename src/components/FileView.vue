@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, shallowReactive } from "vue";
+import { computed, onMounted, shallowReactive, ref } from "vue";
 import { router } from '../router';
 import { useRoute } from 'vue-router';
 import { useLeither, useMimei, useSpinner } from '../stores/lapi';
@@ -13,6 +13,7 @@ import SpinnerVue from "./Gadget/Spinner.vue";
 const api = useLeither()
 const mmInfo = useMimei()
 const route = useRoute()
+const touchedDiv =ref<HTMLDivElement>()
 const fileType = route.params.fileType as string;
 const userComponent = computed(() => {
     if (fileType.includes("image")) {
@@ -63,13 +64,36 @@ async function deleted() {
         console.error(err);
     }
 }
+let posXStart = -1
+function touchStart(touchEvent: TouchEvent) {
+    // console.log(touchEvent)
+    // if (touchEvent.changedTouches.length !== 1) {
+    //     return      // only handle one finger touch
+    // }
+    // posXStart = touchEvent.changedTouches[0].clientX
+    // addEventListener('touchend', touchEvent=>this.touchend(touchEvent, posXStart), {once:true})
+}
+function touchEnd(touchEvent: TouchEvent) {
+    // console.log(touchEvent)
+    // if (touchEvent.changedTouches.length !== 1) {
+    //     return      // only handle one finger touch
+    // }
+    // const posXEnd = touchEvent.changedTouches[0].clientX
+    // if (posXStart < posXEnd) {
+    //     // swipe right
+    // } else if (posXStart > posXEnd) {
+    //     // swipe left
+    // }
+}
 </script>
 
 <template>
     <SpinnerVue :active="useSpinner().loading" text="Please wait......"/>
     <!-- Delete page function is in the Share Menu -->
     <ShareVue @delete-post='currentProperty["delRef"] = "true"'></ShareVue>
-    <KeepAlive>
-        <component @deleted="deleted" :is="userComponent" v-bind="currentProperty"></component>
-    </KeepAlive>
+    <div ref="touchedDiv" @touchstart.prevent="touchStart" @touchend.prevent="touchEnd">
+        <KeepAlive>
+            <component @deleted="deleted" :is="userComponent" v-bind="currentProperty"></component>
+        </KeepAlive>
+    </div>
 </template>
