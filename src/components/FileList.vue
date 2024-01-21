@@ -57,27 +57,19 @@ function pageChanged(n: number) {
     getFileList(n)
     router.push({name: "filelist", params: {page: n}})
 }
-function fileName(file: FileInfo) {
+function fileName(file: FileInfo):string {
     // console.log(file)
-    if (file.caption) return file.caption;
-    // if (file.type.includes("page")) {
-    //     // show first 30 chars if the list item is a page
-    //     const title = JSON.parse(file.name)[0]
-    //     if (title.trim()==="") {
-    //         return "Page without text"
-    //     }
-    //     return JSON.parse(file.name)[0].substring(0, 30)
-    // }
-    return file.name;
+    return file.caption? file.caption : file.name;
 }
 async function getFileList(pn: number) {
     useSpinner().setLoadingState(true)      // necessary to show it on page changes
     // get mm file list on current page, page number start at 1
     let start = (pn - 1) * pageSize.value
     console.log(route.params, start, pageSize.value)
+    // {Score: Member} scorepair list
     const sps = await api.client.Zrevrange(await mmInfo.mmsid, route.params.title, start, start+pageSize.value-1)
     fileList.value.length = 0       // clear fileList array
-    // console.log(sps)
+    // member list
     let mbs = sps.map((sp:ScorePair)=> sp.member)   // Mimei ids on the current page
     const fis = await api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mbs)
     fis.forEach(async (fi:FileInfo, idx:number)=>{
@@ -96,13 +88,16 @@ async function getFileList(pn: number) {
         fileList.value.push(fi)
     })
     useSpinner().setLoadingState(false)
-    // fileList.value.sort((a: FileInfo, b: FileInfo) => a.lastModified > b.lastModified ? -1 : 1)
-}
 
-// watch(currentPage, (oldVal, newVal)=>{
-//     console.log(oldVal, newVal, route.params.page)
-//     if (newVal===0 || typeof newVal==="undefined") getFileList(1)
-// })
+    sessionStorage["fileList"] = JSON.stringify({"posts":fileList.value, "pageSize":pageSize.value, "pageNumber":pn})
+}
+function openFileView(fi: FileInfo, index: number) {
+    const so = JSON.parse(sessionStorage["fileList"])
+    so["index"] = index
+    sessionStorage["fileList"] = JSON.stringify(so)
+    console.log(so)
+    router.push({name:"fileview", params:{ title: columnTitle.value, mid: fi.mid, fileType: fi.type, fileName: fileName(fi)}})
+}
 </script>
 
 <template>
@@ -119,11 +114,14 @@ async function getFileList(pn: number) {
         </div>
         <ul class="aList">
             <li v-for="(file, index) in fileList" :key="index">
-                <RouterLink v-if="file.type.includes('image') || file.type.includes('video') || file.type.includes('audio')
+                <a v-if="file.type.includes('image') || file.type.includes('video') || file.type.includes('audio') || file.type.includes('page') || file.type.includes('pdf')"
+                    @click="openFileView(file, index)">
+                {{ fileName(file) }}</a>
+                <!-- <RouterLink v-if="file.type.includes('image') || file.type.includes('video') || file.type.includes('audio')
                 || file.type.includes('page') || file.type.includes('pdf')"
                     :to="{ name: 'fileview', params: { title: columnTitle, mid: file.mid, fileType: file.type, fileName: fileName(file)} }">
                     {{ fileName(file) }}
-                </RouterLink>
+                </RouterLink> -->
                 <a v-else href="" @click.prevent="(e:MouseEvent) => fileDownload(e, file)" download>{{ file.name }} &dArr;</a>
             </li>
         </ul>
@@ -152,7 +150,6 @@ ul.aList li:hover {
 ul.aList li:nth-child(even) {
   background: rgb(220, 247, 202, 0.5);;
 }
-
 p.postbox {
   font-style: italic;
   opacity: 0.3;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, shallowReactive, ref } from "vue";
+import { computed, nextTick, onMounted, shallowReactive, watch } from "vue";
 import { router } from '../router';
 import { useRoute } from 'vue-router';
 import { useLeither, useMimei, useSpinner } from '../stores/lapi';
@@ -13,20 +13,18 @@ import SpinnerVue from "./Gadget/Spinner.vue";
 const api = useLeither()
 const mmInfo = useMimei()
 const route = useRoute()
-const touchedDiv =ref<HTMLDivElement>()
-const fileType = route.params.fileType as string;
 const userComponent = computed(() => {
-    if (fileType.includes("image")) {
+    if (route.params.fileType.includes("image")) {
         return MyImg
-    } else if (fileType.includes("pdf")) {
+    } else if (route.params.fileType.includes("pdf")) {
         return MyPdf
-    } else if (fileType.includes("video") || fileType.includes("audio") ) {
+    } else if (route.params.fileType.includes("video") || route.params.fileType.includes("audio") ) {
         return VideoPlayer
-    } else if (fileType.includes("page")) {
+    } else if (route.params.fileType.includes("page")) {
         // webpage that includes text and files
         return Page
     } else {
-        console.warn("Unknown file type:", fileType)
+        console.warn("Unknown file type:", route.params.fileType)
         return "<p>Unkonwn file type</P>"
     }
 })
@@ -49,7 +47,8 @@ onMounted(async ()=>{
     }
 })
 async function deleted() {
-    // reference of Mimei or IPFS file has been deleted in child component
+    // reference of Mimei or IPFS file has been deleted in child component.
+    // now delete the post itself.
     try {
         await mmInfo.init(api)
         api.client.Zrem(await mmInfo.mmsidCur, route.params.title, route.params.mid, async (ret:number)=>{
@@ -64,26 +63,49 @@ async function deleted() {
         console.error(err);
     }
 }
-let posXStart = -1
 function touchStart(touchEvent: TouchEvent) {
-    // console.log(touchEvent)
-    // if (touchEvent.changedTouches.length !== 1) {
-    //     return      // only handle one finger touch
-    // }
-    // posXStart = touchEvent.changedTouches[0].clientX
-    // addEventListener('touchend', touchEvent=>this.touchend(touchEvent, posXStart), {once:true})
+    console.log(touchEvent)
+    if (touchEvent.changedTouches.length !== 1) {
+        return      // only handle one finger touch
+    }
+    const posXStart = touchEvent.changedTouches[0].clientX
+    addEventListener('touchend', touchEvent=>{
+        if (touchEvent.changedTouches.length !== 1) {
+            return      // only handle one finger touch
+        }
+        const posXEnd = touchEvent.changedTouches[0].clientX
+        if (posXStart < posXEnd-50) {
+            // swipe right
+            swiped(-1)
+        } else if (posXStart > posXEnd+50) {
+            swiped(1)
+        }
+    }, {once:true})
 }
-function touchEnd(touchEvent: TouchEvent) {
-    // console.log(touchEvent)
-    // if (touchEvent.changedTouches.length !== 1) {
-    //     return      // only handle one finger touch
-    // }
-    // const posXEnd = touchEvent.changedTouches[0].clientX
-    // if (posXStart < posXEnd) {
-    //     // swipe right
-    // } else if (posXStart > posXEnd) {
-    //     // swipe left
-    // }
+function swiped(direction: number) {
+    const fis = JSON.parse(sessionStorage["fileList"])
+    if (!fis)
+        return
+    const ni = fis.index + direction
+    console.log(ni, fis)
+    if (ni < Math.min(fis.pageSize, fis.posts.length) && ni>=0 ) {
+        const fi = fis.posts[ni]
+        route.params.mid = fi.mid
+        route.params.fileType = fi.type
+        route.params.fileName = fileName(fi)
+        delete route.params.delRef
+        nextTick(()=>{
+            router.push({name: "fileview", params: route.params})
+            console.log(route.params, userComponent.value)
+        })
+    }
+}
+watch(()=>route.params.mid, (nv, ov)=>{
+    console.log(nv, ov)
+})
+function fileName(file: FileInfo):string {
+    // console.log(file)
+    return file.caption? file.caption : file.name;
 }
 </script>
 
@@ -91,7 +113,7 @@ function touchEnd(touchEvent: TouchEvent) {
     <SpinnerVue :active="useSpinner().loading" text="Please wait......"/>
     <!-- Delete page function is in the Share Menu -->
     <ShareVue @delete-post='currentProperty["delRef"] = "true"'></ShareVue>
-    <div ref="touchedDiv" @touchstart.prevent="touchStart" @touchend.prevent="touchEnd">
+    <div @touchstart.prevent="touchStart">
         <KeepAlive>
             <component @deleted="deleted" :is="userComponent" v-bind="currentProperty"></component>
         </KeepAlive>

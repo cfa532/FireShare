@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import { useSpinner } from "../stores/lapi";
 import FileListVue from '../components/FileList.vue';
 import MainPageVue from '../components/MainPage.vue';
 import FileViewVue from '../components/FileView.vue';        // Mac files within a MM database
