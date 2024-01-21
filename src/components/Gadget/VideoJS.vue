@@ -29,7 +29,43 @@ watch(()=>props.delRef, async nv=>{
         emit("deleted")
     }
 })
-
+watch(()=>props.mid, async (cv, pv)=>{
+  if (cv !== pv) {
+    // something changed if current value != prev value
+    vdiv.value.hidden = false
+    // console.log(props, options)
+    if (props.fileType?.includes("video")) {
+      // Finally, enforce it to play new source
+      player.src({
+        src: api.baseUrl + "mf?mmsid=" + props.mmfsid,
+        type: props.fileType
+      })
+      player.play()
+    } else {
+      // videoPlayer.value?.hidden = true
+      vdiv.value.hidden = true
+    }
+  }
+})
+watch(() => props.filePath, async (cv, pv) => {
+  // watch changes of local dir
+  if (cv !== pv) {
+    // something changed if current value != prev value
+    vdiv.value.hidden = false
+    // console.log(props, options)
+    if (props.fileType?.includes("video")) {
+      // Finally, enforce it to play new source
+      player.src({
+        src: api.baseUrl + "mf?mmsid=" + props.mmfsid,
+        type: props.fileType
+      })
+      player.play()
+    } else {
+      // videoPlayer.value?.hidden = true
+      vdiv.value.hidden = true
+    }
+  }
+})
 onMounted(async ()=>{
     console.log("Videoplayer mounted", props)
     await mmInfo.init(api)
@@ -60,26 +96,6 @@ function loadPlayer(options:any, fn:()=>void = null as any) {
         });
     }
 };
-watch(()=>props.filePath, async (cv, pv)=>{
-    // watch changes of local dir
-    if (cv !== pv) {
-        // something changed if current value != prev value
-        vdiv.value.hidden = false
-        // console.log(props, options)
-        if (props.fileType?.includes("video")) {
-            // Finally, enforce it to play new source
-            player.src({
-                src: api.baseUrl + "mf?mmsid=" + props.mmfsid,
-                type: props.fileType
-            })
-            player.play()
-        } else {
-            // videoPlayer.value?.hidden = true
-            vdiv.value.hidden = true
-        }
-    }
-})
-
 onBeforeUnmount(()=>{
     if (player) {
         console.log("Video player disposed", player)

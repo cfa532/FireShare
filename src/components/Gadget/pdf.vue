@@ -32,18 +32,24 @@ onMounted(async () => {
             // window.open(api.baseUrl + "mf?mmsid="+ await api.client.MMOpen(api.sid, props.mid, "last"), "_blank")
             // history.go(-1)
             fileUrl.value = api.baseUrl + "mf?mmsid="+ await api.client.MMOpen(api.sid, props.mid, "last")
-        }
-        else
+        } else
             fileUrl.value = api.baseUrl + "ipfs/"+ props.mid;
     }
 })
-watch(()=>props.filePath, async (cv, pv)=>{
+watch(()=>props.filePath, (cv, pv)=>{
     if (cv !== pv) {
         // something changed if current value != prev value
-        console.log(props)
         if (props.fileType?.includes("pdf")) {
             fileUrl.value = api.baseUrl+"mf"+"?mmsid="+props.mmfsid
         }
+    }
+})
+watch(()=>props.mid, async (cv, pv)=>{
+    if (cv !== pv) {
+        if (props.mid?.length === 27) {
+            fileUrl.value = api.baseUrl + "mf?mmsid="+ await api.client.MMOpen(api.sid, props.mid, "last")
+        } else
+            fileUrl.value = api.baseUrl + "ipfs/"+ props.mid;
     }
 })
 </script>

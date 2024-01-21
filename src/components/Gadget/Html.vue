@@ -26,10 +26,17 @@ watch(()=>props.delRef, async nv=>{
         emit("deleted")
     }
 })
-
+watch(()=>props.mid, (nv, ov)=>{
+    textContent.value = ""
+    fileInfos.value = []
+    loadPage()
+})
 onMounted(async () => {
     console.log("Page mounted:", props)
     await mmInfo.init(api)
+    loadPage()
+})
+function loadPage() {
     api.client.MMOpen(api.sid, props.mid, "last", (fsid: string) => {
         api.client.MFGetObject(fsid, async (obj:FileInfo)=>{
             const arr = JSON.parse(obj.name)    // get a string[], [0] is the text content
@@ -52,7 +59,7 @@ onMounted(async () => {
     }, (err: Error) => {
         console.error("MFOpen error=", err)
     });
-})
+}
 function fileDownload(fi: any) {
     // window.open(api.baseUrl+"ipfs/"+fi.mid, "_blank")
     api.client.MMOpen(api.sid, fi.mid, "last", (fsid: string) => {
@@ -66,7 +73,7 @@ function fileDownload(fi: any) {
 </script>
 
 <template>
-    <div style="width: 100%;">
+    <div style="width: 100%; min-height: 60%;">
         <p v-if="textContent" style="white-space: pre-wrap; margin-top: 5px; margin-bottom: 10px;">{{textContent}}</p>
         <br>
         <div v-for="(fi, index) in fileInfos" :key="index">

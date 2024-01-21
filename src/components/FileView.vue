@@ -77,9 +77,9 @@ function touchStart(touchEvent: TouchEvent) {
         const posXEnd = touchEvent.changedTouches[0].clientX
         if (posXStart < posXEnd-50) {
             // swipe right
-            swiped(-1)
-        } else if (posXStart > posXEnd+50) {
             swiped(1)
+        } else if (posXStart > posXEnd+50) {
+            swiped(-1)
         }
     }, {once:true})
 }
@@ -87,23 +87,20 @@ function swiped(direction: number) {
     const fis = JSON.parse(sessionStorage["fileList"])
     if (!fis)
         return
-    const ni = fis.index + direction
+    const ni = fis.index - direction    // direction is counter-intuitive
     console.log(ni, fis)
     if (ni < Math.min(fis.pageSize, fis.posts.length) && ni>=0 ) {
+        fis.index = ni
+        sessionStorage["fileList"] = JSON.stringify(fis)
         const fi = fis.posts[ni]
         params.mid = fi.mid
         params.fileType = fi.type
         params.fileName = fileName(fi)
-        delete route.params.delRef
-        nextTick(()=>{
-            router.push({name: "fileview", params: params})
-            console.log(params, userComponent.value)
-        })
+        delete route.params.delRef      // to silence a warning message
+        router.push({name: "fileview", params: params})
+        console.log(params, userComponent.value)
     }
 }
-watch(()=>params.mid, (nv, ov)=>{
-    console.log(nv, ov)
-})
 function fileName(file: FileInfo):string {
     // console.log(file)
     return file.caption? file.caption : file.name;

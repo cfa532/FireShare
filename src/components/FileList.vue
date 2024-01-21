@@ -146,6 +146,10 @@ ul.aList li {
 }
 ul.aList li:hover {
   background-color: cornsilk;
+  cursor: pointer
+}
+ul.aList li a {
+    display: block;     /* make the Li row clickable */
 }
 ul.aList li:nth-child(even) {
   background: rgb(220, 247, 202, 0.5);;

@@ -24,7 +24,7 @@ watch(()=>props.delRef, async nv=>{
 })
 
 onMounted(async () => {
-    console.log("Image mounted", props)
+    // console.log("Image mounted", props)
     await mmInfo.init(api)
     imageUrl.value = await getLink()
     window.setTimeout(async ()=>{
@@ -43,6 +43,15 @@ async function getLink() {
     }
 }
 watch(()=>props.filePath, async (cv, pv)=>{
+    if (cv !== pv) {
+        // path changed if current value != prev value
+        // console.log(props)
+        if (props.fileType?.includes("image")) {
+            imageUrl.value = await getLink()
+        }
+    }
+})
+watch(()=>props.mid, async (cv, pv)=>{
     if (cv !== pv) {
         // path changed if current value != prev value
         // console.log(props)
