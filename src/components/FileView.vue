@@ -13,36 +13,37 @@ import SpinnerVue from "./Gadget/Spinner.vue";
 const api = useLeither()
 const mmInfo = useMimei()
 const route = useRoute()
+// params: {mid:file.mid, fileType:file.type}}
+route.params["delRef"] = "false"    // tell child comp to delete reference when deleting post
+const params = shallowReactive(route.params)
+
 const userComponent = computed(() => {
-    if (route.params.fileType.includes("image")) {
+    if (params.fileType.includes("image")) {
         return MyImg
-    } else if (route.params.fileType.includes("pdf")) {
+    } else if (params.fileType.includes("pdf")) {
         return MyPdf
-    } else if (route.params.fileType.includes("video") || route.params.fileType.includes("audio") ) {
+    } else if (params.fileType.includes("video") || params.fileType.includes("audio") ) {
         return VideoPlayer
-    } else if (route.params.fileType.includes("page")) {
+    } else if (params.fileType.includes("page")) {
         // webpage that includes text and files
         return Page
     } else {
-        console.warn("Unknown file type:", route.params.fileType)
+        console.warn("Unknown file type:", params.fileType)
         return "<p>Unkonwn file type</P>"
     }
 })
-// params: {mid:file.mid, fileType:file.type}}
-route.params["delRef"] = "false"    // tell child comp to delete reference when deleting post
-const currentProperty = shallowReactive(route.params)
 
 onMounted(async ()=>{
     // check session sanity
     // const r = Math.floor(Math.random()*90+10).toString()
     // assign it early otherwise title will be empty in Wechat.
-    document.title = (route.params.fileName? route.params.fileName as string : route.params.title as string)
+    document.title = (params.fileName? params.fileName as string : params.title as string)
                     +' - '+import.meta.env.VITE_PAGE_TITLE
     if (!sessionStorage["isBot"]) {
         confirm("如果在微信中转发，请点击右上角的\u2022\u2022\u2022") ? sessionStorage["isBot"] = "No" : history.go(-1)
         useSpinner().setLoadingState(false)
     } else {
-        console.log("FileView mounted,", route.params)
+        console.log("FileView mounted,", params)
         useSpinner().setLoadingState(false)
     }
 })
@@ -51,11 +52,11 @@ async function deleted() {
     // now delete the post itself.
     try {
         await mmInfo.init(api)
-        api.client.Zrem(await mmInfo.mmsidCur, route.params.title, route.params.mid, async (ret:number)=>{
+        api.client.Zrem(await mmInfo.mmsidCur, params.title, params.mid, async (ret:number)=>{
             console.log("Zrem ret=", ret)
             await mmInfo.backup()
             // redirect to parent FileList
-            router.push({name: "filelist", params:{page:1, title: route.params.title}});
+            router.push({name: "filelist", params:{page:1, title: params.title}});
         }, (err: Error) => {
             console.error("Zrem error=", err)
         })
@@ -90,17 +91,17 @@ function swiped(direction: number) {
     console.log(ni, fis)
     if (ni < Math.min(fis.pageSize, fis.posts.length) && ni>=0 ) {
         const fi = fis.posts[ni]
-        route.params.mid = fi.mid
-        route.params.fileType = fi.type
-        route.params.fileName = fileName(fi)
+        params.mid = fi.mid
+        params.fileType = fi.type
+        params.fileName = fileName(fi)
         delete route.params.delRef
         nextTick(()=>{
-            router.push({name: "fileview", params: route.params})
-            console.log(route.params, userComponent.value)
+            router.push({name: "fileview", params: params})
+            console.log(params, userComponent.value)
         })
     }
 }
-watch(()=>route.params.mid, (nv, ov)=>{
+watch(()=>params.mid, (nv, ov)=>{
     console.log(nv, ov)
 })
 function fileName(file: FileInfo):string {
@@ -112,10 +113,10 @@ function fileName(file: FileInfo):string {
 <template>
     <SpinnerVue :active="useSpinner().loading" text="Please wait......"/>
     <!-- Delete page function is in the Share Menu -->
-    <ShareVue @delete-post='currentProperty["delRef"] = "true"'></ShareVue>
+    <ShareVue @delete-post='params["delRef"] = "true"'></ShareVue>
     <div @touchstart.prevent="touchStart">
         <KeepAlive>
-            <component @deleted="deleted" :is="userComponent" v-bind="currentProperty"></component>
+            <component @deleted="deleted" :is="userComponent" v-bind="params"></component>
         </KeepAlive>
     </div>
 </template>
