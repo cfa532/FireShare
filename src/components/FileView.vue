@@ -97,7 +97,7 @@ function swiped(direction: number) {
         params.fileType = fi.type
         params.fileName = fileName(fi)
         delete route.params.delRef      // to silence a warning message
-        router.push({name: "fileview", params: params})
+        // router.push({name: "fileview", params: params})  // changes to params will triger the child component to refresh
         console.log(params, userComponent.value)
     }
 }

@@ -42,7 +42,7 @@ function getComponent(filePath: string) {
                     } else if (mimeType.includes("image")) {
                         props.value.fileType = mimeType
                         userComponent.value = MyImg
-                        console.log("get component", props.value)
+                        // console.log("get component", props.value)
                     } else if (mimeType.includes("pdf")) {
                         props.value.fileType = mimeType
                         userComponent.value = MyPdf
