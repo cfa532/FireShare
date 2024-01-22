@@ -65,10 +65,10 @@ async function deleted() {
     }
 }
 function touchStart(touchEvent: TouchEvent) {
-    console.log(touchEvent)
     if (touchEvent.changedTouches.length !== 1) {
         return      // only handle one finger touch
     }
+    console.log(touchEvent)
     const posXStart = touchEvent.changedTouches[0].clientX
     addEventListener('touchend', touchEvent=>{
         if (touchEvent.changedTouches.length !== 1) {

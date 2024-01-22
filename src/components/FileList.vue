@@ -34,7 +34,6 @@ onMounted(async ()=>{
         })
     }
 })
-
 function uploaded(fi: FileInfo) {
     fileList.value.unshift(fi)
     itemNumber.value += 1;
@@ -88,7 +87,7 @@ async function getFileList(pn: number) {
         fileList.value.push(fi)
     })
     useSpinner().setLoadingState(false)
-
+    // update session every time updating file list
     sessionStorage["fileList"] = JSON.stringify({"posts":fileList.value, "pageSize":pageSize.value, "pageNumber":pn})
 }
 function openFileView(fi: FileInfo, index: number) {
@@ -102,7 +101,6 @@ function openFileView(fi: FileInfo, index: number) {
 
 <template>
     <!-- <NaviBar :column="(columnTitle as string)"></NaviBar> -->
-    <!-- <hr/> -->
     <div v-if="columnTitle !== 'Webdav'">
         <Spinner :active="useSpinner().loading" text="Please wait......"/>
         <div v-show="api.sid">
@@ -129,6 +127,7 @@ function openFileView(fi: FileInfo, index: number) {
             :page-size="pageSize" :item-number="itemNumber"></Pager>
     </div>
     <div v-else>
+    <!-- show local files in webdav folder -->
         <MyDir :filePath="localRoot"></MyDir>
     </div>
 </template>

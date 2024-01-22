@@ -33,7 +33,7 @@ export const router = createRouter({
                     to.fullPath += "?r=0." + Date.now()
             }
         },    // mimei files
-        { path: '/fileview2/:title/:filePath', name:"fileview2", component: FileView2Vue},      // local webdav files
+        { path: '/fileview2/:filePath', name:"fileview2", component: FileView2Vue},      // local webdav files
         { path: '/fileview3/:tpt/:id', name:"fileview3", component: FileView3Vue},              // ipfs id list
         // catch all redirect to home page
         { path: '/:pathMatch(.*)*', redirect: '/' },

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, shallowReactive } from 'vue';
 import { useLeither, useMimei } from '../../stores/lapi';
 const api = useLeither();    // Leither api handler
 const mmInfo = useMimei();
@@ -11,7 +11,7 @@ const props = defineProps({
     // title: {type: String, required: true},
     delRef: {type: String, required: false}
 })
-const imageUrl = ref("")
+const imageUrl = ref()
 const showSpinner = ref(true)
 
 const emit = defineEmits(["deleted"])
@@ -22,7 +22,6 @@ watch(()=>props.delRef, async nv=>{
         emit("deleted")
     }
 })
-
 onMounted(async () => {
     // console.log("Image mounted", props)
     await mmInfo.init(api)
@@ -53,8 +52,6 @@ watch(()=>props.filePath, async (cv, pv)=>{
 })
 watch(()=>props.mid, async (cv, pv)=>{
     if (cv !== pv) {
-        // path changed if current value != prev value
-        // console.log(props)
         if (props.fileType?.includes("image")) {
             imageUrl.value = await getLink()
         }
