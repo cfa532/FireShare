@@ -24,15 +24,16 @@ function getComponent(filePath: string) {
     // check filePath info
     api.client.MFOpenByPath(api.sid, "mmroot", filePath, 0, (mmfsid:string)=>{
         // pass mmfsid, so the component do not have to open file again  
-        props.value = {filePath: filePath, mmfsid: mmfsid, fileType: ""}
         api.client.MFStat(mmfsid, (fi: any)=>{
-            // console.log("get component", filePath, fi)
             if (fi.fIsDir) {
-                props.value.filePath = filePath
+                props.value = {filePath: filePath, mmfsid: mmfsid, fileType: ""}
                 userComponent.value = MyDir;
             } else {
                 document.title = fi.fName +' - '+ import.meta.env.VITE_PAGE_TITLE
                 api.client.MFGetMimeType(mmfsid, (mimeType: string)=>{
+                    // The following line has to be executed inside this async function.
+                    // Otherwise Image component will be updated before props is properly assigned.
+                    props.value = {filePath: filePath, mmfsid: mmfsid, fileType: ""}
                     var ext = filePath.substring(filePath.lastIndexOf('.')+1)
                     if (mimeType=="video/mp4" || ['mp4','mkv','mov','avi','divx','wmv','flv','rmvb','mp3','flac'].includes(ext.toLowerCase())) {
                     // if (mimeType.includes("video")) {
@@ -41,6 +42,7 @@ function getComponent(filePath: string) {
                     } else if (mimeType.includes("image")) {
                         props.value.fileType = mimeType
                         userComponent.value = MyImg
+                        console.log("get component", props.value)
                     } else if (mimeType.includes("pdf")) {
                         props.value.fileType = mimeType
                         userComponent.value = MyPdf
@@ -96,9 +98,10 @@ function swiped(direction: number) {
         fis.index = ni
         sessionStorage["localFiles"] = JSON.stringify(fis)
         const fi = fis.files[fis.index]
-        const path = (route.params.filePath as string).substring(route.params.filePath.lastIndexOf('/')+1)
-        console.log(path+'/'+fi.fName)
-        router.push({name: "fileview2", params:{filePath: path+'/'+fi.fName}})
+        const path = (route.params.filePath as string).substring(0, route.params.filePath.lastIndexOf('/')+1)
+        console.log(path, fi.fName)
+        // router.push({name: "fileview2", params:{filePath: path+fi.fName}})
+        getComponent(path+'/'+fi.fName)
     }
 }
 watch(()=>route.params.filePath, (toParams, prevParams)=>{
