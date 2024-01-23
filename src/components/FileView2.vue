@@ -115,7 +115,7 @@ watch(()=>route.params.filePath, (toParams, prevParams)=>{
 <template>
     <!-- show Share menu if not Dir view -->
     <ShareVue v-if="userComponent != MyDir"></ShareVue>
-    <div @touchstart="touchStart">
+    <div @touchstart="touchStart" style="height: 100vh;">
         <KeepAlive>
             <component :is="userComponent" v-bind="props"></component>
         </KeepAlive>
