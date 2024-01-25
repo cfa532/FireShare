@@ -75,10 +75,10 @@ function touchStart(touchEvent: TouchEvent) {
             return      // only handle one finger touch
         }
         const posXEnd = touchEvent.changedTouches[0].clientX
-        if (posXStart < posXEnd-50) {
+        if (posXStart < posXEnd-150) {
             // swipe right
             swiped(1)
-        } else if (posXStart > posXEnd+50) {
+        } else if (posXStart > posXEnd+150) {
             swiped(-1)
         }
     }, {once:true})
@@ -111,7 +111,7 @@ function fileName(file: FileInfo):string {
     <SpinnerVue :active="useSpinner().loading" text="Please wait......"/>
     <!-- Delete page function is in the Share Menu -->
     <ShareVue @delete-post='params["delRef"] = "true"'></ShareVue>
-    <div @touchstart.prevent="touchStart">
+    <div @touchstart="touchStart">  <!-- do not use Prevent. Otherwise vertical scroll will be disabled. -->
         <KeepAlive>
             <component @deleted="deleted" :is="userComponent" v-bind="params"></component>
         </KeepAlive>
