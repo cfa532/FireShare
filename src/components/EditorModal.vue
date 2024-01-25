@@ -147,6 +147,11 @@ async function onSubmit() {
       let fvPairs: FVPair[] = (await uploadFile(filesUpload.value))
         .filter(v => { return v.status === 'fulfilled'; })
         .map((v: any) => { return { field: v.value.mid, value: v.value } });  // mid as field, fileInfo as value
+      
+      if (!fvPairs || fvPairs.length < filesUpload.value.length) {
+        // uploading files failed
+        throw "Attachments uploading failed" + fvPairs.toString()
+      }
       console.log("uploaded files", ...fvPairs, props.column);
 
       if (fvPairs.length === 1 && textValue.value.trim() === "") {
