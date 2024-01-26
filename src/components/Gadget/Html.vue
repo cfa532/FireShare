@@ -14,6 +14,7 @@ const props = defineProps({
     title: {type: String, required: false},
     delRef: {type: String, required: false}
 });
+const caption = ref("")
 const textContent = ref("")
 let mids: any[] = []
 const emit = defineEmits(["deleted"])
@@ -39,12 +40,13 @@ onMounted(async () => {
 function loadPage() {
     api.client.MMOpen(api.sid, props.mid, "last", (fsid: string) => {
         api.client.MFGetObject(fsid, async (obj:FileInfo)=>{
+            caption.value = obj.caption
             const arr = JSON.parse(obj.name)    // get a string[], [0] is the text content
             textContent.value = arr[0].trim();
             if (arr.length <2)
                 return      // no attachments
             mids = arr.slice(1);        // rest of the array are mid or IPFS of all the attachments
-            console.log(route.params.title, mids)
+            // console.log(route.params.title, mids, obj)
             api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mids, (fis:any[])=>{
                 console.log(fis)
                 mids.forEach((mid:string, i:number) => {
@@ -74,16 +76,15 @@ function fileDownload(fi: any) {
 
 <template>
     <div style="width: 100%; min-height: 60%;">
+        <b>{{ caption }}</b>
         <p v-if="textContent" style="white-space: pre-wrap; margin-top: 5px; margin-bottom: 10px;">{{textContent}}</p>
         <br>
         <div v-for="(fi, index) in fileInfos" :key="index">
             <div v-if="fi.fileType.includes('image')">
-                <Image v-bind=fi></Image>
-                <p style="margin-top: 5px; font-size: small; color:darkslategray; width: 100%; left: 40%; position:relative;">{{fi.name}}</p>
+                <Image v-bind="{...fi, index:index+1}"></Image>
             </div>
             <div v-else-if="fi.fileType.includes('video') || fi.fileType.includes('audio')">
                 <VideoJS v-bind=fi></VideoJS>
-                <p>{{fi.name}}</p>
             </div>
             <div v-else>
                 <a href="" @click.prevent="fileDownload(fi)" download="fi.name">{{fi.name}}</a>

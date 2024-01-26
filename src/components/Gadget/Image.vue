@@ -5,15 +5,19 @@ const api = useLeither();    // Leither api handler
 const mmInfo = useMimei();
 const props = defineProps({
     mid : {type: String, required: false},      // undefined when showing local files
-    fileType: {type: String, required: false},
+    fileType: {type: String, required: true},
+    title: {type: String, required: false},
+    fileName: {type: String, required: false},
+    name: {type: String, required: false},
+    index: {type: Number, required: false},
     filePath: {type: String, required: false},
-    mmfsid: {type: String, required: false},
-    // title: {type: String, required: true},
+  autoplay: {type: Boolean, required: false},
+    mmfsid: {type: String, required: false},    // for displaying local file
     delRef: {type: String, required: false}
 })
 const imageUrl = ref()
+const caption = ref()
 const showSpinner = ref(true)
-
 const emit = defineEmits(["deleted"])
 watch(()=>props.delRef, async nv=>{
     if (nv=="true") {
@@ -23,7 +27,7 @@ watch(()=>props.delRef, async nv=>{
     }
 })
 onMounted(async () => {
-    // console.log("Image mounted", props)
+    console.log("Image mounted", props)
     await mmInfo.init(api)
     imageUrl.value = await getLink()
     window.setTimeout(async ()=>{
@@ -31,6 +35,10 @@ onMounted(async () => {
     }, 500)
 });
 async function getLink() {
+    if (props.filePath)
+        caption.value = props.filePath?.substring(props.filePath.lastIndexOf('/')+1)
+    else
+        caption.value = props.index ? props.index : (props.name || props.fileName)
     if (typeof props.filePath !== "undefined") {
         // filePath not null, showing a local file
         return api.baseUrl + "mf?mmsid="+ props.mmfsid
@@ -63,5 +71,33 @@ watch(()=>props.mid, async (cv, pv)=>{
     <div v-if="showSpinner" class="spinner-grow" role="status">
         <span class="sr-only">Loading...</span>
     </div>
-    <img v-else style="max-width: 100%; object-fit: contain;" :src="imageUrl"/>
+    <div class="container">
+        <img :src="imageUrl"/>
+        <p>{{ caption }}</p>
+    </div>
 </template>
+
+<style>
+.container {
+    /* text-align: left; */
+    margin: 0px;
+    padding: 0px;
+    float: left;
+}
+.container img {
+    /* position:relative; */
+    display: block;
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+}
+.container p {
+    /* display: block; */
+    text-align: center;
+    position: relative;
+    margin-top: 5px; 
+    margin-bottom: 10px; 
+    font-size: small; 
+    color:darkslategray; 
+}
+</style>

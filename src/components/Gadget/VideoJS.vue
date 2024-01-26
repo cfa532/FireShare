@@ -8,11 +8,14 @@ const props = defineProps({
   mid: {type:String, required: false},
   fileType: {type:String, required: false},
   filePath: {type: String, required: false},
+  name: {type: String, required: false},
+  fileName: {type: String, required: false},
   mmfsid: {type: String, required: false},
   autoplay: {type: Boolean, required: false, default: true},
   delRef: {type: String, required: false}
 });
 const videoPlayer = ref<HTMLVideoElement>()
+const caption = ref()
 const vdiv = ref()  // to deal with a bug sometime player do not hide when switching components in parent Vue
 let player: any = null;
 const options = reactive({
@@ -51,6 +54,7 @@ watch(() => props.filePath, async (cv, pv) => {
   // watch changes of local dir
   if (cv !== pv) {
     // something changed if current value != prev value
+    caption.value = props.filePath?.substring(props.filePath.lastIndexOf('/') + 1)
     vdiv.value.hidden = false
     // console.log(props, options)
     if (props.fileType?.includes("video")) {
@@ -66,47 +70,50 @@ watch(() => props.filePath, async (cv, pv) => {
     }
   }
 })
-onMounted(async ()=>{
-    console.log("Videoplayer mounted", props)
-    await mmInfo.init(api)
-    vdiv.value.hidden = false
-    if (typeof props.filePath !== "undefined") {
-        // play local file in /webdav
-        options.sources = [{
-            src: api.baseUrl + "mf" + "?mmsid=" + props.mmfsid,
-            type: props.fileType
-        }]
-        loadPlayer(options)
-    } else {
-        // play mm file
-        let src = props.mid?.length===27 ? "mf?mmsid=" + await api.client.MMOpen(api.sid, props.mid, "last") : "ipfs/"+ props.mid
-        options.sources = [{
-            src: api.baseUrl + src,
-            type: props.fileType
-        }]
-        loadPlayer(options)
-    }
+onMounted(async () => {
+  console.log("Videoplayer mounted", props)
+  await mmInfo.init(api)
+  vdiv.value.hidden = false
+  if (typeof props.filePath !== "undefined") {
+    // play local file in /webdav
+    caption.value = props.filePath?.substring(props.filePath.lastIndexOf('/') + 1)
+    options.sources = [{
+      src: api.baseUrl + "mf" + "?mmsid=" + props.mmfsid,
+      type: props.fileType
+    }]
+    loadPlayer(options)
+  } else {
+    // play mm file
+    caption.value = props.name ? props.name : props.fileName
+    let src = props.mid?.length === 27 ? "mf?mmsid=" + await api.client.MMOpen(api.sid, props.mid, "last") : "ipfs/" + props.mid
+    options.sources = [{
+      src: api.baseUrl + src,
+      type: props.fileType
+    }]
+    loadPlayer(options)
+  }
 });
-function loadPlayer(options:any, fn:()=>void = null as any) {
-    if (player) {
-        player.options = options
-    } else {
-        player = videojs(videoPlayer.value, options, ()=>{
-            player.log('onPlayerReady');
-        });
-    }
+function loadPlayer(options: any, fn: () => void = null as any) {
+  if (player) {
+    player.options = options
+  } else {
+    player = videojs(videoPlayer.value, options, () => {
+      player.log('onPlayerReady');
+    });
+  }
 };
-onBeforeUnmount(()=>{
-    if (player) {
-        console.log("Video player disposed", player)
-        player.dispose();
-    }
+onBeforeUnmount(() => {
+  if (player) {
+    console.log("Video player disposed", player)
+    player.dispose();
+  }
 })
 </script>
 
 <template>
     <div ref="vdiv" hidden>
-    <video ref="videoPlayer" class="video-js vjs-default-skin  vjs-16-9" data-setup='{"fluid": true}'></video>
+      <video ref="videoPlayer" class="video-js vjs-default-skin  vjs-16-9" data-setup='{"fluid": true}'></video>
+      <p style="margin-top: 5px; font-size: small; color:darkslategray; text-align: center; position:relative;">{{ caption }}</p>
     </div>
 </template>
 <style>

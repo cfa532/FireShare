@@ -138,7 +138,8 @@ ul.aList {
   overflow: hidden;
   /* margin: 0px 0px 0px -20px; */
   width: 100%;
-  padding-left: 30px;
+  padding: 0 0 0 30px;
+  /* margin-left: 10px; */
 }
 ul.aList li {
   padding: 5px 0px 0px 0px;
@@ -152,6 +153,10 @@ ul.aList li a {
 }
 ul.aList li:nth-child(even) {
   background: rgb(220, 247, 202, 0.5);;
+}
+ul.aList li::marker {
+    color: gray;
+    /* list-style-position: inside; */
 }
 p.postbox {
   font-style: italic;

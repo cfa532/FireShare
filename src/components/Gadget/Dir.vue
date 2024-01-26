@@ -97,23 +97,19 @@ function showFile(path:string, index:number) {
 
 <template>
 <Spinner :active="useSpinner().loading" text="Please wait......"/>
-<div id="dirBody">
+<div id="dirBody" style="margin: 0px; padding: 0px;">
     <ul class="aList">
         <!-- show .. if there is a parent dir -->
-        <li class="aList" v-if="filePath!==parentPath">
-            <RouterLink :to="{name:'fileview2', params:{filePath: parentPath}}"><strong>. .</strong></RouterLink>
-        </li>
+        <div style="margin-bottom: 5px;" v-if="filePath!==parentPath">
+            <RouterLink :to="{name:'fileview2', params:{filePath: parentPath}}"><strong><b>. .</b></strong></RouterLink>
+        </div>
         <li class="aList" v-for="(file, index) in currentFiles" :key="index">
-          <span>
+          <span style="max-width: 88%; word-wrap: break-word; display: inline-block;">
             <a v-if="['docx', 'doc'].includes(file.fName.substring(file.fName.length-4).toLowerCase())"
-                href="#" @click.prevent="(e:MouseEvent)=>fileDownload(e, file)" download>{{file.fName}} &dArr;
-            </a>
+                href="#" @click.prevent="(e:MouseEvent)=>fileDownload(e, file)" download>{{file.fName}} &dArr;</a>
             <a v-else @click="showFile(filePath+file.fName, index)">{{file.fIsDir? file.fName+" ...>": file.fName}}</a>
-            <!-- <RouterLink v-else
-                :to="{ name:'fileview2', params:{filePath:filePath+file.fName}}">{{file.fIsDir? file.fName+" ...>": file.fName}}
-            </RouterLink> -->
           </span>
-        <span v-if="!file.fIsDir" style="position: absolute; right: 0; font-size: smaller;">{{ fmtSize(file.fSize) }}&nbsp;&nbsp;&nbsp;</span>
+          <span v-if="!file.fIsDir" style="position: absolute; right: 0; font-size: smaller;">{{ fmtSize(file.fSize) }}&nbsp;&nbsp;&nbsp;</span>
         </li>
     </ul>
     <Pager v-if="itemNumber/pageSize>1" @page-changed="pageChanged"
@@ -127,7 +123,11 @@ ul.aList {
   overflow: hidden;
   /* margin: 0px 0px 0px -20px; */
   width: 99%;
-  padding-left: 30px;
+  padding-left: 10px;
+}
+ul.aList li::marker {
+    color: gray;
+    /* list-style-position: outside; */
 }
 ul.aList li {
   padding: 5px 0px 0px 0px;
