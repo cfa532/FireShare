@@ -82,7 +82,8 @@ watch(()=>props.mid, async (cv, pv)=>{
     /* text-align: left; */
     margin: 0px;
     padding: 0px;
-    float: left;
+    /* float: left; */
+    display: inline-block;
 }
 .container img {
     /* position:relative; */

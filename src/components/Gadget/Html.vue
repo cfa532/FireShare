@@ -75,8 +75,8 @@ function fileDownload(fi: any) {
 </script>
 
 <template>
-    <div style="width: 100%; min-height: 60%;">
-        <b>{{ caption }}</b>
+    <div style="width: 100%; min-height: 80%;">
+        <!-- <div style="padding: 0 0 0 5px; text-align: center; background-color: rgb(250, 250, 243)">{{ caption }}</div> -->
         <p v-if="textContent" style="white-space: pre-wrap; margin-top: 5px; margin-bottom: 10px;">{{textContent}}</p>
         <br>
         <div v-for="(fi, index) in fileInfos" :key="index">

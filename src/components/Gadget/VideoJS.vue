@@ -111,12 +111,37 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div ref="vdiv" hidden>
+    <div ref="vdiv" class="container" hidden>
       <video ref="videoPlayer" class="video-js vjs-default-skin  vjs-16-9" data-setup='{"fluid": true}'></video>
       <p style="margin-top: 5px; font-size: small; color:darkslategray; text-align: center; position:relative;">{{ caption }}</p>
     </div>
 </template>
+
 <style>
+.container {
+    margin: 0px;
+    padding: 0px;
+    /* float: left; */
+    display: inline-block;
+    /* text-align: left; */
+  }
+.container video {
+    /* position:relative; */
+    display: block;
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+}
+.container p {
+    /* display: block; */
+    text-align: center;
+    position: relative;
+    margin-top: 3px; 
+    margin-bottom: 8px; 
+    font-size: small; 
+    color:darkslategray; 
+}
+
 .vjs-modal-dialog .vjs-modal-dialog-content, .video-js .vjs-modal-dialog, .vjs-button > .vjs-icon-placeholder:before, .video-js .vjs-big-play-button .vjs-icon-placeholder:before {
   position: absolute;
   top: 0;
