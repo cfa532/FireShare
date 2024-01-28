@@ -195,21 +195,21 @@ async function onSubmit() {
   }
 
   async function addPage(s: string) {
-    // create a file type PAGE.
+    // create a Mimei of file type PAGE.
     let fi = new FileInfo(s, Date.now(), s.length, "page", inpCaption.value!.trim());
     fi.mid = await api.client.MMCreate(api.sid, '', '', '{{auto}}', 1, 0x07276705);
     let fsid = await api.client.MMOpen(api.sid, fi.mid, "cur")
     await api.client.MFSetObject(fsid, fi)
     // api.client.timeout = 30000;
     await api.client.MMBackup(api.sid, fi.mid, "")
-    await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
+    await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)  // add reference to database Mimei
 
     // add new page file to index table
     let ret = await api.client.Hset(mmsidCur, props.column, fi.mid, fi)
     ret = await api.client.Zadd(mmsidCur, props.column, new ScorePair(Date.now(), fi.mid))
     console.log("Zadd ver=", fi, ret)
 
-    // back mm data for publish
+    // backup Mimei data and publish
     await mmInfo.backup()
 
     emit('uploaded', fi)

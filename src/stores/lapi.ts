@@ -181,16 +181,16 @@ export const useMimei = defineStore({
                 return this;
             })
         },
-        async backup(mid: string="") {
-            if (!mid) mid = this.mid;
+        async backup() {
             try {
-                let newVer = await this.api.client.MMBackup(this.api.sid, mid, '')
-                this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, mid, "last");
+                let newVer = await this.api.client.MMBackup(this.api.sid, this.mid, '')
+                this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, this.mid, "last");
                 // now publish a new version of database Mimei
-                let ret:DhtReply = this.api.client.MiMeiPublish(this.api.sid, "", mid)
+                let ret:DhtReply = await this.api.client.MiMeiPublish(this.api.sid, "", this.mid)
                 console.log("Mimei publish []DhtReply=", ret, this._mmsid, "newVer="+newVer)
-            } catch(err:any) {
-                throw new Error(err)
+            } catch(err) {
+                console.error("Backup or Publish error,", err)
+                throw new Error(err as string)
             }
         },
         async getColumn(title: string) {
