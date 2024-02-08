@@ -25,7 +25,7 @@ function getcurips() {
     { //for test
         // ips = "192.168.0.5:8002"
         // ips = "192.168.0.4:8000"     //台湾盒子
-        // ips = "192.168.1.4:4800"     // hz-box
+        ips = "192.168.1.4:4800"     // hz-box
         // ips = "122.231.126.230:8002"
     }
     return ips
@@ -183,7 +183,7 @@ export const useMimei = defineStore({
         },
         async backup() {
             try {
-                let newVer = await this.api.client.MMBackup(this.api.sid, this.mid, '')
+                let newVer = await this.api.client.MMBackup(this.api.sid, this.mid,"",'delref=true')
                 this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, this.mid, "last");
                 // now publish a new version of database Mimei
                 let ret:DhtReply = await this.api.client.MiMeiPublish(this.api.sid, "", this.mid)

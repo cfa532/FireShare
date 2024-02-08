@@ -201,7 +201,7 @@ async function onSubmit() {
     let fsid = await api.client.MMOpen(api.sid, fi.mid, "cur")
     await api.client.MFSetObject(fsid, fi)
     // api.client.timeout = 30000;
-    await api.client.MMBackup(api.sid, fi.mid, "")
+    await api.client.MMBackup(api.sid, fi.mid, "", "delref=true")
     await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)  // add reference to database Mimei
 
     // add new page file to index table
