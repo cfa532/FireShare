@@ -1,8 +1,6 @@
 <script setup lang="ts">
 // share menu or other right click items
-import { useLeither} from '../../stores/lapi';
 import { ref } from 'vue'
-const api = useLeither()
 const shareMenu = ref()
 const emit = defineEmits(["deletePost"])
 
