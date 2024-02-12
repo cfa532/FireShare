@@ -4,8 +4,8 @@ import MsgVue from "../components/Msg.vue";
 
 const ips = ref([]);
 const aid = ref();
+const mimeiDB = import.meta.env.VITE_MIMEI_DB
 onMounted(()=>{
-    console.log(window.getParam)
     if (window.getParam) {
         let p=window.getParam()
         aid.value = p.aid
@@ -17,6 +17,8 @@ onMounted(()=>{
 
 <template>
     <MsgVue>
-      <a v-for="ip in ips" :href="'http://'+ip+'/entry?mid='+aid+'&ver=last&r=0.'+Date.now()" style="color:lightgray">{{ ip }}&nbsp;</a>
+        {{ aid }} {{ mimeiDB }}
+        <a v-for="ip in ips" :href="'http://'+ip+'/entry?mid='+aid+'&ver=last&r=0.'+Date.now()"
+          style="color:lightgray" :key="ip">{{ ip }}&comma;&nbsp;</a>
     </MsgVue>
 </template>
