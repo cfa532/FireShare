@@ -22,12 +22,8 @@ function getcurips() {
         ips = window.location.host
         console.log("window.location", ips)
     }
-    { //for test
-        // ips = "192.168.0.5:8002"
-        // ips = "192.168.0.4:8000"     //台湾盒子
-        // ips = "192.168.1.5:4800"     // ks-box
-        // ips = "122.231.126.230:8002"
-    }
+    // replace it with testing node if defined
+    ips = import.meta.env.VITE_LEITHER_NODE ? import.meta.env.VITE_LEITHER_NODE : ips
     return ips
 };
 const ips = getcurips();
@@ -130,7 +126,7 @@ export const useMimei = defineStore({
                 {"title":"News", "titleZh":"News"}, 
                 {"title":"World", "titleZh":"World"}, 
                 {"title":"Videos", "titleZh":"小视频"}, 
-                {"title":"Pictures", "titleZh":"美色"}, 
+                {"title":"Pictures", "titleZh":"图文"}, 
                 {"title":"Twitter", "titleZh":"X", "subColumn": [
                     {"title":"Contrarian", "titleZh":"Noop"},
                     {"title":"Funny", "titleZh":"搞笑"},
