@@ -12,7 +12,6 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 
-const api = useLeither()
-useMimei().init(api)
+useMimei().init(useLeither())
 console.warn("main.ts built....on " + __BUILD_TIME__)
 app.mount("#app")
