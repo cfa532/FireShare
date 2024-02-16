@@ -21,7 +21,7 @@ const localRoot = '/'
 const columnTitle = computed(() => route.params.title as string)
 
 onMounted(async ()=>{
-    await mmInfo.init(api)
+    // await mmInfo.init(api)
     console.log("FileList mounted:", route.params)
     if (columnTitle.value !== "Webdav") {
         // not looking at local directory

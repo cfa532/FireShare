@@ -13,7 +13,7 @@ const col = ref<ContentColumn>();     // placeholder because of async mounted()
 const txtLogin = ref("Login")
 
 onMounted(async ()=>{
-    await mmInfo.init(api)
+    // await mmInfo.init(api)
     if (props.column)
         col.value = await mmInfo.getColumn(props.column) as ContentColumn
     console.log("Navibar mounted", props.column, col.value)

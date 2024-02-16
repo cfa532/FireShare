@@ -10,14 +10,9 @@ import App from './App.vue';
 const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
-// app.config.unwrapInjectedRef=true       // temp setting until ver 3.3
 app.use(router)
 
 const api = useLeither()
-useMimei().init(api).then(()=>{
-    console.warn("main.ts built....on " + __BUILD_TIME__)
-    app.mount("#app")
-}, (err)=>{
-    console.error(err);
-    api.logout();
-})
+useMimei().init(api)
+console.warn("main.ts built....on " + __BUILD_TIME__)
+app.mount("#app")

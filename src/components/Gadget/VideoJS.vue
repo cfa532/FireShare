@@ -72,7 +72,7 @@ watch(() => props.filePath, async (cv, pv) => {
 })
 onMounted(async () => {
   console.log("Videoplayer mounted", props)
-  await mmInfo.init(api)
+  // await mmInfo.init(api)
   vdiv.value.hidden = false
   if (typeof props.filePath !== "undefined") {
     // play local file in /webdav

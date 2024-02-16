@@ -34,7 +34,7 @@ watch(()=>props.mid, (nv, ov)=>{
 })
 onMounted(async () => {
     console.log("Page mounted:", props)
-    await mmInfo.init(api)
+    // await mmInfo.init(api)
     loadPage()
 })
 function loadPage() {

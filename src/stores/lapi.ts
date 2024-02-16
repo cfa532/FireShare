@@ -101,7 +101,7 @@ export const useLeither = defineStore({
             })
         },
         logout() {
-            sessionStorage.setItem("sid", "");
+            // sessionStorage.setItem("sid", "");
             this._sid = "";
             router.push({name: "main"});
         }
@@ -169,13 +169,10 @@ export const useMimei = defineStore({
         },
     },
     actions: {
-        async init(api: any) {        // leither api object
+        init(api: any) {        // leither api object
             this.$state.api = api;
-            return Promise.all([this.mmsid, this.naviColumnTree]).then((res)=>{
-                localStorage.setItem("navibarcolumns", JSON.stringify(res[1]))        // do it once during initiation  
-                window.mmInfo = this.$state;    // for easy testing
-                return this;
-            })
+            window.mmInfo = this.$state;    // for easy testing
+            return this;
         },
         async backup() {
             try {

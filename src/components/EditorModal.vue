@@ -54,7 +54,7 @@ const classModal = computed(():CSSProperties=>{
   }
 })
 onMounted(async () => {
-  await mmInfo.init(api)
+  // await mmInfo.init(api)
   console.log("Editor mount", props)
   window.addEventListener("click", onClickOutside);
 })

@@ -23,7 +23,7 @@ watch(()=>props.delRef, async nv=>{
 
 onMounted(async () => {
     console.log("PDF mounted", props)
-    await mmInfo.init(api)
+    // await mmInfo.init(api)
     if (typeof props.filePath !== "undefined") {
         // show files in local /webdav
         fileUrl.value = api.baseUrl+"mf?mmsid="+props.mmfsid
