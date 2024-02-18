@@ -23,8 +23,7 @@ function getcurips() {
         console.log("window.location", ips)
     }
     // replace it with testing node if defined
-    ips = import.meta.env.VITE_LEITHER_NODE ? import.meta.env.VITE_LEITHER_NODE : ips
-    return ips
+    return import.meta.env.VITE_LEITHER_NODE ? import.meta.env.VITE_LEITHER_NODE : ips
 };
 const ips = getcurips();
 
@@ -112,7 +111,7 @@ export const useMimei = defineStore({
     // manager persistent state variables
     id: 'MMInfo',
     state: ()=>({
-        api: {} as any,      // leither api handler
+        api: useLeither(),      // leither api handler
         // appid: "5SGm790VxI0EaoZhxKBSk_eWqid", "BM5UwSlQKiYbySrC5VLBYwFHY3s",
         // webdav: "tFy6mNifSXwt9nlyj4PYw_pJ9tM",   // 1.4
         // webdav: tA_66BjRts-xDEwlEb5STOZs4I5,     // 1.3
