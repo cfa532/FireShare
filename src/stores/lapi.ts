@@ -168,11 +168,11 @@ export const useMimei = defineStore({
         },
     },
     actions: {
-        init(api: any) {        // leither api object
-            this.$state.api = api;
-            window.mmInfo = this.$state;    // for easy testing
-            return this;
-        },
+        // init(api: any) {        // leither api object
+        //     this.$state.api = api;
+        //     window.mmInfo = this.$state;    // for easy testing
+        //     return this;
+        // },
         async backup() {
             try {
                 let newVer = await this.api.client.MMBackup(this.api.sid, this.mid,"",'delref=true')

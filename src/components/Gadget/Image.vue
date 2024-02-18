@@ -28,7 +28,7 @@ watch(()=>props.delRef, async nv=>{
 })
 onMounted(async () => {
     console.log("Image mounted", props)
-    await mmInfo.init(api)
+    // await mmInfo.init(api)
     imageUrl.value = await getLink()
     window.setTimeout(async ()=>{
         showSpinner.value = false
