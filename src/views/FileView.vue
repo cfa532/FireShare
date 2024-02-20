@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, shallowReactive, watch } from "vue";
+import { computed, onMounted, shallowReactive } from "vue";
 import { router } from '../router';
 import { useRoute } from 'vue-router';
 import { useLeither, useMimei, useSpinner } from '../stores/lapi';
-import MyImg from './Gadget/Image.vue';
-import MyPdf from './Gadget/pdf.vue';
-import VideoPlayer from './Gadget/VideoJS.vue';
-import Page from './Gadget/Html.vue';
-import ShareVue from './Gadget/Share.vue';
-import SpinnerVue from "./Gadget/Spinner.vue";
+import { Html as Page, ShareMenu, Spinner, Image, PDFView, VideoJS } from '../components/index'
 
 const api = useLeither()
 const mmInfo = useMimei()
@@ -19,11 +14,11 @@ const params = shallowReactive(route.params)
 
 const userComponent = computed(() => {
     if (params.fileType.includes("image")) {
-        return MyImg
+        return Image
     } else if (params.fileType.includes("pdf")) {
-        return MyPdf
+        return PDFView
     } else if (params.fileType.includes("video") || params.fileType.includes("audio") ) {
-        return VideoPlayer
+        return VideoJS
     } else if (params.fileType.includes("page")) {
         // webpage that includes text and files
         return Page
@@ -108,9 +103,9 @@ function fileName(file: FileInfo):string {
 </script>
 
 <template>
-    <SpinnerVue :active="useSpinner().loading" text="Please wait......"/>
+    <Spinner :active="useSpinner().loading" text="Please wait......"/>
     <!-- Delete page function is in the Share Menu -->
-    <ShareVue v-if="api.sid" @delete-post='params["delRef"] = "true"'></ShareVue>
+    <ShareMenu v-if="api.sid" @delete-post='params["delRef"] = "true"'></ShareMenu>
     <div @touchstart="touchStart">  <!-- do not use Prevent. Otherwise vertical scroll will be disabled. -->
         <KeepAlive>
             <component @deleted="deleted" :is="userComponent" v-bind="params"></component>

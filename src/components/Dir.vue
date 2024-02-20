@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
-import { useLeither, useMimei, useSpinner } from "../../stores/lapi";
-import Pager from "./Pager.vue"
-import Spinner from "./Spinner.vue";
+import { useLeither, useMimei, useSpinner } from "../stores/lapi";
+import { Pager, Spinner } from "./index"
 import { useRouter } from "vue-router";
 const router = useRouter()
 const api = useLeither();

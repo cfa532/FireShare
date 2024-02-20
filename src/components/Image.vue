@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, shallowReactive } from 'vue';
-import { useLeither, useMimei } from '../../stores/lapi';
+import { onMounted, ref, watch } from 'vue';
+import { useLeither, useMimei } from '../stores/lapi';
 const api = useLeither();    // Leither api handler
 const mmInfo = useMimei();
 const props = defineProps({

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import ColumnVue from "./Column.vue";
+import { Column } from "../components/index";
 import { useMimei, useLeither } from "../stores/lapi"
 
 const api = useLeither();
@@ -33,7 +33,7 @@ function showWebdav() {
 <template>
     <!-- push content down to not overlap with horizontal navi bar -->
     <ul class="top">
-        <column-vue v-for="(c, i) in contentColumn" :key="i" :column=c></column-vue>
+        <Column v-for="(c, i) in contentColumn" :key="i" :column=c></Column>
     </ul>
 </template>
 

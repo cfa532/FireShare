@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { CSSProperties, onMounted, onBeforeUnmount, ref, reactive, watch, computed, nextTick } from "vue";
-import Preview from "./Gadget/Preview.vue";
+import Preview from "./Preview.vue";
 import { useLeither, useMimei, useSpinner } from '../stores/lapi'
 const api = useLeither();
 const mmInfo = useMimei();
@@ -182,9 +182,9 @@ async function onSubmit() {
       }
     } else {
       // no attachment
-        // create a file type PAGE. use Name field to save a string defined as:
-        // 1st item is input of textarea, followed by mids of uploaded file
-        await addPage(JSON.stringify([textValue.value]))
+      // create a file type PAGE. use Name field to save a string defined as:
+      // 1st item is input of textarea, followed by mids of uploaded file
+      await addPage(JSON.stringify([textValue.value]))
     }
   } catch (err) {
     // something wrong uploading files, abort

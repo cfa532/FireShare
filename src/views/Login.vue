@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, onMounted, ref, watch } from "vue";
-import { useLeither, useMimei } from '../stores/lapi';
-import { useRoute, useRouter } from "vue-router";
+import { onMounted, ref } from "vue";
+import { useLeither } from '../stores/lapi';
+import { useRouter } from "vue-router";
 const api = useLeither();
 const router = useRouter()
 const usr = ref()

@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import Image from './Image.vue';
-import VideoJS from './VideoJS.vue'
+import { Image, VideoJS } from './index';
 import { onMounted, ref, watch } from 'vue';
-import { useLeither, useMimei } from '../../stores/lapi';
+import { useLeither, useMimei } from '../stores/lapi';
 import { useRoute } from 'vue-router';
 const fileInfos = ref<any[]>([])
 const route = useRoute()

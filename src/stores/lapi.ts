@@ -51,10 +51,17 @@ export const useLeither = defineStore({
         // console.log(state.hostUrl)
         client: (state) => window.hprose.Client.create(state.hostUrl, ayApi),
         sid: (state) => {
-            if (sessionStorage.getItem("sid")) {
-                state._sid = sessionStorage.getItem("sid")!
+            try {
+                if (sessionStorage.getItem("sid")) {
+                    state._sid = sessionStorage.getItem("sid")!
+                } 
+            } catch(err) {
+                console.error("Session error:", err)
+                sessionStorage.removeItem("sid")
+                state._sid = "";
+            } finally {
+                return state._sid;
             }
-            return state._sid;
         }
     },
     actions: {

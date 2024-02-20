@@ -1,13 +1,9 @@
 <script setup lang="ts">
+import { onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useLeither, useMimei } from '../stores/lapi';
-import MyImg from './Gadget/Image.vue';
-import MyPdf from './Gadget/pdf.vue';
-import MyDir from './Gadget/Dir.vue';
-import VideoPlayer from './Gadget/VideoJS.vue'
+import { MyDir, Image, PDFView, VideoJS, ShareMenu } from '../components/index'
 import { shallowRef } from '@vue/reactivity';
-import ShareVue from './Gadget/Share.vue';
-import { onMounted, ref, watch } from 'vue';
 const route = useRoute()
 const router = useRouter()
 const api = useLeither()
@@ -38,14 +34,14 @@ function getComponent(filePath: string) {
                     if (mimeType=="video/mp4" || ['mp4','mkv','mov','avi','divx','wmv','flv','rmvb','mp3','flac'].includes(ext.toLowerCase())) {
                     // if (mimeType.includes("video")) {
                         props.value.fileType = "video/mp4"
-                        userComponent.value = VideoPlayer
+                        userComponent.value = VideoJS
                     } else if (mimeType.includes("image")) {
                         props.value.fileType = mimeType
-                        userComponent.value = MyImg
+                        userComponent.value = Image
                         // console.log("get component", props.value)
                     } else if (mimeType.includes("pdf")) {
                         props.value.fileType = mimeType
-                        userComponent.value = MyPdf
+                        userComponent.value = PDFView
                     } else {
                         // unhandled file types, do nothing
                         console.log("Object type", mimeType)
@@ -114,7 +110,7 @@ watch(()=>route.params.filePath, (toParams, prevParams)=>{
 
 <template>
     <!-- show Share menu if not Dir view -->
-    <ShareVue v-if="userComponent != MyDir"></ShareVue>
+    <ShareMenu v-if="userComponent != MyDir"></ShareMenu>
     <div @touchstart="touchStart" style="height: 100vh;">
         <KeepAlive>
             <component :is="userComponent" v-bind="props"></component>

@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import { fileURLToPath, URL } from 'node:url'
 import vue from '@vitejs/plugin-vue'
 import { viteSingleFile } from "vite-plugin-singlefile"
 
@@ -9,6 +10,11 @@ export default defineConfig(({ command, mode }) => {
     build: {
       assetsDir: '.',   // create only one layer of directory structure
       cssCodeSplit: true
+    },
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url))
+      }
     },
     define: {
       // declare it in env.d.ts, otherwise won't build

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // import * as pdfobject from 'pdfobject'
 import { onMounted, watch, ref } from 'vue';
-import { useLeither, useMimei } from '../../stores/lapi';
+import { useLeither, useMimei } from '../stores/lapi';
 const api = useLeither()
 const mmInfo = useMimei()
 const props = defineProps({

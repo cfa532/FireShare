@@ -2,10 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useLeither, useMimei, useSpinner } from '../stores/lapi';
 import { useRoute, useRouter } from "vue-router";
-import MyDir from './Gadget/Dir.vue';
-import Pager from "./Gadget/Pager.vue";
-import EditorModal from "./EditorModal.vue";
-import Spinner from "./Gadget/Spinner.vue";
+import { MyDir, Pager, EditorModal, Spinner } from '../components/index'
 // import { defineAsyncComponent } from 'vue'
 // const EditorModal = defineAsyncComponent(()=>import("./EditorModal.vue"));
 const api = useLeither()

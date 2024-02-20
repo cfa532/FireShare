@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, reactive } from 'vue';
 import videojs from 'video.js';
-import { useLeither, useMimei } from '../../stores/lapi'
+import { useLeither, useMimei } from '../stores/lapi'
 const api = useLeither();
 const mmInfo = useMimei();
 const props = defineProps({
