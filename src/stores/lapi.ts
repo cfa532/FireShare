@@ -60,12 +60,6 @@ export const useLeither = defineStore({
     actions: {
         login(user="", pswd="") {
             return new Promise<string>((resolve, reject)=>{
-                // if (user=="") {
-                //     // guest user
-                //     console.log("user=",user, "psd=", pswd)
-                //     resolve(true)
-                //     return
-                // }
                 this.client.Login(user, pswd, "byname").then(
                     // this.client.Login("lsb", "123456", "byname").then(
                     (result:any)=>{ 

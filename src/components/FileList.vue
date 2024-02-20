@@ -149,7 +149,7 @@ ul.aList li:hover {
   cursor: pointer
 }
 ul.aList li a {
-    display: block;     /* make the Li row clickable */
+    display: block;     /* make the whole Li row clickable */
 }
 ul.aList li:nth-child(even) {
   background: rgb(220, 247, 202, 0.5);;
