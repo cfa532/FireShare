@@ -46,7 +46,6 @@ async function deleted() {
     // reference of Mimei or IPFS file has been deleted in child component.
     // now delete the post itself.
     try {
-        // await mmInfo.init(api)
         api.client.Zrem(await mmInfo.mmsidCur, params.title, params.mid, async (ret:number)=>{
             console.log("Zrem ret=", ret)
             await mmInfo.backup()

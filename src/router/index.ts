@@ -9,7 +9,7 @@ export const router = createRouter({
         { path: '/', name:"main", component: MainPage},
         { path: '/login', name:"login", component: Login},
         { path: '/ips', name:"ips", component: IPs},
-        { path: '/t', name:"tlink", component: TLink},
+        { path: '/t/:id?', name:"tlink", component: TLink},
         { path: '/filelist/:title/:page?', name:"filelist", component: FileList,},
         { path: '/fileview/:title/:mid/:fileType/:fileName?', name:"fileview", component: FileView,
             beforeEnter: (to)=>{

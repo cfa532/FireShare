@@ -54,7 +54,6 @@ function pageChanged(n: number) {
     router.push({name: "filelist", params: {page: n}})
 }
 function fileName(file: FileInfo):string {
-    // console.log(file)
     return file.caption? file.caption : file.name;
 }
 async function getFileList(pn: number) {
@@ -102,7 +101,7 @@ function openFileView(fi: FileInfo, index: number) {
         <Spinner :active="useSpinner().loading" text="Please wait......"/>
         <div v-show="api.sid">
             <div class="postbox">
-                <p @click="showEditor='block'" class="postbox">Tell us what is happening....</p>
+                <p @click.prevent="showEditor='block'" class="postbox">Tell us what is happening....</p>
             </div>
             <EditorModal v-if="api.sid" @uploaded="uploaded" @hide="showEditor='none'" :display="showEditor"
                 :column="columnTitle"></EditorModal>

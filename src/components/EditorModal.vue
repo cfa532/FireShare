@@ -12,7 +12,7 @@ class FileInfo{
     this.size = size;
     this.type = type;
     this.caption = caption;   // Displayed in File List view
-    this.mid = "";
+    this.mid = "";            // ipfs id if a media file, otherwise a mid id.
   }
 }
 class ScorePair {
@@ -41,7 +41,7 @@ const props = defineProps({
     // text : {type: String, required: false},       // text input from editor
     // attachments: {type: [File], required: false},
     display: {type: String, required: false, default:"none"},
-    column: {type: String, required: true}
+    column: {type: String, required: true}    // column title
 })
 const classModal = computed(():CSSProperties=>{
   return {
@@ -54,7 +54,6 @@ const classModal = computed(():CSSProperties=>{
   }
 })
 onMounted(async () => {
-  // await mmInfo.init(api)
   console.log("Editor mount", props)
   window.addEventListener("click", onClickOutside);
 })

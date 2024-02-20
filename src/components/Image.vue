@@ -11,7 +11,7 @@ const props = defineProps({
     name: {type: String, required: false},
     index: {type: Number, required: false},
     filePath: {type: String, required: false},
-  autoplay: {type: Boolean, required: false},
+    autoplay: {type: Boolean, required: false},
     mmfsid: {type: String, required: false},    // for displaying local file
     delRef: {type: String, required: false}
 })
