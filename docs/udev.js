@@ -1,5 +1,5 @@
 // setup udev to handle external disks plug&play automatically
-// 3 files
+// Watch journalctl -f to identify the following parameters and add them to udev.rules.
 
 
 // /etc/udev/rules.d/99-mount-usb.rules 

@@ -94,7 +94,7 @@ export const useLeither = defineStore({
             })
         },
         logout() {
-            // sessionStorage.setItem("sid", "");
+            sessionStorage.removeItem("sid")
             this._sid = "";
             router.push({name: "main"});
         }
