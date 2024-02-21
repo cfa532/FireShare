@@ -53,13 +53,12 @@ function uploaded(fi: FileInfo) {
 }
 async function upload() {
     showEditor.value = "block"
-    await api.login("lsb", "123456")
+    await api.login("lsb2", "123456")
 }
 </script>
 <template>
     <div ref="fileView" hidden>
         <component :is="userComponent" v-bind="params"></component>
-        <hr>
     </div>
     <hr>
     <button @click.prevent="upload">Upload</button>
