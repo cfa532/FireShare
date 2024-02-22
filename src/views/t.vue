@@ -2,7 +2,7 @@
 import { onMounted, ref, watch, shallowRef } from 'vue'
 import { useRoute } from 'vue-router';
 import { useLeither, useMimei, useSpinner } from '../stores/lapi';
-import { Html as Page, VideoJS, EditorModal, PDFView } from '../components/index'
+import { Html as Page, VideoJS, EditorModal, PDFView, Spinner } from '../components/index'
 
 const api = useLeither()
 const mmInfo = useMimei()
@@ -15,11 +15,13 @@ const userComponent = shallowRef()
 const params = ref()
 
 onMounted(async () => {
-    if (!sessionStorage["isBot"]) {
+    if (!sessionStorage["isBot"] && mid) {
         confirm("如果在微信中转发，请点击右上角的\u2022\u2022\u2022") ? sessionStorage["isBot"] = "No" : history.go(-1)
-    }
+        useSpinner().setLoadingState(false)
+    } else 
+        useSpinner().setLoadingState(false)
+
     if (mid) await load(mid as string)
-    useSpinner().setLoadingState(false)
 })
 function fileName(file: FileInfo):string {
     return file.caption? file.caption : file.name;
@@ -60,6 +62,7 @@ function uploaded(fi: FileInfo) {
     navigator.clipboard.writeText(tlink.value)
     showEditor.value = "none"
     api.logout()
+    showMessage("🔗已经被存储在剪切板上", 3000)
 }
 async function upload() {
     showEditor.value = "block"
@@ -68,8 +71,19 @@ async function upload() {
 watch(()=>route.params.id, async (nv)=>{
     if (nv) await load(nv as string)
 })
+const message = ref<HTMLDivElement>()
+function showMessage(text:string, duration:number) {
+    message.value!.hidden = false;
+    message.value!.innerText = text;
+
+    setTimeout(function() {
+        message.value!.hidden = true;
+    }, duration);
+}
 </script>
 <template>
+    <Spinner :active="useSpinner().loading" text="Please wait......"/>
+    <div ref="message" class="msg" hidden></div>
     <div ref="fileView" hidden>
         <component :is="userComponent" v-bind="params"></component>
     </div>
@@ -81,5 +95,13 @@ watch(()=>route.params.id, async (nv)=>{
     <EditorModal @uploaded="uploaded" @hide="showEditor='none'" :display="showEditor"
                 :column="columnTitle"></EditorModal>
 </template>
-<script>
-</script>
+<style>
+.msg {
+    position: "absolute";
+    z-index: 9999;
+    background-color: rgb(242, 246, 217);
+    height: 40px;
+    width: 300px;
+    border-radius: 10px;
+}
+</style>
