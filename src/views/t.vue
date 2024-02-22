@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch, shallowRef } from 'vue'
 import { useRoute } from 'vue-router';
-import { useLeither, useMimei } from '../stores/lapi';
+import { useLeither, useMimei, useSpinner } from '../stores/lapi';
 import { Html as Page, VideoJS, EditorModal, PDFView } from '../components/index'
 
 const api = useLeither()
@@ -15,7 +15,11 @@ const userComponent = shallowRef()
 const params = ref()
 
 onMounted(async () => {
+    if (!sessionStorage["isBot"]) {
+        confirm("如果在微信中转发，请点击右上角的\u2022\u2022\u2022") ? sessionStorage["isBot"] = "No" : history.go(-1)
+    }
     if (mid) await load(mid as string)
+    useSpinner().setLoadingState(false)
 })
 function fileName(file: FileInfo):string {
     return file.caption? file.caption : file.name;
@@ -23,6 +27,8 @@ function fileName(file: FileInfo):string {
 async function load(mid:string) {
     const fi = await api.client.Hget(await mmInfo.mmsid, columnTitle.value, mid)
     console.log(mid, fi)
+    document.title = fileName(fi) +' - '+import.meta.env.VITE_PAGE_TITLE
+    
     // display file content or download it.
     if (fi.type.includes("image")) {
         fileView.value!.hidden = false
