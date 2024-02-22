@@ -100,10 +100,10 @@ export const useLeither = defineStore({
                 )
             })
         },
-        logout() {
+        logout(path:any=null) {
             sessionStorage.removeItem("sid")
             this._sid = "";
-            router.push({name: "main"});
+            if (path) router.push(path);
         }
     }
 })

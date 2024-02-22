@@ -18,7 +18,7 @@ onMounted(async ()=>{
       // the error is often caused by expired sid, try logout
       // msg.value = JSON.stringify(e)
       // nextTick(()=>{msg.value = JSON.stringify(mmInfo.$state)})
-      api.logout();
+      api.logout({name: "main"});
   }
 })
 function showWebdav() {

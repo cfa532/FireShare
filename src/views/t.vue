@@ -47,13 +47,13 @@ const tlink = ref()
 function uploaded(fi: FileInfo) {
     // a file is uploaded, display it link
     console.log(fi)
-    tlink.value = window.location.href + fi.mid
+    tlink.value = window.location.href+"/"+fi.mid
     showEditor.value = "none"
     api.logout()
 }
 async function upload() {
     showEditor.value = "block"
-    await api.login("lsb2", "123456")
+    await api.login("gen8", "123456")
 }
 </script>
 <template>
