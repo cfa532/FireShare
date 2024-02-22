@@ -17,10 +17,8 @@ const params = ref()
 onMounted(async () => {
     if (!sessionStorage["isBot"] && mid) {
         confirm("如果在微信中转发，请点击右上角的\u2022\u2022\u2022") ? sessionStorage["isBot"] = "No" : history.go(-1)
-        useSpinner().setLoadingState(false)
-    } else 
-        useSpinner().setLoadingState(false)
-
+    }
+    useSpinner().setLoadingState(false)
     if (mid) await load(mid as string)
 })
 function fileName(file: FileInfo):string {
