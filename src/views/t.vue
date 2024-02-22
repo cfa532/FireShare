@@ -49,12 +49,15 @@ async function load(mid:string) {
     }
     params.value = { title: columnTitle.value, mid: fi.mid, fileType: fi.type, fileName: fileName(fi)}
 }
+
 const tlink = ref()
 function uploaded(fi: FileInfo) {
     // a file is uploaded, display it link
     console.log(window.location)
     const url = window.location.href
     tlink.value = url.substring(0, url.indexOf('/t'))+"/t/"+fi.mid
+    // save it to clipboard
+    navigator.clipboard.writeText(tlink.value)
     showEditor.value = "none"
     api.logout()
 }
@@ -73,7 +76,7 @@ watch(()=>route.params.id, async (nv)=>{
     <hr>
     <button class="btn btn-link" @click.prevent="upload">Upload</button>
     <br>
-    <a :href="tlink">{{ tlink }}</a>
+    <a style="text-decoration: underline;" :href="tlink">{{ tlink }}</a>
 
     <EditorModal @uploaded="uploaded" @hide="showEditor='none'" :display="showEditor"
                 :column="columnTitle"></EditorModal>
