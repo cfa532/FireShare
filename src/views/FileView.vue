@@ -36,11 +36,9 @@ onMounted(async ()=>{
                     +' - '+import.meta.env.VITE_PAGE_TITLE
     if (!sessionStorage["isBot"]) {
         confirm("如果在微信中转发，请点击右上角的\u2022\u2022\u2022") ? sessionStorage["isBot"] = "No" : history.go(-1)
-        useSpinner().setLoadingState(false)
-    } else {
-        console.log("FileView mounted,", params)
-        useSpinner().setLoadingState(false)
     }
+    console.log("FileView mounted,", params)
+    useSpinner().setLoadingState(false)
 })
 async function deleted() {
     // reference of Mimei or IPFS file has been deleted in child component.
