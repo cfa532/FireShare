@@ -56,11 +56,18 @@ function uploaded(fi: FileInfo) {
     console.log(window.location)
     const url = window.location.href
     tlink.value = url.substring(0, url.indexOf('/t'))+"/t/"+fi.mid
-    // save it to clipboard
-    navigator.clipboard.writeText(tlink.value)
+
+    // save it to clipboard, http way
+    var input = document.body.appendChild(document.createElement("input"));
+    input.value = tlink.value;
+    input.focus();
+    input.select();
+    document.execCommand('copy');
+    input.parentNode!.removeChild(input);
+
     showEditor.value = "none"
     api.logout()
-    showMessage("🔗已经被存储在剪切板上", 3000)
+    // showMessage("🔗已经被存储在剪切板上", 3000)
 }
 async function upload() {
     showEditor.value = "block"

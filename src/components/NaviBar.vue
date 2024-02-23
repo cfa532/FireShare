@@ -30,6 +30,7 @@ watch(()=>route.params.title, async (cv, pv)=>{
 })
 function logout() {
     if (api.sid) {
+        txtLogin.value = "Login";
         api.logout();
     } else {
         api.returnUrl = window.location.hash;
