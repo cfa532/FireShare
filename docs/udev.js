@@ -61,6 +61,9 @@ fi
 
 echo "$(date) - Script finished" >> /var/log/mount-usb-systemd.log
 
+// 拔出usb，立刻插入，然后
+dmesg
+udevadm info -a -p  $(udevadm info -q path -n /dev/sda1)
 
 UDEV  [20797.033516] add      /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.3/1-1.3:1.0/host1/target1:0:0/1:0:0:0/block/sdb/sdb2 (block)
 ACTION=add
