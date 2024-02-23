@@ -3,9 +3,9 @@
 
 
 // /etc/udev/rules.d/99-mount-usb.rules 
-# ID_PART_ENTRY_TYPE is identical to all EFI partitions, "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" and Microsoft reserved partition
-KERNEL=="sd[a-z][0-9]", SUBSYSTEM=="block", ENV{ID_PART_ENTRY_TYPE}!="c12a7328-f81f-11d2-ba4b-00a0c93ec93b", ENV{ID_PART_ENTRY_TYPE}!="e3c9e316-0b5c-4db8-817d-f92df00215ae", ACTION=$
-#KERNEL=="sd[a-z][0-9]", SUBSYSTEM=="block", ENV{ID_PART_ENTRY_NAME}!="EFI\x20System\x20Partition", ENV{ID_BUS}=="usb", ENV{ID_TYPE}=="disk", ACTION=="add", RUN+="/bin/systemctl sta$
+// ID_PART_ENTRY_TYPE is identical to all EFI partitions, "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" and Microsoft reserved partition
+KERNEL=="sd[a-z][0-9]", SUBSYSTEM=="block", ENV{ID_PART_ENTRY_TYPE}!="c12a7328-f81f-11d2-ba4b-00a0c93ec93b", ENV{ID_PART_ENTRY_TYPE}!="e3c9e316-0b5c-4db8-817d-f92df00215ae", ACTION=="add", RUN+="/bin/systemctl start usb-mount@%k.service"
+#KERNEL=="sd[a-z][0-9]", SUBSYSTEM=="block", ENV{ID_PART_ENTRY_NAME}!="EFI\x20System\x20Partition", ENV{ID_BUS}=="usb", ENV{ID_TYPE}=="disk", ACTION=="add", RUN+="/bin/systemctl start usb-mount@%k.service"
 KERNEL=="sd[a-z][0-9]", SUBSYSTEM=="block", ACTION=="remove", RUN+="/bin/systemctl stop usb-mount@%k.service"
 
 // /etc/systemd/system/usb-mount@.service 
