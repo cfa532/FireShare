@@ -38,16 +38,10 @@ function uploaded(fi: FileInfo) {
     // route.params.page = "1"
     // router.go(0);
 }
-function fileDownload(e: MouseEvent, file: any){
-    api.client.MMOpen(api.sid, file.mid, "last", (fsid: string)=> {
-        api.client.MFGetData(fsid, 0, -1, (fileData:Uint8Array)=>{
-            mmInfo.downLoadByFileData(fileData, file.name, "")
-        }, (err: Error) => {
-            console.error("Getdata error=", err)
-        })
-    }, (err: Error) => {
-        console.error("Open file error=", err)
-    })
+async function fileDownload(e: MouseEvent, file: any){
+    const fsid = await api.client.MMOpen(api.sid, file.mid, "last")
+    const fileData = await api.client.MFGetData(fsid, 0, -1)
+    mmInfo.downLoadByFileData(fileData, file.name, "")
 }
 function pageChanged(n: number) {
     getFileList(n)

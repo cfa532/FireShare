@@ -2,7 +2,7 @@
 import { onMounted, ref, watch, shallowRef } from 'vue'
 import { useRoute } from 'vue-router';
 import { useLeither, useMimei, useSpinner } from '../stores/lapi';
-import { Html as Page, VideoJS, EditorModal, PDFView, Spinner } from '../components/index'
+import { Html as Page, Image, VideoJS, EditorModal, PDFView, Spinner } from '../components/index'
 
 const api = useLeither()
 const mmInfo = useMimei()
@@ -19,14 +19,21 @@ onMounted(async () => {
         confirm("如果在微信中转发，请点击右上角的\u2022\u2022\u2022") ? sessionStorage["isBot"] = "No" : history.go(-1)
     }
     useSpinner().setLoadingState(false)
-    if (mid) await load(mid as string)
+    if (mid) {
+        const fileInfo :FileInfo = await api.client.Hget(await mmInfo.mmsid, columnTitle.value, mid)
+        if (!["image", "pdf", "video", "audio", "page"].some(s => fileInfo.type.includes(s))) {
+            //download it
+            const fsid = await api.client.MMOpen(api.sid, mid, "last")
+            const fileData = await api.client.MFGetData(fsid, 0, -1)
+            mmInfo.downLoadByFileData(fileData, fileInfo.name, "")
+        }
+        load(fileInfo)
+    }
 })
 function fileName(file: FileInfo):string {
     return file.caption? file.caption : file.name;
 }
-async function load(mid:string) {
-    const fi = await api.client.Hget(await mmInfo.mmsid, columnTitle.value, mid)
-    console.log(mid, fi)
+async function load(fi:FileInfo) {
     document.title = fileName(fi) +' - '+import.meta.env.VITE_PAGE_TITLE
     
     // display file content or download it.
@@ -44,8 +51,10 @@ async function load(mid:string) {
         fileView.value!.hidden = false
         userComponent.value = Page
     } else {
-        console.warn("Unknown file type:", fi.type)
-        return "<p>Unkonwn file type</P>"
+        const fsid = await api.client.MMOpen(api.sid, mid, "last")
+        const fileData = await api.client.MFGetData(fsid, 0, -1)
+        mmInfo.downLoadByFileData(fileData, fi.name, "")
+        console.warn("Downlaoded", fi)
     }
     params.value = { title: columnTitle.value, mid: fi.mid, fileType: fi.type, fileName: fileName(fi)}
 }
@@ -67,28 +76,18 @@ function uploaded(fi: FileInfo) {
 
     showEditor.value = "none"
     api.logout()
-    // showMessage("🔗已经被存储在剪切板上", 3000)
 }
 async function upload() {
     showEditor.value = "block"
-    await api.login("gen8", "123456")
+    await api.login("lsb2", "123456")
 }
 watch(()=>route.params.id, async (nv)=>{
-    if (nv) await load(nv as string)
+    if (nv) load(await api.client.Hget(await mmInfo.mmsid, columnTitle.value, route.params.id))
 })
-const message = ref<HTMLDivElement>()
-function showMessage(text:string, duration:number) {
-    message.value!.hidden = false;
-    message.value!.innerText = text;
 
-    setTimeout(function() {
-        message.value!.hidden = true;
-    }, duration);
-}
 </script>
 <template>
     <Spinner :active="useSpinner().loading" text="Please wait......"/>
-    <div ref="message" class="msg" hidden></div>
     <div ref="fileView" hidden>
         <component :is="userComponent" v-bind="params"></component>
     </div>
