@@ -65,7 +65,12 @@ function uploaded(fi: FileInfo) {
     console.log(window.location)
     const url = window.location.href
     tlink.value = url.substring(0, url.indexOf('/t'))+"/t/"+fi.mid
-
+    copyLink()
+    window.location.href = tlink.value
+    showEditor.value = "none"
+    api.logout()
+}
+function copyLink() {
     // save it to clipboard, http way
     var input = document.body.appendChild(document.createElement("input"));
     input.value = tlink.value;
@@ -73,13 +78,11 @@ function uploaded(fi: FileInfo) {
     input.select();
     document.execCommand('copy');
     input.parentNode!.removeChild(input);
-
-    showEditor.value = "none"
-    api.logout()
 }
-async function upload() {
+async function showEditorModal() {
     showEditor.value = "block"
-    await api.login("lsb2", "123456")
+    const s = import.meta.env.VITE_LINK_SECRET.split('|')
+    await api.login(s[0], s[1])
 }
 watch(()=>route.params.id, async (nv)=>{
     if (nv) load(await api.client.Hget(await mmInfo.mmsid, columnTitle.value, route.params.id))
@@ -87,17 +90,29 @@ watch(()=>route.params.id, async (nv)=>{
 
 </script>
 <template>
+    <EditorModal @uploaded="uploaded" @hide="showEditor='none'" :display="showEditor" :column="columnTitle"></EditorModal>
     <Spinner :active="useSpinner().loading" text="Please wait......"/>
     <div ref="fileView" hidden>
         <component :is="userComponent" v-bind="params"></component>
     </div>
     <hr>
-    <button class="btn btn-link" @click.prevent="upload">Upload</button>
-    <br>
-    <a style="text-decoration: underline;" :href="tlink">{{ tlink }}</a>
-
-    <EditorModal @uploaded="uploaded" @hide="showEditor='none'" :display="showEditor"
-                :column="columnTitle"></EditorModal>
+    <div class="container text-left">
+        <div class="row">
+            <div class="col-2">
+                <button class="btn btn-outline-primary" @click.prevent="showEditorModal">Upload</button>
+            </div>
+            <div class="col-10">
+                <a :href="tlink">{{ tlink }}</a>&nbsp;&nbsp;
+                <a class="pe-auto" style="cursor: pointer;" @click.prevent="copyLink">
+                <svg v-if="tlink" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                </svg></a>
+            </div>
+            <div class="col">
+                
+            </div>
+        </div>
+    </div>
 </template>
 <style>
 .msg {
