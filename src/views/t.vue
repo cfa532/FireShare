@@ -35,7 +35,6 @@ function fileName(file: FileInfo):string {
 }
 async function load(fi:FileInfo) {
     document.title = fileName(fi) +' - '+import.meta.env.VITE_PAGE_TITLE
-    
     // display file content or download it.
     if (fi.type.includes("image")) {
         fileView.value!.hidden = false
