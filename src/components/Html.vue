@@ -45,8 +45,8 @@ function loadPage() {
             if (arr.length <2)
                 return      // no attachments
             mids = arr.slice(1);        // rest of the array are mid or IPFS of all the attachments
-            // console.log(route.params.title, mids, obj)
-            api.client.Hmget(await mmInfo.mmsid, route.params.title, ...mids, (fis:any[])=>{
+            console.log(props.title, mids, obj)
+            api.client.Hmget(await mmInfo.mmsid, props.title, ...mids, (fis:any[])=>{
                 console.log(fis)
                 mids.forEach((mid:string, i:number) => {
                     fileInfos.value.push({mid:mid, fileType:fis[i].type, name:fis[i].name, autoplay:false})
