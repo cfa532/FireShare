@@ -12,7 +12,7 @@ const columnTitle = ref("t")    // special column for upload temp files
 const mid = route.params.id     // if none, show upload button. If valid id, display the file page.
 const fileView = ref<HTMLDivElement>()
 const userComponent = shallowRef()
-const params = ref()
+const props = ref()
 
 onMounted(async () => {
     if (!sessionStorage["isBot"] && mid) {
@@ -56,7 +56,7 @@ async function load(fi:FileInfo) {
         mmInfo.downLoadByFileData(fileData, fi.name, "")
         console.warn("Downlaoded", fi)
     }
-    params.value = { title: columnTitle.value, mid: fi.mid, fileType: fi.type, fileName: fileName(fi)}
+    props.value = { title: columnTitle.value, mid: fi.mid, fileType: fi.type, fileName: fileName(fi)}
 }
 
 const tlink = ref()
@@ -93,7 +93,7 @@ watch(()=>route.params.id, async (nv)=>{
     <EditorModal @uploaded="uploaded" @hide="showEditor='none'" :display="showEditor" :column="columnTitle"></EditorModal>
     <Spinner :active="useSpinner().loading" text="Please wait......"/>
     <div ref="fileView" hidden>
-        <component :is="userComponent" v-bind="params"></component>
+        <component :is="userComponent" v-bind="props"></component>
     </div>
     <hr>
     <div class="container text-left">
