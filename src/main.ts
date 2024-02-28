@@ -12,6 +12,8 @@ app.config.errorHandler = (err, instance, info) => {
     console.error("Global error:", err);
     console.log("Vue instance:", instance);
     console.log("Error info:", info);
+
+    sessionStorage.removeItem("sid")
 }
 
 console.warn("main.ts built....on " + __BUILD_TIME__, "ver:"+import.meta.env.VITE_APP_VERSION)
