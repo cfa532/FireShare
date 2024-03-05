@@ -115,7 +115,7 @@ onBeforeUnmount(() => {
 <template>
     <div ref="vdiv" hidden>
       <video ref="videoPlayer" class="video-js vjs-default-skin"></video>
-      <p style="margin-top: 5px; font-size: small; color:darkslategray; text-align: center; position:relative;">{{ caption }}</p>
+      <p style="margin-top: 5px; font-size: small; color:darkslategray; left: 30%; position:relative;">{{ caption }}</p>
     </div>
 </template>
 
