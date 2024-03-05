@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch, reactive, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue';
 import videojs from 'video.js';
 import { useLeither, useMimei } from '../stores/lapi'
 const api = useLeither();
@@ -14,10 +14,12 @@ const props = defineProps({
   autoplay: {type: Boolean, required: false, default: true},
   delRef: {type: String, required: false}
 });
-
+const videoPlayer = ref()
+const audioPlayer = ref()
 const caption = ref()
 const vdiv = ref()  // to deal with a bug sometime player do not hide when switching components in parent Vue
 let player: any = null;
+const mediaType = computed(() => props.fileType?.includes("video")? "video" : "audio")
 
 const emit = defineEmits(["deleted"])
 watch(()=>props.delRef, async nv=>{
@@ -51,7 +53,7 @@ watch(() => props.filePath, async (cv, pv) => {
     // something changed if current value != prev value
     caption.value = props.filePath?.substring(props.filePath.lastIndexOf('/') + 1)
     vdiv.value.hidden = false
-    if (props.fileType?.includes("video")) {
+    if (props.fileType?.includes("video") || props.fileType?.includes("audio")) {
       // Finally, enforce it to play new source
       player.src({
         src: api.baseUrl + "mf?mmsid=" + props.mmfsid,
@@ -78,15 +80,18 @@ onMounted(async () => {
   const options = {
     controls: true,
     autoplay: props.autoplay,
-    fluid: false,
+    // fluid: true,
     responsive: true,
     sources: [{src: src, type: props.fileType}],
   };
-  player = videojs('videoPlayer', options, () => {
-    console.log('onPlayerReady')
-    vdiv.value.hidden = false
-  })
-});
+  if (mediaType.value == "video")
+    player = videojs(videoPlayer.value, options, () => {
+      vdiv.value.hidden = false
+    })
+  else
+    player = videojs(audioPlayer.value, options, () => {
+      vdiv.value.hidden = false
+    })});
 
 onBeforeUnmount(() => {
   if (player) {
@@ -98,14 +103,15 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="vdiv" hidden>
-    <video id="videoPlayer" class="video-js vjs-default-skin"></video>
-    <p style="margin-top: 5px; font-size: small; color:darkslategray; left: 30%; position:relative;">{{ caption }}</p>
+    <video-js v-if="mediaType=='video'" ref="videoPlayer" class="video-js vjs-default-skin vjs-16-9" data-setup='{}' preload="auto"></video-js>
+    <audio v-else ref="audioPlayer" class="video-js vjs-default-skin" data-setup='{}' width="500px" height="50px" controls="true" preload="auto"></audio>
+    <p style="margin-top: 5px; font-size: small; color:darkslategray; left: 15%; position:relative;">{{ caption }}</p>
   </div>
 </template>
 
 <style>
 .video-js {
     max-height: 95vh;
-    background-color: white;
+    /* background-color: transparent !important; */
   }
 </style>
