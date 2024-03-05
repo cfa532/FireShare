@@ -67,10 +67,10 @@ function touchStart(touchEvent: TouchEvent) {
             return      // only handle one finger touch
         }
         const posXEnd = touchEvent.changedTouches[0].clientX
-        if (posXStart < posXEnd-150) {
+        if (posXStart < posXEnd-50) {
             // swipe right
             swiped(1)
-        } else if (posXStart > posXEnd+150) {
+        } else if (posXStart > posXEnd+50) {
             swiped(-1)
         }
     }, {once:true})

@@ -27,7 +27,6 @@ const parentPath = computed(()=>{
 const filePath = computed(()=>{
     return props.filePath==='/' ? '/' : props.filePath+'/';
 })
-
 onMounted(async ()=>{
     console.log("Dir mounted:", props)
     await showDir(filePath.value)

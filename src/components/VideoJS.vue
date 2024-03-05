@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch, reactive } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, reactive, nextTick } from 'vue';
 import videojs from 'video.js';
 import { useLeither, useMimei } from '../stores/lapi'
 const api = useLeither();
@@ -14,17 +14,10 @@ const props = defineProps({
   autoplay: {type: Boolean, required: false, default: true},
   delRef: {type: String, required: false}
 });
-const videoPlayer = ref<HTMLVideoElement>()
+
 const caption = ref()
 const vdiv = ref()  // to deal with a bug sometime player do not hide when switching components in parent Vue
 let player: any = null;
-const options = reactive({
-    controls: true,
-    autoplay: props.autoplay,
-    fluid: false,
-    responsive: true,
-    sources: [{src:"", type :"" as string | undefined}]
-});
 
 const emit = defineEmits(["deleted"])
 watch(()=>props.delRef, async nv=>{
@@ -34,31 +27,30 @@ watch(()=>props.delRef, async nv=>{
         emit("deleted")
     }
 })
-watch(()=>props.mid, async (cv, pv)=>{
-  if (cv !== pv) {
-    // something changed if current value != prev value
-    vdiv.value.hidden = false
-    // console.log(props, options)
-    if (props.fileType?.includes("video")) {
-      // Finally, enforce it to play new source
-      player.src({
-        src: api.baseUrl + "mf?mmsid=" + props.mmfsid,
-        type: props.fileType
-      })
-      player.play()
-    } else {
-      // videoPlayer.value?.hidden = true
-      vdiv.value.hidden = true
-    }
-  }
-})
+// watch(()=>props.mid, async (cv, pv)=>{
+//   if (cv !== pv) {
+//     // something changed if current value != prev value
+//     vdiv.value.hidden = false
+//     // console.log(props, options)
+//     if (props.fileType?.includes("video")) {
+//       // Finally, enforce it to play new source
+//       player.src({
+//         src: api.baseUrl + "mf?mmsid=" + props.mmfsid,
+//         type: props.fileType
+//       })
+//       player.play()
+//     } else {
+//       // videoPlayer.value?.hidden = true
+//       vdiv.value.hidden = true
+//     }
+//   }
+// })
 watch(() => props.filePath, async (cv, pv) => {
   // watch changes of local dir
   if (cv !== pv) {
     // something changed if current value != prev value
     caption.value = props.filePath?.substring(props.filePath.lastIndexOf('/') + 1)
     vdiv.value.hidden = false
-    // console.log(props, options)
     if (props.fileType?.includes("video")) {
       // Finally, enforce it to play new source
       player.src({
@@ -67,43 +59,35 @@ watch(() => props.filePath, async (cv, pv) => {
       })
       player.play()
     } else {
-      // videoPlayer.value?.hidden = true
       vdiv.value.hidden = true
     }
   }
 })
 onMounted(async () => {
   console.log("Videoplayer mounted", props)
-  // await mmInfo.init(api)
-  vdiv.value.hidden = false
+  let src = api.baseUrl
   if (typeof props.filePath !== "undefined") {
     // play local file in /webdav
     caption.value = props.filePath?.substring(props.filePath.lastIndexOf('/') + 1)
-    options.sources = [{
-      src: api.baseUrl + "mf" + "?mmsid=" + props.mmfsid,
-      type: props.fileType
-    }]
-    loadPlayer(options)
+    src += "mf" + "?mmsid=" + props.mmfsid
   } else {
     // play mm file
+    src += props.mid?.length==27 ? "mf?mmsid=" + await api.client.MMOpen(api.sid, props.mid, "last") : "ipfs/" + props.mid
     caption.value = props.name ? props.name : props.fileName
-    let src = props.mid?.length === 27 ? "mf?mmsid=" + await api.client.MMOpen(api.sid, props.mid, "last") : "ipfs/" + props.mid
-    options.sources = [{
-      src: api.baseUrl + src,
-      type: props.fileType
-    }]
-    loadPlayer(options)
   }
+  const options = {
+    controls: true,
+    autoplay: props.autoplay,
+    fluid: false,
+    responsive: true,
+    sources: [{src: src, type: props.fileType}],
+  };
+  player = videojs('videoPlayer', options, () => {
+    console.log('onPlayerReady')
+    vdiv.value.hidden = false
+  })
 });
-function loadPlayer(options: any, fn: () => void = null as any) {
-  if (player) {
-    player.options = options
-  } else {
-    player = videojs(videoPlayer.value, options, () => {
-      player.log('onPlayerReady');
-    });
-  }
-};
+
 onBeforeUnmount(() => {
   if (player) {
     console.log("Video player disposed", player)
@@ -113,14 +97,15 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div ref="vdiv" hidden>
-      <video ref="videoPlayer" class="video-js vjs-default-skin"></video>
-      <p style="margin-top: 5px; font-size: small; color:darkslategray; left: 30%; position:relative;">{{ caption }}</p>
-    </div>
+  <div ref="vdiv" hidden>
+    <video id="videoPlayer" class="video-js vjs-default-skin"></video>
+    <p style="margin-top: 5px; font-size: small; color:darkslategray; left: 30%; position:relative;">{{ caption }}</p>
+  </div>
 </template>
 
 <style>
 .video-js {
     max-height: 95vh;
-}
+    background-color: white;
+  }
 </style>
