@@ -80,7 +80,7 @@ onMounted(async () => {
   const options = {
     controls: true,
     autoplay: props.autoplay,
-    // fluid: true,
+    fluid: true,
     responsive: true,
     sources: [{src: src, type: props.fileType}],
   };
@@ -104,7 +104,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="vdiv" hidden>
-    <video-js v-if="mediaType=='video'" ref="videoPlayer" class="video-js vjs-default-skin" data-setup='{}' preload="auto"></video-js>
+    <video-js v-if="mediaType=='video'" ref="videoPlayer" class="video-js vjs-default-skin" data-setup='{}' controls="true" preload="auto"></video-js>
     <audio v-else id="audioPlayer" style="background-color: transparent !important;" class="video-js vjs-default-skin" data-setup='{}' width="400px" height="50px" controls="true" preload="auto"></audio>
     <p style="margin-top: 5px; font-size: small; color:darkslategray; left: 15%; position:relative;">{{ caption }}</p>
   </div>
