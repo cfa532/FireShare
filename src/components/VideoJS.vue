@@ -87,7 +87,7 @@ onMounted(async () => {
     player = videojs(videoPlayer.value, options, () => {
       vdiv.value.hidden = false
       player.controlBar.el().style.backgroundColor = "transparent !important"
-      player.fluid(false)
+      player.fluid(true)
     })
   else {
     player = videojs("audioPlayer", options, () => {
