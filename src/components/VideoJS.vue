@@ -80,7 +80,6 @@ onMounted(async () => {
   const options = {
     controls: true,
     autoplay: props.autoplay,
-    fluid: true,
     responsive: true,
     sources: [{src: src, type: props.fileType}],
   };
@@ -88,6 +87,7 @@ onMounted(async () => {
     player = videojs(videoPlayer.value, options, () => {
       vdiv.value.hidden = false
       player.controlBar.el().style.backgroundColor = "transparent !important"
+      player.fluid(false)
     })
   else {
     player = videojs("audioPlayer", options, () => {
@@ -119,7 +119,7 @@ onBeforeUnmount(() => {
 }
 .audioPlayer-dimensions {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   height: 40px;
   background-color: transparent !important;
 }
