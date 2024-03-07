@@ -89,10 +89,12 @@ onMounted(async () => {
       vdiv.value.hidden = false
       player.controlBar.el().style.backgroundColor = "transparent !important"
     })
-  else
+  else {
     player = videojs("audioPlayer", options, () => {
       vdiv.value.hidden = false
-    })});
+      player.fluid(false)
+    })}
+  });
 
 onBeforeUnmount(() => {
   if (player) {
@@ -105,7 +107,7 @@ onBeforeUnmount(() => {
 <template>
   <div ref="vdiv" hidden>
     <video-js v-if="mediaType=='video'" ref="videoPlayer" class="video-js vjs-default-skin" data-setup='{}' controls="true" preload="auto"></video-js>
-    <audio v-else id="audioPlayer" style="background-color: transparent !important;" class="video-js vjs-default-skin" data-setup='{}' width="400px" height="50px" controls="true" preload="auto"></audio>
+    <audio v-else id="audioPlayer" class="video-js vjs-default-skin" data-setup='{}' controls="true" preload="auto"></audio>
     <p style="margin-top: 5px; font-size: small; color:darkslategray; left: 15%; position:relative;">{{ caption }}</p>
   </div>
 </template>
@@ -114,5 +116,11 @@ onBeforeUnmount(() => {
 .video-js {
     max-height: 95vh;
     /* background-color: transparent !important; */
+}
+.audioPlayer-dimensions {
+  width: 100%;
+  max-width: 400px;
+  height: 40px;
+  background-color: transparent !important;
 }
 </style>
