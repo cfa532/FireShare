@@ -45,3 +45,7 @@ interface FileInfo {
   mid:string      // mimei ID associated with the File
   caption:string   // Displayed in File List view
 }
+type AddrInfo = {
+  ID:    string       //node ID, ipfs中可以识别的id
+  Addrs: string[]
+}
