@@ -105,7 +105,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="vdiv" hidden>
+  <div ref="vdiv" hidden class="col-sm-12 col-md-10 col-lg-8">
     <video-js v-if="mediaType=='video'" ref="videoPlayer" class="video-js vjs-default-skin" data-setup='{}' controls="true" preload="auto"></video-js>
     <audio v-else id="audioPlayer" class="video-js vjs-default-skin" data-setup='{}' controls="true" preload="auto"></audio>
     <p style="margin-top: 5px; font-size: small; color:darkslategray; left: 15%; position:relative;">{{ caption }}</p>
@@ -117,6 +117,7 @@ onBeforeUnmount(() => {
     max-height: 95vh;
     /* background-color: transparent !important; */
 }
+
 .audioPlayer-dimensions {
   width: 100%;
   max-width: 500px;

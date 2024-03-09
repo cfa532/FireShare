@@ -17,7 +17,6 @@ const props = defineProps({
 })
 const imageUrl = ref()
 const caption = ref()
-const showSpinner = ref(true)
 const emit = defineEmits(["deleted"])
 watch(()=>props.delRef, async nv=>{
     if (nv=="true") {
@@ -30,9 +29,6 @@ onMounted(async () => {
     console.log("Image mounted", props)
     // await mmInfo.init(api)
     imageUrl.value = await getLink()
-    window.setTimeout(async ()=>{
-        showSpinner.value = false
-    }, 500)
 });
 async function getLink() {
     if (props.filePath)
@@ -68,9 +64,6 @@ watch(()=>props.mid, async (cv, pv)=>{
 </script>
 
 <template>
-    <div v-if="showSpinner" class="spinner-grow" role="status">
-        <span class="sr-only">Loading...</span>
-    </div>
     <div class="container">
         <img :src="imageUrl"/>
         <p>{{ caption }}</p>
