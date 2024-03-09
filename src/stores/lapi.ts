@@ -127,28 +127,6 @@ export const useMimei = defineStore({
                 {"title":"Test", "titleZh":"TCL"},
                 {"title":"Webdav", "titleZh":"本地文档"}
             ];
-            // resolve(state._naviColumnTree);
-            // return new Promise<ContentColumn[]>((resolve, reject)=>{
-            //     if (state._naviColumnTree.length>0) resolve(state._naviColumnTree);
-            //     else {
-            //         // if (localStorage.getItem("navibarcolumns")) {
-            //         //     state._naviColumnTree = JSON.parse(localStorage.getItem("navibarcolumns")!)
-            //         //     resolve(state._naviColumnTree)
-            //         //     return
-            //         // }
-            //         this.api.client.MMOpen(this.api.sid, this.midNaviBar, "last", (mmsid: string)=>{
-            //             console.log("MMOPen mmsid="+mmsid, "sid="+this.api.sid)
-            //             this.api.client.MFGetObject(mmsid, (o:any)=>{
-            //                 state._naviColumnTree = o
-            //                 resolve(o)
-            //             }, (err:Error)=>{
-            //                 reject("useMimei MFGetObject err="+err)
-            //             })
-            //         }, (err:Error)=>{
-            //             reject("useMimei MMOpen err="+err)
-            //         })
-            //     }
-            // })
         },    
         mmsid: async function(state) :Promise<string> {
             state._mmsid = state._mmsid? state._mmsid : await this.api.client.MMOpen(this.api.sid, this.mid, "last");
