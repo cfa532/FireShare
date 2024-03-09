@@ -74,10 +74,11 @@ export const useLeither = defineStore({
                             console.log("ppt=", JSON.parse(ppt))
                             this.client.RequestService(ppt).then(
                                 (map:any)=>{
-                                    console.log("Request service, ", map)
-                                    console.log("return url", this.returnUrl)
+                                    // get IP of a node the user can write to.
+                                    getIPtoWrite()
+
+                                    console.log("Request service.", `return URL ${this.returnUrl}`)
                                     resolve(this.returnUrl.slice(2))         // remove the leading #/
-                                    // router.push(this.returnUrl.slice(2))   
                                 }, (err:Error)=>{
                                     console.error("Request service error=", err)
                                     reject("Request service error")
@@ -180,4 +181,38 @@ function findColumn(cols:ContentColumn[], title:string) :ContentColumn|undefined
         }
     }
     return col
+}
+
+export function getIPtoWrite() {
+    // return the 
+    let nodes = (import.meta.env.VITE_NODE_LIST as string).split(/\s*,\s*/)
+    const api = useLeither()
+    var firstRespondedIp = ""
+    nodes.forEach(async nid=>{
+        var n: AddrInfo = await api.client.DhtFindPeer(api.sid, nid)
+        n.addrs.forEach(l => {
+            var addr = l.split('/')
+            var ip = addr[2]
+            var port = addr[4]
+            if (!ip.startsWith('192.168')) {
+                console.log(ip+":"+port, nid)
+                sendRequest(ip+":"+port)
+            }
+        })
+    })
+
+    // test availability of the ip
+    const sendRequest = (ip:string) => {
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', ip, true);
+        xhr.timeout = 5000; // 5 seconds timeout
+        xhr.ontimeout = () => console.warn(`Timeout for ${ip}`);
+        xhr.onload = () => {
+            if (xhr.status===200 && !firstRespondedIp) {
+                firstRespondedIp = ip;
+                console.log(`firstRespondedIp = ${ip}`)
+            }
+        };
+        xhr.send(null);
+    };
 }
