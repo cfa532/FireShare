@@ -7,7 +7,13 @@ import removeConsole from "vite-plugin-remove-console";
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
   return {
-    plugins: [vue(), viteSingleFile({inlinePattern: ["*.css"]}), removeConsole({ includes: ["log"]})],
+    plugins: [vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => ['video-js'].includes(tag)    // video-js is custom component
+        }
+      }
+    }), viteSingleFile({inlinePattern: ["*.css"]}), removeConsole({ includes: ["log"]})],
     build: {
       assetsDir: '.',   // create only one layer of directory structure
       cssCodeSplit: true,

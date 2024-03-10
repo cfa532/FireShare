@@ -10,7 +10,7 @@ onMounted(async ()=>{
   document.title = import.meta.env.VITE_PAGE_TITLE
   try {
       // await mmInfo.init(api)
-      contentColumn.value = await mmInfo.naviColumnTree
+      contentColumn.value = mmInfo.naviColumnTree
       console.log("main page mounted", mmInfo.$state, api.$state)
       // msg.value = JSON.stringify(mmInfo.$state)
   } catch(e) {

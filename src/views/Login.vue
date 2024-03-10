@@ -3,21 +3,18 @@ import { onMounted, ref } from "vue";
 import { useLeither } from '../stores/lapi';
 import { useRouter } from "vue-router";
 const api = useLeither();
-const router = useRouter()
+// const router = useRouter()
 const usr = ref()
 const psd = ref()
 async function login() {
     try {
-        let returnUrl = await api.login(usr.value.trim(), psd.value.trim());
-        router.push(returnUrl)
+        let returnUrl = api.login(usr.value.trim(), psd.value.trim());
+        // router.push(returnUrl)
     } catch(err) {
         console.error(err)
         alert("Login failed.")
     }
 }
-onMounted(()=>{
-    console.log("login mounted")
-})
 </script>
 
 <template>

@@ -9,47 +9,36 @@ const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmL
     "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan",
     "MMRelease", "MMBackup", "MFStat", "Zrem", "Zremrangebyscore", "MiMeiPublish", "PullMsg", "MFTemp2Ipfs", "MFSetCid",
     "MMSum", "MiMeiSync", "IpfsAdd", "MMAddRef", "MMDelRef", "MMDelVers", "MMRelease", "MMGetRef", "MMGetRefs", "Hdel",
-    "DhtFindPeer"
+    "DhtFindPeer", "Logout"
 ];
 
-function getcurips() {
-    let ips = "127.0.0.1:4800"
+function getCurNodeIP() {
+    let ip = "127.0.0.1:4800"
     // getParam is a Leither function
     if (window.getParam != null){
         let p=window.getParam()
-        ips = p["ips"][p.CurNode]
-        console.log("window.getParam", ips, p)
+        ip = p["ips"][p.CurNode]
+        console.warn("window.getParam", p["aid"], import.meta.env.VITE_MIMEI_DB)
     } else if (window.location.host != ""){
-        ips = window.location.host
-        console.log("window.location", ips)
+        ip = window.location.host
+        console.log("window.location", ip)
     }
     // replace it with testing node if defined
-    return import.meta.env.VITE_LEITHER_NODE ? import.meta.env.VITE_LEITHER_NODE : ips
+    return import.meta.env.VITE_LEITHER_NODE ? import.meta.env.VITE_LEITHER_NODE : ip
 };
-const ips = getcurips();
-
-export const useSpinner = defineStore({
-    id: "loadSpinner",
-    state: ()=>({
-        loading: true
-    }),
-    actions: {
-        setLoadingState(s: boolean) {
-            this.loading = s;
-        }
-    }
-});
+const curIP = getCurNodeIP();
 
 export const useLeither = defineStore({
     id: 'LeitherApiHandler', 
     state: ()=>({
         _sid: "",
         returnUrl: "",
-        hostUrl: "ws://" + ips +"/ws/",
-        baseUrl: "http://" + ips + "/",
+        baseIP: curIP,
+        hostIP: "",    // IP address of node to write
     }),
     getters: {
-        client: (state) => window.hprose.Client.create(state.hostUrl, ayApi),
+        client: (state) => window.hprose.Client.create("ws://" + state.baseIP +"/ws/", ayApi),
+        baseUrl: (state) => window.location.protocol+'//'+state.baseIP+'/' ,
         sid: (state) => {
             if (sessionStorage.getItem("sid") && !state._sid) {
                 state._sid = sessionStorage.getItem("sid")!
@@ -58,47 +47,82 @@ export const useLeither = defineStore({
         }
     },
     actions: {
-        login(user="", pswd="") {
-            return new Promise<string>((resolve, reject)=>{
-                this.client.Login(user, pswd, "byname").then(
-                    // this.client.Login("lsb", "123456", "byname").then(
-                    (result:any)=>{ 
-                        this._sid = result.sid
+        login(user: string, pswd: string) {
+            let nodes = (import.meta.env.VITE_NODE_LIST as string).split(/\s*,\s*/)
+            this.hostIP = ""
+            nodes.forEach(async nid => {
+                var n: AddrInfo = await this.client.DhtFindPeer(this.sid, nid)
+                n.addrs.forEach(l => {
+                    var addr = l.split('/')
+                    var ip = addr[2]
+                    var port = addr[4]
+                    if (!ip.startsWith('192.168')) {
+                        console.log(ip + ":" + port, nid)
+                        sendRequest(ip + ":" + port)
+                    }
+                })
+            })
+
+            // test availability of the ip
+            const sendRequest = (ip: string) => {
+                let xhr = new XMLHttpRequest();
+                xhr.open('GET', ip, true);
+                xhr.timeout = 5000; // 5 seconds timeout
+                xhr.ontimeout = () => console.warn(`Timeout for ${ip}`);
+                xhr.onload = () => {
+                    if (xhr.status === 200 && !this.hostIP) {
+                        this.hostIP = ip;
+                        // this.hostUrl = window.location.protocol + ip;
+                        this.baseIP = this.hostIP      // switch to node that can write to MM aftre login
+                        console.log(`First responded host ${this.baseUrl}`)
+                        nLogin(this)
+                    }
+                };
+                xhr.send(null);
+            };
+
+            // return new Promise<string>((resolve, reject)=>{
+            // })
+            function nLogin(that: any) {
+                that.client.Login(user, pswd, "byname").then(
+                    (result: any) => {
+                        that._sid = result.sid
                         sessionStorage.setItem("sid", result.sid)
-                        this.client.SignPPT(this._sid, {
+                        that.client.SignPPT(result.sid, {
                             CertFor: "Self",
                             Userid: result.uid,
                             RequestService: "mimei"
                         }, 1).then(
-                            (ppt:any)=>{
-                            console.log("ppt=", JSON.parse(ppt))
-                            this.client.RequestService(ppt).then(
-                                (map:any)=>{
-                                    // get IP of a node the user can write to.
-                                    getIPtoWrite()
-
-                                    console.log("Request service.", `return URL ${this.returnUrl}`)
-                                    resolve(this.returnUrl.slice(2))         // remove the leading #/
-                                }, (err:Error)=>{
-                                    console.error("Request service error=", err)
-                                    reject("Request service error")
-                                })
-                        }, (err:Error)=>{
-                            console.error("Sign PPT error=", err)
-                            reject("Sign PPT error")
-                        })
-                    }, (e:Error) => {
+                            (ppt: any) => {
+                                that.client.RequestService(ppt).then(
+                                    (map: any) => {
+                                        // get IP of a node the user can write to and switch to it.
+                                        console.log(`Request service:`, result, that.$state, that.returnUrl)
+                                        that.returnUrl = that.returnUrl.slice(2)         // remove the leading #/
+                                        useMimei().$reset()
+                                        router.push(that.returnUrl)
+                                    }, (err: Error) => {
+                                        console.error(`Request service error ${err}`)
+                                    })
+                            }, (err: Error) => {
+                                console.error("Sign PPT error=", err)
+                            })
+                    }, (e: Error) => {
                         console.error("Login error=", e)
-                        reject("Login error")
                     }
                 )
-            })
-        },
+            }
+        }, 
         logout(path:any=null) {
+            // this.client.Logout(this.sid, "Logout Leither")
             sessionStorage.removeItem("sid")
             this._sid = "";
+            // this.baseUrl = "http://" + this.baseIP + "/"        // switch back to the fastest IP
+            this.baseIP = curIP
+            this.hostIP = ""
+            useMimei().$reset()
             if (path) router.push(path);
-        }
+        },
     }
 })
 
@@ -109,7 +133,6 @@ export const useMimei = defineStore({
         api: useLeither(),      // leither api handler
         mid: import.meta.env.VITE_MIMEI_DB,  // database Mimei for this App
         _mmsid: "",
-        _naviColumnTree: [] as ContentColumn[],            // current Column object. Set when title is checked.
     }),
     getters: {
         naviColumnTree: function(state) {
@@ -146,9 +169,9 @@ export const useMimei = defineStore({
         async backup() {
             try {
                 let newVer = await this.api.client.MMBackup(this.api.sid, this.mid,"",'delref=true')
-                this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, this.mid, "last");
                 // now publish a new version of database Mimei
                 let ret:DhtReply = await this.api.client.MiMeiPublish(this.api.sid, "", this.mid)
+                this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, this.mid, "last");
                 console.log("Mimei publish []DhtReply=", ret, this._mmsid, "newVer="+newVer)
             } catch(err) {
                 console.error("Backup or Publish error,", err)
@@ -157,7 +180,20 @@ export const useMimei = defineStore({
         },
         async getColumn(title: string) {
             // given title, return Column obj, and set Column at the same time
-            return findColumn(await this.naviColumnTree, title);
+            return findColumn(this.naviColumnTree, title);
+
+            function findColumn(cols:ContentColumn[], title:string) :ContentColumn|undefined  {
+                let col = cols.find((c) => c.title===title);
+                if (!col) {
+                    for(var c of cols) {
+                        if (c.subColumn) {
+                            var c1 = findColumn(c.subColumn, title);
+                            if (c1) return c1;
+                        }
+                    }
+                }
+                return col
+            }
         },
         downLoadByFileData(content:Uint8Array, fileName:string, mimeType:string) {
             var a = document.createElement("a");
@@ -170,49 +206,15 @@ export const useMimei = defineStore({
     }
 });
 
-function findColumn(cols:ContentColumn[], title:string) :ContentColumn|undefined  {
-    let col = cols.find((c) => c.title===title);
-    if (!col) {
-        for(var c of cols) {
-            if (c.subColumn) {
-                var c1 = findColumn(c.subColumn, title);
-                if (c1) return c1;
-            }
+export const useSpinner = defineStore({
+    id: "loadSpinner",
+    state: ()=>({
+        loading: true
+    }),
+    actions: {
+        setLoadingState(s: boolean) {
+            this.loading = s;
         }
     }
-    return col
-}
+});
 
-export function getIPtoWrite() {
-    // return the 
-    let nodes = (import.meta.env.VITE_NODE_LIST as string).split(/\s*,\s*/)
-    const api = useLeither()
-    var firstRespondedIp = ""
-    nodes.forEach(async nid=>{
-        var n: AddrInfo = await api.client.DhtFindPeer(api.sid, nid)
-        n.addrs.forEach(l => {
-            var addr = l.split('/')
-            var ip = addr[2]
-            var port = addr[4]
-            if (!ip.startsWith('192.168')) {
-                console.log(ip+":"+port, nid)
-                sendRequest(ip+":"+port)
-            }
-        })
-    })
-
-    // test availability of the ip
-    const sendRequest = (ip:string) => {
-        let xhr = new XMLHttpRequest();
-        xhr.open('GET', ip, true);
-        xhr.timeout = 5000; // 5 seconds timeout
-        xhr.ontimeout = () => console.warn(`Timeout for ${ip}`);
-        xhr.onload = () => {
-            if (xhr.status===200 && !firstRespondedIp) {
-                firstRespondedIp = ip;
-                console.log(`firstRespondedIp = ${ip}`)
-            }
-        };
-        xhr.send(null);
-    };
-}
