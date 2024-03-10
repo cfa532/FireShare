@@ -25,6 +25,7 @@ function getCurNodeIP() {
         console.log("window.location", ip)
     }
     // replace it with testing node if defined
+    console.log(ip)
     return import.meta.env.VITE_LEITHER_NODE ? import.meta.env.VITE_LEITHER_NODE : ip
 };
 const curIP = getCurNodeIP();
@@ -57,6 +58,8 @@ export const useLeither = defineStore({
                 n.addrs.forEach(l => {
                     var addr = l.split('/')
                     var ip = addr[2]
+                    if (ip.split(':').length > 2)   // IPv6 address
+                        ip = '['+ip+']'
                     var port = addr[4]
                     if (!ip.startsWith('192.168')) {
                         console.log(ip + ":" + port, nid)
@@ -103,8 +106,7 @@ export const useLeither = defineStore({
                                         useMimei().$reset()
                                         useSpinner().setLoadingState(false)
                                         if (that.returnUrl) {
-                                            that.returnUrl = that.returnUrl.slice(1)         // remove the leading #/
-                                            router.push(that.returnUrl)
+                                            router.push(that.returnUrl.slice(1))        // remove the leading #/
                                         }
                                     }, (err: Error) => {
                                         console.error(`Request service error ${err}`)
