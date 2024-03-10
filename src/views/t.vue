@@ -67,7 +67,7 @@ function uploaded(fi: FileInfo) {
     copyLink()
     window.location.href = tlink.value
     showEditor.value = "none"
-    api.logout()
+    api.logoutTemp()
 }
 function copyLink() {
     // save it to clipboard, http way
@@ -81,6 +81,7 @@ function copyLink() {
 async function showEditorModal() {
     showEditor.value = "block"
     const s = import.meta.env.VITE_LINK_SECRET.split('|')
+    api.returnUrl = ""
     await api.login(s[0], s[1])
 }
 watch(()=>route.params.id, async (nv)=>{

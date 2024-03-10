@@ -16,7 +16,6 @@ onMounted(async ()=>{
     // await mmInfo.init(api)
     if (props.column)
         col.value = await mmInfo.getColumn(props.column) as ContentColumn
-    console.log("Navibar mounted", props.column, col.value)
     txtLogin.value = api.sid? "Logout" : "Login";
 })
 const rootClass = computed(()=>{
@@ -29,11 +28,12 @@ watch(()=>route.params.title, async (cv, pv)=>{
     }
 })
 function logout() {
+    api.returnUrl = window.location.hash;
     if (api.sid) {
         txtLogin.value = "Login";
         api.logout();
     } else {
-        api.returnUrl = window.location.hash;
+        // Not sign-in, to got Login page
         router.push({name: "login"});
     }
 }

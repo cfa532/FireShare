@@ -18,7 +18,8 @@ function getCurNodeIP() {
     if (window.getParam != null){
         let p=window.getParam()
         ip = p["ips"][p.CurNode]
-        console.warn("window.getParam", p["aid"], import.meta.env.VITE_MIMEI_DB)
+        console.warn("window.param", p["aid"], import.meta.env.VITE_MIMEI_DB)
+        console.log(p)
     } else if (window.location.host != ""){
         ip = window.location.host
         console.log("window.location", ip)
@@ -48,6 +49,7 @@ export const useLeither = defineStore({
     },
     actions: {
         login(user: string, pswd: string) {
+            useSpinner().setLoadingState(true)
             let nodes = (import.meta.env.VITE_NODE_LIST as string).split(/\s*,\s*/)
             this.hostIP = ""
             nodes.forEach(async nid => {
@@ -98,9 +100,12 @@ export const useLeither = defineStore({
                                     (map: any) => {
                                         // get IP of a node the user can write to and switch to it.
                                         console.log(`Request service:`, result, that.$state, that.returnUrl)
-                                        that.returnUrl = that.returnUrl.slice(2)         // remove the leading #/
                                         useMimei().$reset()
-                                        router.push(that.returnUrl)
+                                        useSpinner().setLoadingState(false)
+                                        if (that.returnUrl) {
+                                            that.returnUrl = that.returnUrl.slice(1)         // remove the leading #/
+                                            router.push(that.returnUrl)
+                                        }
                                     }, (err: Error) => {
                                         console.error(`Request service error ${err}`)
                                     })
@@ -114,14 +119,17 @@ export const useLeither = defineStore({
             }
         }, 
         logout(path:any=null) {
+            if (!path) path=this.returnUrl.slice(1)
+            sessionStorage.removeItem("sid")
+            this.$reset()
+            useMimei().$reset()
+            router.push(path)
+        },
+        logoutTemp() {
             // this.client.Logout(this.sid, "Logout Leither")
             sessionStorage.removeItem("sid")
-            this._sid = "";
-            // this.baseUrl = "http://" + this.baseIP + "/"        // switch back to the fastest IP
-            this.baseIP = curIP
-            this.hostIP = ""
-            useMimei().$reset()
-            if (path) router.push(path);
+            // this.$reset()
+            // useMimei().$reset()
         },
     }
 })

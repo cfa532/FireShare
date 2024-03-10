@@ -13,7 +13,10 @@ export default defineConfig(({ command, mode }) => {
           isCustomElement: (tag) => ['video-js'].includes(tag)    // video-js is custom component
         }
       }
-    }), viteSingleFile({inlinePattern: ["*.css"]}), removeConsole({ includes: ["log"]})],
+    }),
+      viteSingleFile({inlinePattern: ["*.css"]}),
+      // removeConsole({ includes: ["log"]})
+    ],
     build: {
       assetsDir: '.',   // create only one layer of directory structure
       cssCodeSplit: true,

@@ -38,23 +38,17 @@ onMounted(async ()=>{
         confirm("如果在微信中转发，请点击右上角的\u2022\u2022\u2022") ? sessionStorage["isBot"] = "No" : history.go(-1)
     }
     console.log("FileView mounted,", params)
-    useSpinner().setLoadingState(false)
 })
 async function deleted() {
     // reference of Mimei or IPFS file has been deleted in child component.
     // now delete the post itself.
-    try {
-        api.client.Zrem(await mmInfo.mmsidCur, params.title, params.mid, async (ret:number)=>{
-            console.log("Zrem ret=", ret)
-            await mmInfo.backup()
-            // redirect to parent FileList
-            router.push({name: "filelist", params:{page:1, title: params.title}});
-        }, (err: Error) => {
-            console.error("Zrem error=", err)
-        })
-    } catch(err) {
-        console.error(err);
-    }
+    useSpinner().setLoadingState(true)
+    await api.client.Zrem(await mmInfo.mmsidCur, params.title, params.mid)
+    await mmInfo.backup()
+    useSpinner().setLoadingState(false)
+
+    // redirect to parent FileList
+    router.push({name: "filelist", params:{page:1, title: params.title}});
 }
 function touchStart(touchEvent: TouchEvent) {
     if (touchEvent.changedTouches.length !== 1) {

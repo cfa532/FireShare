@@ -81,10 +81,12 @@ async function getFileList(pn: number) {
     sessionStorage["fileList"] = JSON.stringify({"posts":fileList.value, "pageSize":pageSize.value, "pageNumber":pn})
 }
 function openFileView(fi: FileInfo, index: number) {
+    // for swipe files quickly
     const so = JSON.parse(sessionStorage["fileList"])
     so["index"] = index
     sessionStorage["fileList"] = JSON.stringify(so)
     console.log(so)
+
     router.push({name:"fileview", params:{ title: columnTitle.value, mid: fi.mid, fileType: fi.type, fileName: fileName(fi)}})
 }
 </script>
