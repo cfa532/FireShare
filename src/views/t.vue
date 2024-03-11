@@ -59,7 +59,7 @@ async function load(fi:FileInfo) {
 }
 
 const tlink = ref()
-function uploaded(fi: FileInfo) {
+async function uploaded(fi: FileInfo) {
     // a file is uploaded, display it link
     console.log(window.location)
     const url = window.location.href
@@ -67,7 +67,7 @@ function uploaded(fi: FileInfo) {
     copyLink()
     window.location.href = tlink.value
     showEditor.value = "none"
-    api.logoutTemp()
+    await api.logoutTemp()
 }
 function copyLink() {
     // save it to clipboard, http way

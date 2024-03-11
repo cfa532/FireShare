@@ -128,8 +128,8 @@ export const useLeither = defineStore({
             useMimei().$reset()
             router.push(path)
         },
-        logoutTemp() {
-            // this.client.Logout(this.sid, "Logout Leither")
+        async logoutTemp() {
+            // await this.client.Logout(this.sid, "Logout Leither")
             sessionStorage.removeItem("sid")
             this.$reset()
             useMimei().$reset()
