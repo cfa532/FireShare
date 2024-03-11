@@ -131,8 +131,8 @@ export const useLeither = defineStore({
         logoutTemp() {
             // this.client.Logout(this.sid, "Logout Leither")
             sessionStorage.removeItem("sid")
-            // this.$reset()
-            // useMimei().$reset()
+            this.$reset()
+            useMimei().$reset()
         },
     }
 })
