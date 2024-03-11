@@ -116,6 +116,7 @@ export const useLeither = defineStore({
                             })
                     }, (e: Error) => {
                         console.error("Login error=", e)
+                        window.alert(`Login ${e}`)
                     }
                 )
             }

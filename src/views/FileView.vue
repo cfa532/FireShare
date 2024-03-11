@@ -28,12 +28,13 @@ const userComponent = computed(() => {
     }
 })
 
-onMounted(async ()=>{
+onMounted(()=>{
     // check session sanity
     // const r = Math.floor(Math.random()*90+10).toString()
     // assign it early otherwise title will be empty in Wechat.
     document.title = (params.fileName? params.fileName as string : params.title as string)
                     +' - '+import.meta.env.VITE_PAGE_TITLE
+    useSpinner().setLoadingState(false)
     if (!sessionStorage["isBot"]) {
         confirm("如果在微信中转发，请点击右上角的\u2022\u2022\u2022") ? sessionStorage["isBot"] = "No" : history.go(-1)
     }

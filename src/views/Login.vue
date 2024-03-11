@@ -7,7 +7,7 @@ const api = useLeither();
 // const router = useRouter()
 const usr = ref()
 const psd = ref()
-async function login() {
+function login() {
     try {
         console.log(api.returnUrl)
         api.login(usr.value.trim(), psd.value.trim());
@@ -17,6 +17,9 @@ async function login() {
         alert("Login failed.")
     }
 }
+onMounted(()=>{
+    useSpinner().setLoadingState(false)
+})
 </script>
 
 <template>

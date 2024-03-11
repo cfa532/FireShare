@@ -15,10 +15,10 @@ const userComponent = shallowRef()
 const props = ref()
 
 onMounted(async () => {
+    useSpinner().setLoadingState(false)
     if (!sessionStorage["isBot"] && mid) {
         confirm("如果在微信中转发，请点击右上角的\u2022\u2022\u2022") ? sessionStorage["isBot"] = "No" : history.go(-1)
     }
-    useSpinner().setLoadingState(false)
     if (mid) {
         const fileInfo :FileInfo = await api.client.Hget(await mmInfo.mmsid, columnTitle.value, mid)
         if (!["image", "pdf", "video", "audio", "page"].some(s => fileInfo.type.includes(s))) {
