@@ -106,7 +106,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="vdiv" hidden>
-    <video-js v-if="mediaType=='video'" ref="videoPlayer" class="video-js vjs-default-skin container wrapper" data-setup='{"fluid": true}' controls="true" preload="auto"></video-js>
+    <video-js v-if="mediaType=='video'" ref="videoPlayer" class="video-js vjs-default-skin" data-setup='{"fluid": true}' controls="true" preload="auto"></video-js>
     <audio v-else id="audioPlayer" class="video-js vjs-default-skin" data-setup='{}' controls="true" preload="auto"></audio>
     <p style="margin-top: 5px; font-size: small; color:darkslategray; left: 15%; position:relative;">{{ caption }}</p>
   </div>
@@ -123,10 +123,4 @@ onBeforeUnmount(() => {
   height: 40px;
   background-color: transparent !important;
 }
-/* .container {
-  max-height: 100%;
-background-color: red;
-overflow: hidden;
-object-fit: cover;
-} */
 </style>
