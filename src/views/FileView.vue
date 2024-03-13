@@ -95,7 +95,7 @@ function fileName(file: FileInfo):string {
 </script>
 
 <template>
-    <div class="container-fluid text-left">
+    <div class="container-fluid text-left topm">
         <div class="row justify-content-start">
             <Spinner :active="useSpinner().loading" text="Please wait......" />
             <!-- Delete page function is in the Share Menu -->
@@ -109,3 +109,8 @@ function fileName(file: FileInfo):string {
         </div>
     </div>
 </template>
+<style>
+.topm {
+    margin-top: 10px;
+}
+</style>
