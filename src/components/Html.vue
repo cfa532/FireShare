@@ -74,7 +74,7 @@ function fileDownload(fi: any) {
 </script>
 
 <template>
-    <div class="col-sm-12 col-md-10 col-lg-6">
+    <div>
         <!-- <div style="padding: 0 0 0 5px; text-align: center; background-color: rgb(250, 250, 243)">{{ caption }}</div> -->
         <p v-if="textContent" style="white-space: pre-wrap; margin-top: 5px; margin-bottom: 10px;">{{textContent}}</p>
         <br>

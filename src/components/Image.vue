@@ -64,7 +64,7 @@ watch(()=>props.mid, async (cv, pv)=>{
 </script>
 
 <template>
-    <div class="container">
+    <div>
         <img :src="imageUrl"/>
         <p>{{ caption }}</p>
     </div>
