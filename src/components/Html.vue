@@ -76,7 +76,7 @@ function fileDownload(fi: any) {
 <template>
     <div>
         <!-- <div style="padding: 0 0 0 5px; text-align: center; background-color: rgb(250, 250, 243)">{{ caption }}</div> -->
-        <div v-if="textContent">
+        <div v-if="textContent" style="margin: 0 0 0 10px;">
             <div v-for="(t, idx) in textContent.split(/\n|\r/)" :key="idx" style="margin-top: 10px;">
                 <span v-if="t.trim()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ t }}</span>
             </div>

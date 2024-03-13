@@ -86,8 +86,8 @@ onMounted(async () => {
   if (mediaType.value == "video")
     player = videojs(videoPlayer.value, options, () => {
       vdiv.value.hidden = false
-      player.controlBar.el().style.backgroundColor = "transparent !important"
-      // player.fluid(true)
+      player.controlBar.el().style.backgroundColor = "transparent !important"   // control bar backgroud
+      // player.controlBar.progressControl.show()
     })
   else {
     player = videojs("audioPlayer", options, () => {
@@ -115,7 +115,10 @@ onBeforeUnmount(() => {
 <style>
 .video-js {
     max-height: 95vh;
-    /* background-color: transparent !important; */
+}
+.video-js .vjs-control-bar {
+  opacity :1 !important;
+  visibility: visible;
 }
 .audioPlayer-dimensions {
   width: 100%;
