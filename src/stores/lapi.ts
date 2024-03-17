@@ -49,42 +49,18 @@ export const useLeither = defineStore({
         }
     },
     actions: {
-        login(user: string, pswd: string) {
-            useSpinner().setLoadingState(true)
-            let nodes = (import.meta.env.VITE_NODE_LIST as string).split(/\s*,\s*/)
-            this.hostIP = ""
-            nodes.forEach(async nid => {
-                var n: AddrInfo = await this.client.DhtFindPeer(this.sid, nid)
-                n.addrs.forEach(l => {
-                    var addr = l.split('/')
-                    var ip = addr[2]
-                    if (ip.split(':').length > 2)   // IPv6 address
-                        ip = '['+ip+']'
-                    var port = addr[4]
-                    if (!ip.startsWith('192.168')) {
-                        console.log(ip + ":" + port, nid)
-                        sendRequest(ip + ":" + port)
-                    }
-                })
-            })
+        async login(user: string, pswd: string) {
+            // var longId = await this.client.Getvar(this.sid, "peerid")
+            var shortId = await this.client.Getvar(this.sid, "hostid")
+            var authorizedNodes = await this.client.Getvar(this.sid, "mmrights", import.meta.env.VITE_MIMEI_DB)
 
-            // test availability of the ip
-            const sendRequest = (ip: string) => {
-                let xhr = new XMLHttpRequest();
-                xhr.open('GET', ip, true);
-                xhr.timeout = 5000; // 5 seconds timeout
-                xhr.ontimeout = () => console.warn(`Timeout for ${ip}`);
-                xhr.onload = () => {
-                    if (xhr.status === 200 && !this.hostIP) {
-                        this.hostIP = ip;
-                        // this.hostUrl = window.location.protocol + ip;
-                        this.baseIP = this.hostIP      // switch to node that can write to MM aftre login
-                        console.log(`First responded host ${this.baseUrl}`)
-                        nLogin(this)
-                    }
-                };
-                xhr.send(null);
-            };
+            // get nodes that have write permission
+            // assume every node in the list has write permisson
+            if (!authorizedNodes[shortId] && shortId!=import.meta.env.VITE_NODE_OWNER) {
+                window.alert("Current node has no permission")
+                return
+            }
+            nLogin(this)
 
             // return new Promise<string>((resolve, reject)=>{
             // })
@@ -104,7 +80,6 @@ export const useLeither = defineStore({
                                         // get IP of a node the user can write to and switch to it.
                                         console.log(`Request service:`, result, that.$state, that.returnUrl)
                                         useMimei().$reset()
-                                        useSpinner().setLoadingState(false)
                                         if (that.returnUrl) {
                                             router.push(that.returnUrl.slice(1))        // remove the leading #/
                                         }

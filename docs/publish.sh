@@ -22,8 +22,8 @@ function readInput {
 #readInput URL "local URL"
 #readInput MYDOMAIN "user domain"
 
-#./Leither lpki runscript -s "local auth=require('auth'); return auth.Register('$USER', '$PASSWORD');"
-#./Leither lpki runscript -s "local node=require('mimei'); return node.MMSetRight(request.sid, 'mmroot', '', 0x07276707);"
+./Leither lpki runscript -s "local auth=require('auth'); return auth.Register('$USER', '$PASSWORD');"
+./Leither lpki runscript -s "local node=require('mimei'); return node.MMSetRight(request.sid, 'mmroot', '', 0x07276704);"
 #echo "User "$USER" created and authorized"
 
 #./Leither lpki genkey -o $KEYFILE.key
