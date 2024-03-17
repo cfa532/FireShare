@@ -42,7 +42,7 @@ if (err ~= nil) then
 end
 print("read fvs", fvs)
 
-err = mm.MMBackup(sid, mid, '')
+ret, err = mm.MMBackup(sid, mid, '')
 if (err ~= nil) then
 	print('MMBackup err=',  err);
 	return err
