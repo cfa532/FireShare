@@ -20,6 +20,11 @@ export default defineConfig(({ command, mode }) => {
     build: {
       assetsDir: '.',   // create only one layer of directory structure
       cssCodeSplit: true,
+      rollupOptions: {
+        output: {
+          entryFileNames: "index_entry.js"
+        }
+      }
     },
     resolve: {
       alias: {
