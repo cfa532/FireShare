@@ -183,6 +183,7 @@ async function onSubmit() {
       // no attachment
       // create a file type PAGE. use Name field to save a string defined as:
       // 1st item is input of textarea, followed by mids of uploaded file
+      console.log(mmInfo.$state, api.$state)
       await addPage(JSON.stringify([textValue.value]))
     }
   } catch (err) {

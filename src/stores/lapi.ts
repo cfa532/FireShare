@@ -18,14 +18,14 @@ function getCurNodeIP() {
     if (window.getParam != null){
         let p=window.getParam()
         ip = p["ips"][p.CurNode]
-        console.warn("window.param", p["aid"], import.meta.env.VITE_MIMEI_DB)
+        console.warn("window.param", p["aid"], import.meta.env.VITE_MIMEI_DB, import.meta.env.VITE_NODE_OWNER)
         console.log(p)
     } else if (window.location.host != ""){
         ip = window.location.host
         console.log("window.location", ip)
     }
     // replace it with testing node if defined
-    console.log(ip)
+    console.log(ip, import.meta.env.VITE_NODE_OWNER)
     return import.meta.env.VITE_LEITHER_NODE ? import.meta.env.VITE_LEITHER_NODE : ip
 };
 const curIP = getCurNodeIP();
@@ -78,7 +78,7 @@ export const useLeither = defineStore({
                                 that.client.RequestService(ppt).then(
                                     (map: any) => {
                                         // get IP of a node the user can write to and switch to it.
-                                        console.log(`Request service:`, result, that.$state, that.returnUrl)
+                                        console.log(`Request service:`, result, that.$state, shortId)
                                         useMimei().$reset()
                                         if (that.returnUrl) {
                                             router.push(that.returnUrl.slice(1))        // remove the leading #/
