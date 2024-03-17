@@ -7,7 +7,6 @@ const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
 app.use(router)
-import { useLeither } from './stores/lapi';
 
 app.config.errorHandler = (err, instance, info) => {
     // Handle the error globally
@@ -17,6 +16,4 @@ app.config.errorHandler = (err, instance, info) => {
 
     sessionStorage.removeItem("sid")
 }
-
-console.warn("main.ts built....on " + __BUILD_TIME__, "ver:"+import.meta.env.VITE_APP_VERSION)
 app.mount("#app")
