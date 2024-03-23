@@ -2,7 +2,7 @@ sid =request['sid']
 print("mimei sid", sid)
 local mm = require('mimei');
 
-mid = "O6mabg95qj6WlKU105gaHMQloFW"	-- db mimei
+mid = "O6mabg95qj6WlKU105gaHMQloFW"	    -- db mimei
 mmsid, err = mm.MMOpen(sid, mid, 'cur');
 if (err ~= nil) then
 	print('MMOpen err',  err);
@@ -12,9 +12,16 @@ print('MMOpen mmsid=', mmsid);
 
 local key = "Videos"
 local score = os.time()
-local field0 = "QmZcJMzg5WDFgCZmYzgmTXpEvxFQCvBUzLYxwN21TD1ENV"
-local fv0 = 
-{
+local field0 = "QmZcJMzg5WDFgCZmYzgmTXpEvxFQCvBUzLYxwN21TD1ENV"     --file IPFS id
+
+-- add to post index
+local sp = scorepair.new(score, field0)
+ret, err = mm.ZAdd(mmsid, key, sp);
+if (err ~= nil) then
+    print("ZAdd error=", err)
+end
+
+local fv0 = {
 	lastModified= score,
 	mid= field0,
 	size= 2487754909,
@@ -22,14 +29,7 @@ local fv0 =
 	name= "3.body.problem.S01E01.mkv",
 	caption= "3.body.problem.S01E01"
 }
-
---hmset hmget
-local sp = scorepair.new(score, field0)
-ret, err = mm.ZAdd(mmsid, key, sp);
-if (err ~= nil) then
-    print("ZAdd error=", err)
-end
-
+-- add file to hash table
 local fvs, err = mm.HSet(mmsid, key, field0, fv0)
 if (err ~= nil) then
 	print('HSet err=',  err);
