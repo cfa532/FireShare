@@ -11,8 +11,8 @@ end
 print('MMOpen mmsid=', mmsid);
 
 local key = "Videos"
-local score = os.time()
-local field0 = "QmZcJMzg5WDFgCZmYzgmTXpEvxFQCvBUzLYxwN21TD1ENV"     --file IPFS id
+local score = os.time() * 1000
+local field0 = "QmUxtEq5wn81ANKwTnrMVEMf46dZmEZY2HWudwpJqR7smY"     --file IPFS id
 
 -- add to post index
 local sp = scorepair.new(score, field0)
@@ -24,10 +24,10 @@ end
 local fv0 = {
 	lastModified= score,
 	mid= field0,
-	size= 2487754909,
+	size= 922187173,
 	type= "video/mp4",
-	name= "3.body.problem.S01E01.mkv",
-	caption= "3.body.problem.S01E01"
+	name= "三体第一季英语版01.mp4",
+	caption= "三体第一季英语版01"
 }
 -- add file to hash table
 local fvs, err = mm.HSet(mmsid, key, field0, fv0)
@@ -36,22 +36,16 @@ if (err ~= nil) then
 	return err
 end
 
---backup
+-- add ref to main db
+local mmsid2, err = mm.MMAddRef(sid, mid, field0);
+if (err ~= nil) then
+	print('MMAddRef err=',  err);
+	return err
+end
+
 --备份
 local ver, err = mm.MMBackup(sid, mid, '')
 if (err ~= nil) then
 	print('MMBackup err=%v',  err);
-	return err
-end
-
-local mmsid2, err = mm.MMOpen(sid, mid, 'last');
-if (err ~= nil) then
-	print('MMOpen err=',  err);
-	return err
-end
-
-local fvs, err = mm.HMGet(mmsid2, key, field0)
-if (err ~= nil) then
-	print('HMGet err=',  err);
 	return err
 end
