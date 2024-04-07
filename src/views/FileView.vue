@@ -100,7 +100,7 @@ function fileName(file: FileInfo):string {
             <Spinner :active="useSpinner().loading" text="Please wait......" />
             <!-- Delete page function is in the Share Menu -->
             <ShareMenu v-if="api.sid" @delete-post='params["delRef"] = "true"'></ShareMenu>
-            <div class="col-sm-12 col-md-10 col-lg-6" @touchstart="touchStart">
+            <div class="col-sm-12 col-md-10 col-lg-8" @touchstart="touchStart">
                 <!-- do not use Prevent. Otherwise vertical scroll will be disabled. -->
                 <KeepAlive>
                     <component @deleted="deleted" :is="userComponent" v-bind="params"></component>
