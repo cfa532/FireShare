@@ -79,7 +79,7 @@ export const useLeither = defineStore({
                                 that.client.RequestService(ppt).then(
                                     (map: any) => {
                                         // get IP of a node the user can write to and switch to it.
-                                        console.log(`Request service:`, result, that.$state, shortId)
+                                        console.log(`Request service:`, result, that.$state, shortId, ppt)
                                         useMimei().$reset()
                                         if (that.returnUrl) {
                                             router.push(that.returnUrl.slice(1))        // remove the leading #/
