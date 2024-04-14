@@ -49,3 +49,9 @@ if (err ~= nil) then
 	print('MMBackup err=%v',  err);
 	return err
 end
+
+local ver, err = mm.MiMeiPublish(sid, '', mid)
+if (err ~= nil) then
+        print('Publish err=%v',  err);
+        return err
+end
