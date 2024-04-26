@@ -1,10 +1,13 @@
 local mm = require('mimei');
 sid =request['sid']
+print("mimei sid", sid)
 
-local filename = "/mnt/drumboy.mp4"          -- file path
-local caption = "Drum boy"
+local filename = request["k1"]          -- full path of file
+local caption = request["k2"]
+--local filename = "/mnt/tianjinbaozi.mp4"
+--local caption = " 狗不理"
 
-mid = "OgXXWbNoNhTMXIy0juSvXtOF-Ev"	    -- demo2 db mimei
+mid = "OgXXWbNoNhTMXIy0juSvXtOF-Ev"	    -- db mimei
 mmsid, err = mm.MMOpen(sid, mid, 'cur');
 if (err ~= nil) then
 	print('MMOpen err',  err);
@@ -16,12 +19,14 @@ print('MMOpen mmsid=', mmsid);
 local ipfsid, err = lapi.IpfsAdd(sid, filename)
 if (err ~= nil) then
    print("IPFS add err=", err)
+   return err
 end
 print("IPFS ID=", ipfsid)
 
 local ret, err = mm.MMAddRef(mmsid, mid, ipfsid)
 if (err ~= nil) then
    print("IPFS addref err=", err)
+   return err
 end
 print("Ref added", ret)
 
@@ -33,7 +38,8 @@ local score = os.time()*1000
 local sp = scorepair.new(score, ipfsid)
 ret, err = mm.ZAdd(mmsid, key, sp);
 if (err ~= nil) then
-    print("ZAdd error=", err)
+   print("ZAdd error=", err)
+   return err
 end
 
 local fv0 = {
