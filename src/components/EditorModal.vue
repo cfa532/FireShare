@@ -118,7 +118,7 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
     // Save non-media files as Mimei type, for easy download and open
     if (fi.type.search(/(image|video|audio)/i) === -1) {
       const mid = await api.client.MMCreate(api.sid, "", "", "{{auto}}", 1, 0x07276705);
-      await api.client.MFSetCid(api.sid, mid, fi.mid);
+      await api.client.MFSetCid(api.sid, mid, fi.mid);  // assign the ipfs id to a mid
       fi.mid = mid;
       // await api.client.MMBackup(api.sid, fi.mid, "")   // not a real mm, backup will throw error
     }
