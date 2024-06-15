@@ -9,7 +9,7 @@ const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmL
     "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan",
     "MMRelease", "MMBackup", "MFStat", "Zrem", "Zremrangebyscore", "MiMeiPublish", "PullMsg", "MFTemp2Ipfs", "MFSetCid",
     "MMSum", "MiMeiSync", "IpfsAdd", "MMAddRef", "MMDelRef", "MMDelVers", "MMRelease", "MMGetRef", "MMGetRefs", "Hdel",
-    "DhtFindPeer", "Logout"
+    "DhtFindPeer", "Logout", "MiMeiPublish", "MMSetRight"
 ];
 
 function getCurNodeIP() {
@@ -53,7 +53,7 @@ export const useLeither = defineStore({
             // var longId = await this.client.Getvar(this.sid, "peerid")
             var shortId = await this.client.Getvar(this.sid, "hostid")
             var authorizedNodes = await this.client.Getvar(this.sid, "mmrights", import.meta.env.VITE_MIMEI_DB)
-            console.log("Authorized node list:", authorizedNodes)
+            console.log("Authorized node list:", authorizedNodes, shortId)
 
             // get nodes that have write permission
             // assume every node in the list has write permisson
