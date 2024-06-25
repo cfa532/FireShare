@@ -10,13 +10,11 @@ const props = defineProps({
 const api = useLeither()
 const mmInfo = useMimei()
 const col = ref<ContentColumn>();     // placeholder because of async mounted()
-const txtLogin = ref("Login")
 
 onMounted(async ()=>{
     // await mmInfo.init(api)
     if (props.column)
         col.value = await mmInfo.getColumn(props.column) as ContentColumn
-    txtLogin.value = api.sid? "Logout" : "Login";
 })
 const rootClass = computed(()=>{
     return col.value? "nav-link" : "nav-link active"
@@ -24,19 +22,9 @@ const rootClass = computed(()=>{
 watch(()=>route.params.title, async (cv, pv)=>{
     if (cv != pv) {
         col.value = props.column? await mmInfo.getColumn(props.column) as ContentColumn : undefined
-        txtLogin.value = api.sid? "Logout" : "Login";
     }
 })
-function logout() {
-    api.returnUrl = window.location.hash;
-    if (api.sid) {
-        txtLogin.value = "Login";
-        api.logout();
-    } else {
-        // Not sign-in, to got Login page
-        router.push({name: "login"});
-    }
-}
+
 </script>
 
 <template>
@@ -47,9 +35,6 @@ function logout() {
     </li>
     <li v-if="col" class="nav-item">
         <RouterLink :class=rootClass aria-current="page" :to="{name: 'filelist', params:{title: col.title}}">{{col.titleZh}}</RouterLink>
-    </li>
-    <li v-if="col" class="nav-itme" style="position:absolute; right: 0;" id="login">
-        <RouterLink class="nav-link" @click.prevent="logout" to="logout">{{txtLogin}}</RouterLink>
     </li>
 </ul>
 </template>

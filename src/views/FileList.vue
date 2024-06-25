@@ -2,9 +2,8 @@
 import { computed, onMounted, ref } from "vue";
 import { useLeither, useMimei, useSpinner } from '../stores/lapi';
 import { useRoute, useRouter } from "vue-router";
-import { MyDir, Pager, EditorModal, Spinner } from '../components/index'
+import { MyDir, Pager, Spinner } from '../components/index'
 // import { defineAsyncComponent } from 'vue'
-// const EditorModal = defineAsyncComponent(()=>import("./EditorModal.vue"));
 const api = useLeither()
 const mmInfo = useMimei()
 const route = useRoute()
@@ -95,13 +94,6 @@ function openFileView(fi: FileInfo, index: number) {
     <!-- <NaviBar :column="(columnTitle as string)"></NaviBar> -->
     <div v-if="columnTitle !== 'Webdav'">
         <Spinner :active="useSpinner().loading" text="Please wait......"/>
-        <div v-show="api.sid">
-            <div class="postbox">
-                <p @click.prevent="showEditor='block'" class="postbox">Tell us what is happening....</p>
-            </div>
-            <EditorModal v-if="api.sid" @uploaded="uploaded" @hide="showEditor='none'" :display="showEditor"
-                :column="columnTitle"></EditorModal>
-        </div>
         <ul class="aList">
             <li v-for="(file, index) in fileList" :key="index">
                 <a v-if="file.type.includes('image') || file.type.includes('video') || file.type.includes('audio') || file.type.includes('page') || file.type.includes('pdf')"
