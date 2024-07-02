@@ -38,6 +38,7 @@ function readInput {
 URL=http://$URL/
 #URL=h4V196PipVUv8gf-Zwj9HQLWfV-
 #URL=http://[2001:b011:e608:383d:afa3:1537:65bd:9984]:4800/
+# request service is always necessary to upload app and publish
 echo -e "\n./Leither lpki reqservice -c $KEYFILE.cert -m RequestService=mimei -n $URL"
 ./Leither lpki reqservice -c $KEYFILE.cert -m RequestService=mimei -n $URL
 

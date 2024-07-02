@@ -49,4 +49,3 @@ let value = lapi.SessionGet(besid, "appsid")
 console.log("appsid", value)
 //返回的应该是besid
 besid
-
