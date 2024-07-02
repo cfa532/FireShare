@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { Column } from "../components/index";
+import { Column, EditorModal } from "../components/index";
 import { useMimei, useLeither } from "../stores/lapi"
 
 const api = useLeither();
 const mmInfo = useMimei();
 const contentColumn = ref<ContentColumn[]>([])
+const columnTitle = ref('Pictures')
+
 onMounted(async ()=>{
   document.title = import.meta.env.VITE_PAGE_TITLE
   try {
@@ -34,27 +36,44 @@ function showWebdav() {
 
 <template>
     <!-- push content down to not overlap with horizontal navi bar -->
-    <ul class="top">
-        <Column v-for="(c, i) in contentColumn" :key="i" :column=c></Column>
-    </ul>
+    <div class='container-fluid'>
+        <div class='row'>
+            <div class='col-2'>
+                <Column @selected-column="id => columnTitle = id" v-for='(c, i) in contentColumn' :key='i' :column=c>
+                </Column>
+            </div>
+            <div class='col-10'>
+                <EditorModal :column='columnTitle'></EditorModal>
+            </div>
+        </div>
+    </div>
 </template>
 
 <style>
-ul.top {
-  list-style-type: none;
-  overflow: hidden;
-  margin: 0px 0px 0px -20px;
-  width: 200px;
+.container-fluid {
+  height: 100vh;
+  /* Ensure the container takes the full height of the viewport */
 }
-ul.top li {
-  margin: 10px 0px 0px 0px;
+.row {
+  display: flex;
+  align-items: flex-start;
+  /* Align items to the top */
+  height: 100%;
+  /* Ensure the row takes the full height of the container */
 }
-ul.top li a {
-  display: inline-block;
-  width: 200px;
-  background-color:rgb(220, 247, 202);
+
+.col-2 {
+  width: 160px;
 }
-ul.top li a::before {
-  content:"• ";
+
+.col-10 {
+  margin: -0px 0 0 0;
+  /* Remove any margin that might affect alignment */
+  width: 80%;
+  padding: 0;
+  /* Remove any padding that might affect alignment */
+  display: flex;
+  flex-direction: column;
+  /* Ensure the content inside col-10 is aligned to the top */
 }
 </style>

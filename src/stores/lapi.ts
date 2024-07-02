@@ -31,87 +31,42 @@ function getCurNodeIP() {
 const curIP = getCurNodeIP();
 
 export const useLeither = defineStore({
-    id: 'LeitherApiHandler', 
-    state: ()=>({
-        _sid: "",
-        returnUrl: "",
-        baseIP: curIP,
-        hostIP: "",    // IP address of node to write
+    id: 'LeitherApiHandler',
+    state: () => ({
+      _sid: '',
+      returnUrl: '',
+      hostIP: curIP, // IP address of node to write
+      client: window.hprose.Client.create('ws://' + curIP + '/ws/', ayApi)
     }),
     getters: {
-        client: (state) => window.hprose.Client.create("ws://" + state.baseIP +"/ws/", ayApi),
-        baseUrl: (state) => window.location.protocol+'//'+state.baseIP+'/' ,
-        sid: (state) => {
-            if (sessionStorage.getItem("sid") && !state._sid) {
-                state._sid = sessionStorage.getItem("sid")!
-            }
-            return state._sid;
-        }
+      hostId: async (state) => {
+        return await state.client.Getvar('', 'hostid')
+      },
+      sid: (state) => {
+        return state._sid
+      }
     },
     actions: {
-        async login(user: string, pswd: string) {
-            // var longId = await this.client.Getvar(this.sid, "peerid")
-            var shortId = await this.client.Getvar(this.sid, "hostid")
-            var authorizedNodes = await this.client.Getvar(this.sid, "mmrights", import.meta.env.VITE_MIMEI_DB)
-            console.log("Authorized node list:", authorizedNodes, shortId)
-
-            // get nodes that have write permission
-            // assume every node in the list has write permisson
-            if (!authorizedNodes[shortId] && shortId!=import.meta.env.VITE_NODE_OWNER) {
-                window.alert("Current node has no permission")
-                return
-            }
-            nLogin(this)
-
-            // return new Promise<string>((resolve, reject)=>{
-            // })
-            function nLogin(that: any) {
-                that.client.Login(user, pswd, "byname").then(
-                    (result: any) => {
-                        that._sid = result.sid
-                        sessionStorage.setItem("sid", result.sid)
-                        that.client.SignPPT(result.sid, {
-                            CertFor: "Self",
-                            Userid: result.uid,
-                            RequestService: "mimei"
-                        }, 1).then(
-                            (ppt: any) => {
-                                that.client.RequestService(ppt).then(
-                                    (map: any) => {
-                                        // get IP of a node the user can write to and switch to it.
-                                        console.log(`Request service:`, result, that.$state, shortId, ppt)
-                                        useMimei().$reset()
-                                        if (that.returnUrl) {
-                                            router.push(that.returnUrl.slice(1))        // remove the leading #/
-                                        }
-                                    }, (err: Error) => {
-                                        console.error(`Request service error ${err}`)
-                                    })
-                            }, (err: Error) => {
-                                console.error("Sign PPT error=", err)
-                            })
-                    }, (e: Error) => {
-                        console.error("Login error=", e)
-                        window.alert(`Login ${e}`)
-                    }
-                )
-            }
-        }, 
-        logout(path:any=null) {
-            if (!path) path=this.returnUrl.slice(1)
-            sessionStorage.removeItem("sid")
-            this.$reset()
-            useMimei().$reset()
-            router.push(path)
-        },
-        async logoutTemp() {
-            // await this.client.Logout(this.sid, "Logout Leither")
-            sessionStorage.removeItem("sid")
-            this.$reset()
-            useMimei().$reset()
-        },
+      async getSid(ppt: any) {
+        const result = await this.client.Login(ppt)
+        this._sid = result.sid
+        console.log('getSid', result)
+      },
+      logout(path: any = null) {
+        if (!path) path = this.returnUrl.slice(1)
+        sessionStorage.removeItem('sid')
+        this.$reset()
+        useMimei().$reset()
+        router.push(path)
+      },
+      async logoutTemp() {
+        // await this.client.Logout(this.sid, "Logout Leither")
+        sessionStorage.removeItem('sid')
+        this.$reset()
+        useMimei().$reset()
+      }
     }
-})
+  })
 
 export const useMimei = defineStore({
     // manager persistent state variables
@@ -165,7 +120,7 @@ export const useMimei = defineStore({
                 throw new Error(err as string)
             }
         },
-        async getColumn(title: string) {
+        getColumn(title: string) {
             // given title, return Column obj, and set Column at the same time
             return findColumn(this.naviColumnTree, title);
 

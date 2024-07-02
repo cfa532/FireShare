@@ -1,8 +1,3 @@
 export { default as FileList } from './FileList.vue'
-export { default as FileView } from './FileView.vue'
-export { default as FileView2 } from './FileView2.vue'
-export { default as FileView3 } from './FileView3.vue'
 export { default as MainPage } from './MainPage.vue'
-export { default as Login } from './Login.vue'
 export { default as IPs } from './IPs.vue'
-export { default as TLink } from './t.vue'
