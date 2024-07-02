@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import { FileList, MainPage, IPs} from "../views/index"
+import { DelPost, MainPage, IPs} from "../views/index"
 
 export const router = createRouter({
     // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
@@ -8,7 +8,7 @@ export const router = createRouter({
     routes: [
         { path: '/', name:"main", component: MainPage},
         { path: '/ips', name:"ips", component: IPs},
-        { path: '/filelist/:title/:page?', name:"filelist", component: FileList,},
+        { path: '/delPost', name:"delPost", component: DelPost},
         // catch all redirect to home page
         { path: '/:pathMatch(.*)*', redirect: '/' },
         // { path: '/checkBot', name:'botCheck', component: BotCheck},

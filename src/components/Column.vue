@@ -15,12 +15,12 @@ onMounted(()=>{
 
 <template>
     <li>
-        <span v-if="column.subColumn && column.subColumn.length>0" @click.prevent="emits('selectedColumn', props.column.title)">
+      <span v-if="!column.subColumn || column.subColumn.length == 0"  @click.prevent="emits('selectedColumn', props.column.title)">
         {{props.column.titleZh}}</span>
-    <span v-else>{{ props.column.titleZh }}</span>
+      <span v-else>{{ props.column.titleZh }}</span>
     </li>
     <ul class="columnList" v-if="column.subColumn && column.subColumn.length>0">
-        <Column @selected-column="id => emits('selectedColumn', id)" v-for="c in column.subColumn" :column=c></Column>
+        <Column @selected-column="id => emits('selectedColumn', id)" v-for="c in column.subColumn" :column=c :key="c.title"></Column>
     </ul>
 </template>
 

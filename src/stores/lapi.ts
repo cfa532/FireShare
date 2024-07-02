@@ -25,7 +25,6 @@ function getCurNodeIP() {
         console.log("window.location", ip)
     }
     // replace it with testing node if defined
-    console.log(ip, import.meta.env.VITE_NODE_OWNER)
     return import.meta.env.VITE_LEITHER_NODE ? import.meta.env.VITE_LEITHER_NODE : ip
 };
 const curIP = getCurNodeIP();

@@ -25,13 +25,6 @@ onMounted(async ()=>{
       api.logout({name: "main"});
   }
 })
-function showWebdav() {
-    // hide local Webdav if not login
-    return contentColumn.value!.filter((e)=>{
-        let l =  e.title==="Webdav";
-        return l? l && api.sid : true;
-    })
-}
 </script>
 
 <template>
@@ -51,6 +44,7 @@ function showWebdav() {
 
 <style>
 .container-fluid {
+  margin-top: 10px;
   height: 100vh;
   /* Ensure the container takes the full height of the viewport */
 }

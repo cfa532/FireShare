@@ -27,29 +27,17 @@ watch(()=>route.params.title, async (cv, pv)=>{
         txtLogin.value = api.sid? "Logout" : "Login";
     }
 })
-function logout() {
-    api.returnUrl = window.location.hash;
-    if (api.sid) {
-        txtLogin.value = "Login";
-        api.logout();
-    } else {
-        // Not sign-in, to got Login page
-        router.push({name: "login"});
-    }
-}
+
 </script>
 
 <template>
 <!-- <div style="margin-top: 40px; width:100%"></div> -->
 <ul class="nav nav-tabs">
     <li class="nav-item">
-        <RouterLink :class=rootClass :to="{name: 'main'}">众众</RouterLink>
+        <RouterLink :class=rootClass :to="{name: 'main'}">发布</RouterLink>
     </li>
-    <li v-if="col" class="nav-item">
-        <RouterLink :class=rootClass aria-current="page" :to="{name: 'filelist', params:{title: col.title}}">{{col.titleZh}}</RouterLink>
-    </li>
-    <li v-if="col" class="nav-itme" style="position:absolute; right: 0;" id="login">
-        <RouterLink class="nav-link" @click.prevent="logout" to="logout">{{txtLogin}}</RouterLink>
+    <li class="nav-item">
+        <RouterLink :class=rootClass aria-current="page" :to="{name: 'delPost'}">删除</RouterLink>
     </li>
 </ul>
 </template>
