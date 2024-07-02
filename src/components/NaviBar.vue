@@ -4,40 +4,26 @@ import { useRouter, useRoute } from "vue-router";
 import { useMimei, useLeither } from "../stores/lapi";
 const router = useRouter()
 const route = useRoute()
-const props = defineProps({
-    column: {type: String, required: false }
-})
 const api = useLeither()
 const mmInfo = useMimei()
-const col = ref<ContentColumn>();     // placeholder because of async mounted()
-const txtLogin = ref("Login")
+const col = ref(true);     // placeholder because of async mounted()
 
-onMounted(async ()=>{
-    // await mmInfo.init(api)
-    if (props.column)
-        col.value = await mmInfo.getColumn(props.column) as ContentColumn
-    txtLogin.value = api.sid? "Logout" : "Login";
-})
 const rootClass = computed(()=>{
     return col.value? "nav-link" : "nav-link active"
 })
-watch(()=>route.params.title, async (cv, pv)=>{
-    if (cv != pv) {
-        col.value = props.column? await mmInfo.getColumn(props.column) as ContentColumn : undefined
-        txtLogin.value = api.sid? "Logout" : "Login";
-    }
+const delClass = computed(()=>{
+    return !col.value? "nav-link" : "nav-link active"
 })
-
 </script>
 
 <template>
 <!-- <div style="margin-top: 40px; width:100%"></div> -->
 <ul class="nav nav-tabs">
     <li class="nav-item">
-        <RouterLink :class=rootClass :to="{name: 'main'}">发布</RouterLink>
+        <RouterLink @click="col=false" :class=rootClass :to="{name: 'main'}">发布</RouterLink>
     </li>
     <li class="nav-item">
-        <RouterLink :class=rootClass aria-current="page" :to="{name: 'delPost'}">删除</RouterLink>
+        <RouterLink @click="col=true" :class=delClass :to="{name: 'delPost'}">删除</RouterLink>
     </li>
 </ul>
 </template>
