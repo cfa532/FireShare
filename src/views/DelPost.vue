@@ -9,6 +9,8 @@ const contentColumn = ref<ContentColumn[]>([])
 const columnTitle = ref('News')
 const fileList = ref<FileInfo[]>([])
 const pageSize = ref(50)
+const checkedItems = ref<FileInfo[]>([])
+const mid = ref()
 
 onMounted(async ()=>{
     contentColumn.value = mmInfo.naviColumnTree
@@ -19,7 +21,6 @@ function fileName(file: FileInfo):string {
 }
 async function getFileList(pn: number) {
     const sps = await api.client.Zrevrange(await mmInfo.mmsid, columnTitle.value, 0, pageSize.value-1)
-    console.log(sps)
     fileList.value.length = 0       // clear fileList array
     // member list
     let mbs = sps.map((sp:ScorePair)=> sp.member)   // Mimei ids on the current page
@@ -37,6 +38,16 @@ async function getFileList(pn: number) {
     // update session every time updating file list
     sessionStorage["fileList"] = JSON.stringify({"posts":fileList.value, "pageSize":pageSize.value, "pageNumber":pn})
 }
+async function delPosts() {
+    const members = checkedItems.value.map(e=>e.mid)
+    if (mid.value) members.push(mid.value)
+    console.log(members)
+    await mmInfo.delPosts(columnTitle.value, members)
+    checkedItems.value.length = 0
+    fileList.value.length = 0
+    mid.value = ""
+    getFileList(0)
+}
 </script>
 
 <template>
@@ -48,20 +59,22 @@ async function getFileList(pn: number) {
                 </Column>
             </div>
             <div class='col-10'>
+            <form @submit.prevent="delPosts()">
                 <div class="row align-items-center">
                     <div class='col-8'>
                         <label>{{mmInfo.getColumn(columnTitle)?.titleZh}}:</label>&nbsp;
-                        <input type="text" ref="mid" required maxlength="64" size="40" class="mr-2" />&nbsp;
+                        <input type="text" v-model="mid" maxlength="64" size="40" class="mr-2" />&nbsp;
                         <input type="submit" value="Delete" />
                     </div>
                 </div>
                 <div class='row'>
                     <ul class="aList">
                         <li v-for="(file, index) in fileList" :key="index">
-                            <input type="checkbox" :id="index" />&nbsp;{{fileName(file)}}
+                            <input type="checkbox" :value="file" v-model="checkedItems">&nbsp;{{fileName(file)}}
                         </li>
                     </ul>
                 </div>
+            </form>
             </div>
         </div>
     </div>

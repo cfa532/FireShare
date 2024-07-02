@@ -7,7 +7,7 @@ const ayApi = ["GetVarByContext", "Act", "Login", "Getvar", "Getnodeip", "SwarmL
     "DhtGet", "DhtGets", "SignPPT", "RequestService", "SwarmAddrs", "MFOpenTempFile", "MFTemp2MacFile", "MFSetData",
     "MFGetData", "MMCreate", "MMOpen", "Hset", "Hget", "Hmset", "Hmget", "Zadd", "Zrangebyscore", "Zrange", "MFOpenMacFile",
     "MFReaddir", "MFGetMimeType", "MFSetObject", "MFGetObject", "Zcount", "Zrevrange", "Hlen", "Hscan", "Hrevscan",
-    "MMRelease", "MMBackup", "MFStat", "Zrem", "Zremrangebyscore", "MiMeiPublish", "PullMsg", "MFTemp2Ipfs", "MFSetCid",
+    "MMRelease", "MMBackup", "MFStat", "Zrem", "Zremrangebyscore", "PullMsg", "MFTemp2Ipfs", "MFSetCid",
     "MMSum", "MiMeiSync", "IpfsAdd", "MMAddRef", "MMDelRef", "MMDelVers", "MMRelease", "MMGetRef", "MMGetRefs", "Hdel",
     "DhtFindPeer", "Logout", "MiMeiPublish", "MMSetRight"
 ];
@@ -51,19 +51,6 @@ export const useLeither = defineStore({
         this._sid = result.sid
         console.log('getSid', result)
       },
-      logout(path: any = null) {
-        if (!path) path = this.returnUrl.slice(1)
-        sessionStorage.removeItem('sid')
-        this.$reset()
-        useMimei().$reset()
-        router.push(path)
-      },
-      async logoutTemp() {
-        // await this.client.Logout(this.sid, "Logout Leither")
-        sessionStorage.removeItem('sid')
-        this.$reset()
-        useMimei().$reset()
-      }
     }
   })
 
@@ -107,6 +94,10 @@ export const useMimei = defineStore({
         //     window.mmInfo = this.$state;    // for easy testing
         //     return this;
         // },
+        async delPosts(title: string, members: [string]) {
+            await this.api.client.Zrem(await this.mmsidCur, title, ...members)
+            this.backup()
+        },
         async backup() {
             try {
                 let newVer = await this.api.client.MMBackup(this.api.sid, this.mid,"",'delref=true')

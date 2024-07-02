@@ -16,13 +16,8 @@ onMounted(async ()=>{
       var dbMMVer = await api.client.Getvar(api.sid, "mmversions", import.meta.env.VITE_MIMEI_DB)
       console.warn("main.ts built....on " + __BUILD_TIME__, "ver:"+import.meta.env.VITE_APP_VERSION, dbMMVer)
       console.log("main page mounted", mmInfo.$state, api.$state)
-      // msg.value = JSON.stringify(mmInfo.$state)
   } catch(e) {
       console.error(e)
-      // the error is often caused by expired sid, try logout
-      // msg.value = JSON.stringify(e)
-      // nextTick(()=>{msg.value = JSON.stringify(mmInfo.$state)})
-      api.logout({name: "main"});
   }
 })
 </script>

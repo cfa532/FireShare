@@ -2,9 +2,25 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 // import Manager from './components/Manager.vue'
+import { onMounted, ref, reactive, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useMimei, useLeither } from "./stores/lapi"
 import NaviBar from './components/NaviBar.vue';
 const route = useRoute()
+const api = useLeither();
+
+onMounted(async () => {
+  // get a PPT from server
+  const resp = await window.fetch(
+    'http://ppt.fireshare.us/entry?&aid=ZJZoWhGBcQNnX0vCw60t7R7C3q3&ver=last&entry=main&nodeid=' +
+      api.hostId
+  )
+  if (!resp.ok) throw new Error(await resp.json())
+  const ppt = await resp.json()
+  console.log('App mounted', ppt)
+  api.getSid(JSON.stringify(ppt))
+})
+
 </script>
 
 <template>
