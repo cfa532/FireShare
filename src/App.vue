@@ -18,9 +18,9 @@ onMounted(async () => {
   if (!resp.ok) throw new Error(await resp.json())
   const ppt = await resp.json()
   console.log('App mounted', ppt)
-  api.getSid(JSON.stringify(ppt))
+  await api.getSid(JSON.stringify(ppt))
+  await useMimei().syncDB()
 })
-
 </script>
 
 <template>

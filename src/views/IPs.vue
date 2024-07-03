@@ -8,6 +8,7 @@ const mimeiDB = import.meta.env.VITE_MIMEI_DB
 onMounted(()=>{
     if (window.getParam) {
         let p=window.getParam()
+        console.log(p)
         aid.value = p.aid ? p.aid : p.mid
         ips.value = p.ips
         // msg.value = "Resource data provided by:" + p["ips"][p.CurNode] + " from Providers: " + p.ips

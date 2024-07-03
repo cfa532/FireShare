@@ -89,14 +89,12 @@ export const useMimei = defineStore({
         },
     },
     actions: {
-        // init(api: any) {        // leither api object
-        //     this.$state.api = api;
-        //     window.mmInfo = this.$state;    // for easy testing
-        //     return this;
-        // },
-        async delPosts(title: string, members: [string]) {
+        async syncDB() {
+            await this.api.client.MiMeiSync(this.api.sid, "", this.mid)
+        },
+        async delPosts(title: string, members: string[]) {
             await this.api.client.Zrem(await this.mmsidCur, title, ...members)
-            this.backup()
+            await this.backup()
         },
         async backup() {
             try {
