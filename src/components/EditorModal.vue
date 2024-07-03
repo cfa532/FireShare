@@ -322,6 +322,7 @@ watch(
 
 <style scoped>
 .modal-content {
+  width: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -329,7 +330,7 @@ watch(
   background-color: #ebf0f3;
   padding: 10px;
   border: 1px solid #888;
-  height: 80vh;
+  height: 60vh;
 }
 
 .content-wrapper {
@@ -350,7 +351,7 @@ watch(
 }
 .input-caption {
   border: 0px;
-  width: 80%;
+  width: 70%;
   height: 30px;
   margin-bottom: 8px;
 }
