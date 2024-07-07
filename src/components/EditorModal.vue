@@ -241,7 +241,7 @@ async function readFileSlice(
   let count = await api.client.MFSetData(fsid, arr.slice(start, end), start)
   // Calculate progress
   uploadProgress[index] = Math.floor(((start + count) / arr.byteLength) * 100)
-  console.log('Uploading...', uploadProgress[index] + '%')
+  console.log('Uploading...', uploadProgress[index] + '%', end, arr.byteLength)
 
   if (end === arr.byteLength) {
     // last slice read. Convert temp to IPFS file
