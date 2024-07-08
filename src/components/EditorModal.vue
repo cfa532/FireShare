@@ -108,6 +108,7 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
     // Assign initial progress value
     uploadProgress[index] = 0
     // Create a temporary file
+    console.log(file, api.sid)
     const fsid = await api.client.MFOpenTempFile(api.sid)
     // Create a FileInfo object with file name, last modified time,
     const fi = new FileInfo(file.name, file.lastModified, file.size, file.type)
