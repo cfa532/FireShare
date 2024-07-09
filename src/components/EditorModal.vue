@@ -111,7 +111,9 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
     const fsid = await api.client.MFOpenTempFile(api.sid)
     // Create a FileInfo object with file name, last modified time,
     const fi = new FileInfo(file.name, file.lastModified, file.size, file.type)
+
     fi.mid = await readFileSlice(fsid, await file.arrayBuffer(), 0, index) // return an IPFS id actually
+    // fi.mid = await api.client.RunMApp("main", {"sid":api.sid, "buffer":await file.arrayBuffer(), "aid":"1j3CeAjOqPt-tQK4Dih_hPDas5b", "ver":"last"})
 
     // Save non-media files as Mimei type, for easy download and open
     if (fi.type.search(/(image|video|audio)/i) === -1) {
