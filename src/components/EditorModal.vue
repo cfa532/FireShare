@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive, watch, computed } from 'vue'
+import Spinner from './BootSpinner.vue';
 import { Preview } from './index'
 import { useLeither, useMimei, useSpinner } from '../stores/lapi'
 
@@ -48,6 +49,7 @@ const textArea = ref<HTMLTextAreaElement>()
 const sliceSize = 1024 * 1024 * 10 // 10MB per slice of file
 const filesUpload = ref<File[]>([])
 const uploadProgress = reactive<number[]>([]) // New ref to store upload progress of each file
+const loading = ref(false)
 
 const props = defineProps({
   column: { type: String, required: true } // column title
@@ -102,7 +104,7 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
   // Helper function to handle individual file uploads
   async function uploadSingleFile(file: File, index: number): Promise<FileInfo> {
     // Check if the file size exceeds the limit (200MB in this example)
-    if (file.size > sliceSize * 30) {
+    if (file.size > sliceSize * 300) {
       throw new Error('Max file size exceeded')
     }
     // Assign initial progress value
@@ -141,7 +143,8 @@ async function onSubmit() {
     caption.value?.focus()
     return
   }
-  useSpinner().setLoadingState(true)
+  // useSpinner().setLoadingState(true)
+  loading.value = true
   let mmsidCur = await mmInfo.mmsidCur
   try {
     if (filesUpload.value.length) {
@@ -203,7 +206,8 @@ async function onSubmit() {
     console.error('onSubmit err:', err)
     window.alert(err)
   } finally {
-    useSpinner().setLoadingState(false)
+    loading.value = false
+    // useSpinner().setLoadingState(false)
   }
 
   async function addPage(s: string) {
@@ -248,7 +252,11 @@ async function readFileSlice(
   if (end === arr.byteLength) {
     // last slice read. Convert temp to IPFS file
     // return temp2Ipfs(fsid);   // return a Promise, no await here
-    return await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
+    const t = api.client.timeout
+    api.client.timeout = 0
+    const mid =  await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
+    api.client.timeout = t
+    return mid
   } else {
     return await readFileSlice(fsid, arr, start + count, index)
   }
@@ -317,6 +325,7 @@ watch(
           <button @click.prevent="selectFile">Choose</button>
           <button type="submit">Submit</button>
         </div>
+        <Spinner :visible="loading" />
       </form>
     </div>
   </div>

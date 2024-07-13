@@ -1,0 +1,128 @@
+<html>
+<head></head>
+<body>
+<script src="hprose.js"></script>
+
+<h1>文件上传示例</h1>
+<form id="uploadForm">
+    <input type="file" id="fileInput">
+    <button type="button" onclick="uploadFile()">上传文件</button>
+</form>
+
+<script>
+var sid
+var lapi
+(async function() {
+    let apiurl = "ws://127.0.0.1:4801/ws/"
+    lapi = await hprose.Client.create(apiurl, ["GetVar","RunMApp", "GetVarByContext", "Login", 
+        "MFOpenTempFile","MFSetData", "MFTemp2Files", "MFTemp2Ipfs", "PullMsg", "MMClose"])
+    // lapi = await hprose.Client.create(apiurl)
+    console.log("lapi", lapi)
+    lapi.timeout = 0
+    console.log("lapi.timeout", lapi.timeout)
+
+    try{
+        let ppt= await lapi.GetVarByContext("", "context_ppt", {})
+        console.log("ppt=", ppt)
+        let reply = await lapi.Login(ppt)
+        console.log("reply", reply)
+        sid = reply.sid
+        console.log("sid=", sid)
+    }catch (e){
+        console.log("error", e.message)        
+    }
+})().then(()=>{
+    console.log(".then end")
+}, (e)=>{
+    console.log(".then error", e)   
+});
+
+async function uploadFile() {
+    // 获取文件输入元素
+    const fileInput = document.getElementById('fileInput');
+    // 检查是否有文件被选择
+    if (fileInput.files.length <= 0) {
+        alert('请先选择一个文件');
+        return
+    }
+
+    //打开一个临时文件
+    var mmsid = await lapi.MFOpenTempFile(sid)
+    console.log('mmsid ', mmsid);
+    
+    const file = fileInput.files[0];
+    const chunkSize = 1024*1024 *5
+    let offset = 0;
+    console.log('文件已选择:', file.name);
+
+
+    async function readMsg(){
+        try{
+            for (;true;){
+                var msg = await lapi.PullMsg(mmsid, 3)
+                if (msg==null){
+                    console.log("msg==null")
+                    continue
+                }
+
+                const ay = msg.msg.split("=")
+                if (ay[0] == "error"){
+                    return
+                }
+
+                console.log(ay[0], ay[1])
+            }
+        }catch (e){
+            console.log("readMsg error", e.message)        
+        }
+    }
+
+
+    async function uploadChunk(chunk, offset, chunkSize, totalSize) {        
+        //console.log('uploadChunk ', offset, totalSize, mmsid);
+        let count = await lapi.MFSetData(mmsid, chunk, offset)
+        //console.log('MFSetData', count);
+
+    }
+
+    async function readChunk() {
+        console.log("readChunk", offset);        
+        var reader = new FileReader();
+        const slice = file.slice(offset, offset + chunkSize);
+        reader.onload = async (event) =>{
+            // console.log("onload");        
+            // 上传分块
+            await uploadChunk(event.target.result, offset, chunkSize, file.size);
+            offset += chunkSize;
+            if (offset < file.size) {
+                await readChunk();
+            } else {
+                var currentDate = new Date();
+                var currentTime = currentDate.toLocaleString();
+                console.log("begin", currentTime);
+                console.log("upload ok, MFTemp2Files");
+                readMsg()
+                try{
+                    let cid = await lapi.MFTemp2Files(mmsid, "")
+                    console.log("cid", cid)
+                    await lapi.MMClose(mmsid)
+                    console.log("MMClose ok")
+                }catch (e){
+                    console.log("error", e.message)        
+                }
+                currentDate = new Date();
+                currentTime = currentDate.toLocaleString();
+                console.log("end", currentTime);
+            }
+        }
+        reader.readAsArrayBuffer(slice);
+    }
+
+    readChunk();
+}
+
+
+</script>
+
+</body>
+</html>

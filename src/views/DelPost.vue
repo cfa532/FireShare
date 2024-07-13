@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { Column, EditorModal } from "../components/index";
+import { Column } from "../components/index";
 import { useMimei, useLeither } from "../stores/lapi"
+import Spinner from '../components/BootSpinner.vue';
 
 const api = useLeither();
 const mmInfo = useMimei();
@@ -11,6 +12,7 @@ const fileList = ref<FileInfo[]>([])
 const pageSize = ref(50)
 const checkedItems = ref<FileInfo[]>([])
 const mid = ref()
+const loading = ref(false)
 
 onMounted(async ()=>{
     contentColumn.value = mmInfo.naviColumnTree
@@ -42,11 +44,13 @@ async function delPosts() {
     const members = checkedItems.value.map(e=>e.mid)
     if (mid.value) members.push(mid.value)
     console.log(members)
+    loading.value = true
     await mmInfo.delPosts(columnTitle.value, members)
     checkedItems.value.length = 0
     fileList.value.length = 0
     mid.value = ""
     getFileList(0)
+    loading.value = false
 }
 </script>
 
@@ -74,6 +78,7 @@ async function delPosts() {
                         </li>
                     </ul>
                 </div>
+                <Spinner :visible="loading" />
             </form>
             </div>
         </div>

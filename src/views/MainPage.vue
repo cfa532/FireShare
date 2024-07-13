@@ -58,9 +58,7 @@ function closeNav() {
 
 .col-10 {
   padding-top: 30px;
-}
-.col-2 {
-
+  max-width: 800px
 }
 .sidenav {
     overflow: hidden;
