@@ -50,6 +50,7 @@ const sliceSize = 1024 * 1024 * 10 // 10MB per slice of file
 const filesUpload = ref<File[]>([])
 const uploadProgress = reactive<number[]>([]) // New ref to store upload progress of each file
 const loading = ref(false)
+const selectFiles = ref()
 
 const props = defineProps({
   column: { type: String, required: true } // column title
@@ -96,9 +97,7 @@ function dragOver() {
   textArea!.value!.hidden = true
   dropHere!.value!.hidden = false
 }
-function selectFile() {
-  document.getElementById('selectFiles')?.click()
-}
+
 // Function to upload files and store them as IPFS or Mimei type
 async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>[]> {
   // Helper function to handle individual file uploads
@@ -320,9 +319,9 @@ watch(
             v-bind:progress="uploadProgress[index]"
           ></Preview>
         </div>
-        <input id="selectFiles" @change="onSelect" type="file" hidden multiple />
+        <input ref="selectFiles" @change="onSelect" type="file" hidden multiple />
         <div class="button-container">
-          <button @click.prevent="selectFile">Choose</button>
+          <button @click.prevent="selectFiles.click()">Choose</button>
           <button type="submit">Submit</button>
         </div>
         <Spinner :visible="loading" />
