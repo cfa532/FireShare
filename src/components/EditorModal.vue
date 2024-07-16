@@ -260,7 +260,6 @@ async function readFileSlice(
     return await readFileSlice(fsid, arr, start + count, index)
   }
 }
-
 function removeFile(f: File) {
   // removed file from preview list
   var i = filesUpload.value.findIndex((e: File) => e == f)
