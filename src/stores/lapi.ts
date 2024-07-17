@@ -90,7 +90,11 @@ export const useMimei = defineStore({
     },
     actions: {
         async syncDB() {
-            await this.api.client.MiMeiSync(this.api.sid, "", this.mid)
+            try {
+                await this.api.client.MiMeiSync(this.api.sid, "", this.mid)
+            } catch(e) {
+                console.error(this.api.sid, this.mid, e)
+            }
         },
         async delPosts(title: string, members: string[]) {
             await this.api.client.Zrem(await this.mmsidCur, title, ...members)

@@ -16,7 +16,7 @@ onMounted(async ()=>{
       // await mmInfo.init(api)
       contentColumn.value = mmInfo.naviColumnTree
       var dbMMVer = await api.client.Getvar(api.sid, "mmversions", import.meta.env.VITE_MIMEI_DB)
-      console.warn("main.ts built....on " + __BUILD_TIME__, "ver:"+import.meta.env.VITE_APP_VERSION, dbMMVer)
+      console.info("main.ts built....on " + __BUILD_TIME__, "ver:"+import.meta.env.VITE_APP_VERSION, dbMMVer)
       console.log("main page mounted", mmInfo.$state, api.$state)
   } catch(e) {
       console.error(e)
