@@ -41,7 +41,13 @@ export const useLeither = defineStore({
       hostId: async (state) => {
         return await state.client.Getvar('', 'hostid')
       },
-      sid: (state) => {
+      sid: async (state) => {
+        if (!state._sid) {
+            let ppt= await state.client.GetVarByContext("", "context_ppt", {})
+            const result = await state.client.Login(ppt)
+            state._sid = result.sid
+            console.log('sid=', result)
+        }
         return state._sid
       }
     },
@@ -81,19 +87,19 @@ export const useMimei = defineStore({
             ];
         },    
         mmsid: async function(state) :Promise<string> {
-            state._mmsid = state._mmsid? state._mmsid : await this.api.client.MMOpen(this.api.sid, this.mid, "last");
+            state._mmsid = state._mmsid? state._mmsid : await this.api.client.MMOpen(await this.api.sid, this.mid, "last");
             return state._mmsid;
         },
         mmsidCur: async function(state) :Promise<string> {
-            return await this.api.client.MMOpen(this.api.sid, this.mid, "cur");
+            return await this.api.client.MMOpen(await this.api.sid, this.mid, "cur");
         },
     },
     actions: {
         async syncDB() {
             try {
-                await this.api.client.MiMeiSync(this.api.sid, "", this.mid)
+                await this.api.client.MiMeiSync(await this.api.sid, "", this.mid)
             } catch(e) {
-                console.error(this.api.sid, this.mid, e)
+                console.error(await this.api.sid, this.mid, e)
             }
         },
         async delPosts(title: string, members: string[]) {
@@ -102,10 +108,10 @@ export const useMimei = defineStore({
         },
         async backup() {
             try {
-                let newVer = await this.api.client.MMBackup(this.api.sid, this.mid,"",'delref=true')
+                let newVer = await this.api.client.MMBackup(await this.api.sid, this.mid,"",'delref=true')
                 // now publish a new version of database Mimei
-                let ret:DhtReply = await this.api.client.MiMeiPublish(this.api.sid, "", this.mid)
-                this.$state._mmsid = await this.api.client.MMOpen(this.api.sid, this.mid, "last");
+                let ret:DhtReply = await this.api.client.MiMeiPublish(await this.api.sid, "", this.mid)
+                this.$state._mmsid = await this.api.client.MMOpen(await this.api.sid, this.mid, "last");
                 console.log("Mimei publish []DhtReply=", ret, this._mmsid, "newVer="+newVer)
             } catch(err) {
                 console.error("Backup or Publish error,", err)
