@@ -43,7 +43,7 @@ export const useLeither = defineStore({
       },
       sid: async (state) => {
         if (!state._sid) {
-            // let ppt= await state.client.GetVarByContext("", "context_ppt", {})
+            // const ppt= await state.client.GetVarByContext("", "context_ppt", {})
             const resp = await window.fetch('http://ppt.fireshare.us/entry?&aid=ZJZoWhGBcQNnX0vCw60t7R7C3q3&ver=last&entry=main&nodeid=' + await state.client.Getvar('', 'hostid'))
             const ppt = await resp.json()
             const result = await state.client.Login(JSON.stringify(ppt))
