@@ -2,8 +2,9 @@ interface Window {
   mmInfo: any       // add to window obj for testing convenience
   getParam: any
   hprose: any
-  lapi: any         // Leither api handler
 }
+
+declare var lapi: any
 
 type ContentColumn = {
   title: string
