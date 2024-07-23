@@ -120,12 +120,12 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
     if (fi.type.search(/(image|video|audio)/i) === -1) {
       const mid = await api.client.MMCreate(api.sid, '', '', '{{auto}}', 1, 0x07276705)
       await api.client.MFSetCid(api.sid, mid, fi.mid) // assign the ipfs id to a mid
-      fi.mid = mid
+      fi.mid = mid    // this mid can be used to get blob and download
       // await api.client.MMBackup(api.sid, fi.mid, "")   // not a real mm, backup will throw error
     }
     // Add MM reference to the database mimei, which will be published together.
+    // await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid) // not necessary, temp2Ipfs already add ref.
     console.log(fi) // never executed when there is a timeout uploading file.
-    await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
     return fi
   }
 
@@ -253,7 +253,7 @@ async function readFileSlice(
     // return temp2Ipfs(fsid);   // return a Promise, no await here
     const t = api.client.timeout
     api.client.timeout = 0
-    const mid =  await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
+    const mid =  await api.client.MFTemp2Ipfs(fsid, mmInfo.mid) // add reference to mid here.
     api.client.timeout = t
     return mid
   } else {
