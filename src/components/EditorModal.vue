@@ -119,13 +119,13 @@ async function uploadFile(files: File[]): Promise<PromiseSettledResult<FileInfo>
     // Save non-media files as Mimei type, for easy download and open
     if (fi.type.search(/(image|video|audio)/i) === -1) {
       const mid = await api.client.MMCreate(api.sid, '', '', '{{auto}}', 1, 0x07276705)
-      await api.client.MFSetCid(api.sid, mid, fi.mid) // assign the ipfs id to a mid
+      await api.client.MFSetCid(api.sid, mid, fi.mid) // assign the ipfs id to a mid for download blob.
       fi.mid = mid
       // await api.client.MMBackup(api.sid, fi.mid, "")   // not a real mm, backup will throw error
     }
     // Add MM reference to the database mimei, which will be published together.
     console.log(fi) // never executed when there is a timeout uploading file.
-    await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
+    // await api.client.MMAddRef(api.sid, mmInfo.mid, fi.mid)
     return fi
   }
 
