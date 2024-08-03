@@ -13,7 +13,7 @@ onMounted(async () => {
   // get a PPT from server
   const resp = await window.fetch(
     'http://ppt.fireshare.us/entry?&aid=ZJZoWhGBcQNnX0vCw60t7R7C3q3&ver=last&entry=main&nodeid=' +
-      api.hostId
+      await api.hostId
   )
   if (!resp.ok) throw new Error(await resp.json())
   const ppt = await resp.json()
