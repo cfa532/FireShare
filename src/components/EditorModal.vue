@@ -220,20 +220,20 @@ async function onSubmit() {
   }
 }
 
-async function readFileSlice(fsid: string, arr: ArrayBuffer, start: number, index: number):Promise<string> {
+async function readFileSlice(fsid: string, buf: ArrayBuffer, offset: number, index: number):Promise<string> {
   // reading file slice by slice, start at given position
-  var end = Math.min(start + sliceSize, arr.byteLength);
-  let count = await api.client.MFSetData(fsid, arr.slice(start, end), start);
+  var end = Math.min(offset + sliceSize, buf.byteLength);
+  let count = await api.client.MFSetData(fsid, buf.slice(offset, end), offset);
   // Calculate progress
-  uploadProgress[index] = Math.floor((start + count) / arr.byteLength * 100);
+  uploadProgress[index] = Math.floor((offset + count) / buf.byteLength * 100);
   console.log("Uploading...", uploadProgress[index]+"%")
 
-  if (end === arr.byteLength) {
+  if (end === buf.byteLength) {
     // last slice read. Convert temp to IPFS file
     // return temp2Ipfs(fsid);   // return a Promise, no await here
     return await api.client.MFTemp2Ipfs(fsid, mmInfo.mid)
   } else {
-    return await readFileSlice(fsid, arr, start + count, index)
+    return await readFileSlice(fsid, buf, offset + count, index)
   }
 }
 
