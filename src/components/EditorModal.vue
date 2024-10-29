@@ -293,12 +293,7 @@ watch(
             class="input-caption"
           />
         </div>
-        <textarea
-          ref="textArea"
-          v-model="textValue"
-          placeholder="Input......"
-          class="input-textarea"
-        ></textarea>
+        <textarea ref="textArea" v-model="textValue" placeholder="Input......" class="input-textarea"></textarea>
         <div ref="dropHere" hidden class="drop-here">
           <p>DROP HERE</p>
         </div>
