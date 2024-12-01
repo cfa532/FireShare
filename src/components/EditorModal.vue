@@ -71,7 +71,7 @@ async function onSelect(e: Event) {
           return e.size === f.size && e.name === f.name
         }) === -1
       ) {
-        // remove duplication
+        // get right title.
         if (!inpCaption.value || inpCaption.value.trim() === '') {
           inpCaption.value = f.name
         }
