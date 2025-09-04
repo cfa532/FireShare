@@ -49,3 +49,31 @@ type AddrInfo = {
   iD:    string       //node ID, ipfs中可以识别的id
   addrs: string[]
 }
+
+type MimeiId = string;
+
+interface User {
+  mid: MimeiId;
+  avatar?: string;
+  username: string;
+  name?: string;
+  profile?: string;
+  hostId?: [MimeiId];
+  timestamp: string | number = Date.now();
+  cloudDrivePort?: number = 8010;
+};
+
+interface Tweet {
+  mid: MimeiId;
+  authorId: MimeiId;  // user's mid
+  content?: string;
+  title?: string;
+  attachments?: MimeiFileType[];
+  timestamp: string | number = Date.now();
+  originalTweetId?: MimeiId;
+  originalTweet?: Tweet | null;
+  originalAuthorId?: MimeiId;
+
+  downloadable?: boolean;
+  isPrivate?: boolean;
+};

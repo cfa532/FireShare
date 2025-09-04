@@ -52,4 +52,8 @@ if (err ~= nil) then
 end
 print('HGet key0', value);
 
-return "test guest ok"
+ver, err = mm.MMBackup(sid, mid, '')
+if (err ~= nil) then
+	print('MMBackup err=%v',  err);
+	return err
+end
